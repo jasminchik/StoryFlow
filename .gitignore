@@ -1,0 +1,7 @@
+node_modules
+.env
+mongodb_data
+dist
+.idea
+.vscode
+*.log

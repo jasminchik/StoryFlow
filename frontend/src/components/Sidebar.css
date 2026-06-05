@@ -1,0 +1,53 @@
+.sidebar {
+  padding: 20px;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  height: fit-content;
+}
+
+.sidebar-title {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ff4757;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+.top-list {
+  list-style: none;
+  padding: 0;
+}
+
+.top-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
+
+.top-item:last-child {
+  border-bottom: none;
+}
+
+.rank {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #555;
+  min-width: 25px;
+}
+
+.manga-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.manga-title {
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.manga-rating {
+  font-size: 0.8rem;
+  color: #aaa;
+}
