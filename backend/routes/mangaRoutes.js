@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Manga = require('../models/Manga');
 const { protect, authorize } = require('../middleware/authMiddleware');
-const upload = require('../config/cloudinary');
+const upload = require('../config/upload');
 
 /**
  * @route   GET /api/manga
@@ -48,9 +48,9 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', protect, authorize('admin', 'author'), upload.single('coverImage'), async (req, res) => {
   try {
-    // Якщо файл завантажено, додаємо шлях до нього в req.body
+    // Якщо файл завантажено локально, зберігаємо відносний шлях для фронтенду
     if (req.file) {
-      req.body.coverImage = req.file.path;
+      req.body.coverImage = `/uploads/${req.file.filename}`;
     }
 
     // Автоматично додаємо ID поточного користувача як автора
@@ -82,9 +82,9 @@ router.put('/:id', protect, authorize('admin', 'author'), upload.single('coverIm
       return res.status(404).json({ success: false, error: 'Твір не знайдено' });
     }
 
-    // Якщо завантажено нову обкладинку
+    // Якщо завантажено нову обкладинку локально
     if (req.file) {
-      req.body.coverImage = req.file.path;
+      req.body.coverImage = `/uploads/${req.file.filename}`;
     }
 
     // Обробимо жанри, якщо вони прийшли рядком

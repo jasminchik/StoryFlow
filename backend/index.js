@@ -12,6 +12,10 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/storyf
 app.use(cors());
 app.use(express.json());
 
+// Зробити папку uploads публічною
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');

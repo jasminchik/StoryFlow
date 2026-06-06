@@ -14,6 +14,10 @@ services:
     container_name: storyflow_backend
     ports:
       - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/storyflow
       - PORT=5000
