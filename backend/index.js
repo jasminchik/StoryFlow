@@ -20,9 +20,15 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const mangaRoutes = require('./routes/mangaRoutes');
+const chapterRoutes = require('./routes/chapterRoutes');
+const literatureRoutes = require('./routes/literatureRoutes');
+const literatureChapterRoutes = require('./routes/literatureChapterRoutes');
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/manga', mangaRoutes);
+app.use('/api/chapters', chapterRoutes);
+app.use('/api/literature', literatureRoutes);
+app.use('/api/literature-chapters', literatureChapterRoutes);
 
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
