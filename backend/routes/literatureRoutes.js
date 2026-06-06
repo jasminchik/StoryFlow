@@ -11,10 +11,42 @@ const upload = require('../config/upload');
  */
 router.get('/', async (req, res) => {
   try {
-    const literature = await Literature.find().populate('author', 'username');
+    // Звичайні користувачі бачать тільки схвалені твори
+    const query = { moderationStatus: 'approved' };
+
+    const literature = await Literature.find(query).populate('author', 'username');
     res.status(200).json({ success: true, count: literature.length, data: literature });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   PATCH /api/literature/:id/moderation
+ * @desc    Змінити статус модерації твору
+ * @access  Private (Admin)
+ */
+router.patch('/:id/moderation', protect, authorize('admin'), async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Некоректний статус модерації' });
+    }
+
+    const literature = await Literature.findByIdAndUpdate(
+      req.params.id,
+      { moderationStatus: status },
+      { new: true, runValidators: true }
+    );
+
+    if (!literature) {
+      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+    }
+
+    res.status(200).json({ success: true, data: literature });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 

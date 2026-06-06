@@ -43,6 +43,11 @@ const MangaSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
     required: [true, 'Твір повинен мати автора (користувача, що його додав)']
+  },
+  moderationStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
   }
 }, {
   timestamps: true

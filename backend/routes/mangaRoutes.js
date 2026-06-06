@@ -11,7 +11,10 @@ const upload = require('../config/upload');
  */
 router.get('/', async (req, res) => {
   try {
-    const manga = await Manga.find().populate('author', 'username');
+    // Звичайні користувачі бачать тільки схвалені твори
+    const query = { moderationStatus: 'approved' };
+    
+    const manga = await Manga.find(query).populate('author', 'username');
     res.status(200).json({
       success: true,
       count: manga.length,
@@ -19,6 +22,35 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   PATCH /api/manga/:id/moderation
+ * @desc    Змінити статус модерації тайтлу
+ * @access  Private (Admin)
+ */
+router.patch('/:id/moderation', protect, authorize('admin'), async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Некоректний статус модерації' });
+    }
+
+    const manga = await Manga.findByIdAndUpdate(
+      req.params.id,
+      { moderationStatus: status },
+      { new: true, runValidators: true }
+    );
+
+    if (!manga) {
+      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+    }
+
+    res.status(200).json({ success: true, data: manga });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 

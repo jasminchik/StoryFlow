@@ -22,6 +22,11 @@ const LiteratureSchema = new mongoose.Schema({
   genres: {
     type: [String],
     required: [true, 'Будь ласка, додайте принаймні один жанр']
+  },
+  moderationStatus: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
   }
 }, {
   timestamps: true
