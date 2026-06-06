@@ -12,6 +12,12 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/storyf
 app.use(cors());
 app.use(express.json());
 
+// Routes
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+
 // Connect to MongoDB
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Successfully connected to MongoDB'))
