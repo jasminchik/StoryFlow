@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Manga = require('../models/Manga');
 const { protect, authorize } = require('../middleware/authMiddleware');
+const upload = require('../config/cloudinary');
 
 /**
  * @route   GET /api/manga
@@ -45,10 +46,20 @@ router.get('/:id', async (req, res) => {
  * @desc    Створити новий тайтл
  * @access  Private (Admin, Author)
  */
-router.post('/', protect, authorize('admin', 'author'), async (req, res) => {
+router.post('/', protect, authorize('admin', 'author'), upload.single('coverImage'), async (req, res) => {
   try {
+    // Якщо файл завантажено, додаємо шлях до нього в req.body
+    if (req.file) {
+      req.body.coverImage = req.file.path;
+    }
+
     // Автоматично додаємо ID поточного користувача як автора
     req.body.author = req.user.id;
+
+    // Обробимо жанри, якщо вони прийшли рядком (через кому) від FormData
+    if (req.body.genres && typeof req.body.genres === 'string') {
+      req.body.genres = req.body.genres.split(',').map(g => g.trim());
+    }
 
     const manga = await Manga.create(req.body);
 
@@ -63,12 +74,22 @@ router.post('/', protect, authorize('admin', 'author'), async (req, res) => {
  * @desc    Редагувати тайтл
  * @access  Private (Admin, Author)
  */
-router.put('/:id', protect, authorize('admin', 'author'), async (req, res) => {
+router.put('/:id', protect, authorize('admin', 'author'), upload.single('coverImage'), async (req, res) => {
   try {
     let manga = await Manga.findById(req.params.id);
 
     if (!manga) {
       return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+    }
+
+    // Якщо завантажено нову обкладинку
+    if (req.file) {
+      req.body.coverImage = req.file.path;
+    }
+
+    // Обробимо жанри, якщо вони прийшли рядком
+    if (req.body.genres && typeof req.body.genres === 'string') {
+      req.body.genres = req.body.genres.split(',').map(g => g.trim());
     }
 
     // Оновлення
