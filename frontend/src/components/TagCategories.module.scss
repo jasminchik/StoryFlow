@@ -1,0 +1,92 @@
+@import '../styles/variables';
+
+.tagCard {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.categoriesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.categoryItem {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.categoryHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 8px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+
+  &:hover {
+    color: var(--text-main);
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  &.active {
+    color: var(--primary-color);
+  }
+}
+
+.arrow {
+  font-size: 0.7rem;
+  transition: transform var(--transition-speed);
+}
+
+.tagCloud {
+  max-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 8px;
+  transition: max-height 0.4s ease-out, padding 0.3s;
+
+  &.expanded {
+    max-height: 300px; /* Достатньо для хмари тегів */
+    padding: 8px 8px 16px 8px;
+  }
+}
+
+.tag {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.2);
+  }
+}

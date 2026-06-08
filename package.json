@@ -6,6 +6,7 @@
     "frontend": "npm run dev --prefix frontend",
     "backend": "npm run dev --prefix backend",
     "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "docker:up": "docker-compose up --build -d && echo. && echo 🚀 StoryFlow успішно запущено у Docker! && echo 🔗 Фронтенд (Сайт): http://localhost:5173 && echo 🔗 Бекенд (API):  http://localhost:5000 && echo. && docker-compose logs -f",
     "install-all": "npm install && npm install --prefix frontend && npm install --prefix backend"
   },
   "devDependencies": {

@@ -1,0 +1,20 @@
+/* frontend/src/styles/_variables.scss */
+
+:root {
+  --bg-main: #121212;
+  --bg-navbar: #1a1a1a;
+  --bg-card: #1e1e1e;
+  --bg-sidebar: #181818;
+  
+  --primary-color: #ff4757; // Класичний червоний StoryFlow
+  --secondary-color: #2f3542;
+  
+  --text-main: #ffffff;
+  --text-muted: #a4b0be;
+  
+  --border-radius-lg: 12px;
+  --border-radius-md: 8px;
+  --border-radius-sm: 4px;
+  
+  --transition-speed: 0.3s;
+}

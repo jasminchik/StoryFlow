@@ -1,0 +1,170 @@
+@import '../styles/variables';
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.sideMenu {
+  position: fixed;
+  top: 0;
+  right: -320px; /* Сховано за екраном */
+  width: 320px;
+  height: 100vh;
+  background-color: var(--bg-card);
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+
+  &.open {
+    right: 0;
+  }
+}
+
+.menuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profileLink {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--primary-color);
+  }
+}
+
+.username {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--primary-color);
+  }
+}
+
+.experienceBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px 16px;
+  border-radius: var(--border-radius-md);
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.starIcon {
+  font-size: 1.1rem;
+}
+
+.expText {
+  color: #ffb800;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.menuLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+
+  .icon {
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  .themeText {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--primary-color);
+
+    .icon {
+      opacity: 1;
+    }
+  }
+}
+
+.divider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin: 12px 0;
+}
+
+.logoutBtn {
+  color: var(--primary-color) !important;
+  margin-top: auto;
+
+  .icon {
+    opacity: 1;
+  }
+
+  &:hover {
+    background-color: rgba(255, 71, 87, 0.1) !important;
+  }
+}
