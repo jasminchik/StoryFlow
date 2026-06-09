@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import SearchDropdown from './SearchDropdown';
+import SearchOverlay from './SearchOverlay';
 import AuthModal from './AuthModal';
 import ProfileDropdown from './ProfileDropdown';
 import Logo from './Logo/Logo';
@@ -14,6 +14,7 @@ const Header = () => {
   const [authMessage, setAuthMessage] = useState('');
   
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Авто-вхід при завантаженні (відновлення сесії)
   useEffect(() => {
@@ -71,7 +72,10 @@ const Header = () => {
           </div>
           
           <div className={styles.navCenter}>
-            <SearchDropdown />
+            <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
+              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchText}>Пошук...</span>
+            </button>
           </div>
           
           <div className={styles.navRight}>
@@ -108,6 +112,11 @@ const Header = () => {
           </div>
         </div>
       </header>
+
+      <SearchOverlay 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
 
       <AuthModal 
         isOpen={isModalOpen} 

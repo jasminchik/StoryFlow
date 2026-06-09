@@ -109,6 +109,46 @@
   }
 }
 
+.searchTrigger {
+  width: 100%;
+  height: 40px;
+  background-color: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #222;
+    border-color: rgba(255, 255, 255, 0.1);
+
+    .searchIcon {
+      color: var(--primary-color);
+      transform: scale(1.1);
+    }
+  }
+
+  @media (max-width: 768px) {
+    height: 44px;
+  }
+}
+
+.searchIcon {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+
+.searchText {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
 .navRight {
   display: flex;
   align-items: center;
