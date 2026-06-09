@@ -7,7 +7,7 @@ const MangaDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('about');
-  const [isSaved, setIsSaved] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Mock data for the specific manga
   const manga = {
@@ -27,23 +27,23 @@ const MangaDetails = () => {
   };
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedMangas') || '[]');
-    setIsSaved(saved.some(item => String(item.id) === String(id)));
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    setIsFavorite(favorites.some(item => String(item.id) === String(id)));
   }, [id]);
 
   const handleToggleSave = () => {
-    const saved = JSON.parse(localStorage.getItem('savedMangas') || '[]');
-    let newSaved;
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    let newFavorites;
     
-    if (isSaved) {
-      newSaved = saved.filter(item => String(item.id) !== String(id));
-      setIsSaved(false);
+    if (isFavorite) {
+      newFavorites = favorites.filter(item => String(item.id) !== String(id));
+      setIsFavorite(false);
     } else {
-      newSaved = [...saved, manga];
-      setIsSaved(true);
+      newFavorites = [...favorites, manga];
+      setIsFavorite(true);
     }
     
-    localStorage.setItem('savedMangas', JSON.stringify(newSaved));
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
   };
 
   const chapters = [
@@ -80,13 +80,13 @@ const MangaDetails = () => {
             <div className={styles.actionButtons}>
               <button className={styles.readBtn}>Читати</button>
               <button 
-                className={`${styles.favoriteBtn} ${isSaved ? styles.saved : ''}`}
+                className={`${styles.favoriteBtn} ${isFavorite ? styles.active : ''}`}
                 onClick={handleToggleSave}
               >
-                {isSaved ? (
-                  <><span>✔</span> У Збереженому</>
+                {isFavorite ? (
+                  <><span>✔</span> В Обраному</>
                 ) : (
-                  <><span>❤</span> Додати в Збережене</>
+                  <><span>❤</span> Додати в Обране</>
                 )}
               </button>
             </div>

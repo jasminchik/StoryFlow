@@ -75,9 +75,9 @@ const Header = () => {
           </div>
           
           <div className={styles.navRight}>
-            <Link to="/saved" className={styles.bookmarkLink} title="Збережене">
-              <span className={styles.icon}>🔖</span>
-              <span className={styles.btnText}>Збережене</span>
+            <Link to="/favorites" className={styles.bookmarkLink} title="Обране">
+              <span className={styles.icon}>💖</span>
+              <span className={styles.btnText}>Обране</span>
             </Link>
             
             {!isAuth ? (

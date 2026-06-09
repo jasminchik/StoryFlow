@@ -1,30 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
-import styles from './Saved.module.scss';
+import styles from './Favorites.module.scss';
 
-const Saved = () => {
-  const [savedMangas, setSavedMangas] = useState([]);
+const Favorites = () => {
+  const [favoriteMangas, setFavoriteMangas] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('savedMangas') || '[]');
-    setSavedMangas(saved);
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    setFavoriteMangas(favorites);
   }, []);
 
   return (
-    <div className={styles.savedWrapper}>
+    <div className={styles.favoritesWrapper}>
       <Header />
       
       <div className={styles.container}>
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Збережені тайтли</h1>
-          <span className={styles.resultsCount}>Знайдено: {savedMangas.length}</span>
+          <h1 className={styles.pageTitle}>Обране</h1>
+          <span className={styles.resultsCount}>Знайдено: {favoriteMangas.length}</span>
         </div>
 
-        {savedMangas.length > 0 ? (
-          <div className={styles.savedGrid}>
-            {savedMangas.map((item) => (
+        {favoriteMangas.length > 0 ? (
+          <div className={styles.favoritesGrid}>
+            {favoriteMangas.map((item) => (
               <div 
                 key={item.id} 
                 className={styles.mangaCard}
@@ -48,9 +48,9 @@ const Saved = () => {
           </div>
         ) : (
           <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>🔖</div>
+            <div className={styles.emptyIcon}>❤</div>
             <h2>Тут поки порожньо</h2>
-            <p>Додайте тайтли до Збереженого, щоб вони з'явилися тут!</p>
+            <p>Додайте тайтли до Обраного, щоб вони з'явилися тут!</p>
             <button className={styles.catalogBtn} onClick={() => navigate('/catalog')}>
               Перейти в каталог
             </button>
@@ -61,4 +61,4 @@ const Saved = () => {
   );
 };
 
-export default Saved;
+export default Favorites;

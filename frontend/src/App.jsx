@@ -5,7 +5,7 @@ import Catalog from './pages/Catalog';
 import Profile from './pages/Profile';
 import Updates from './pages/Updates/Updates';
 import MangaDetails from './pages/MangaDetails/MangaDetails';
-import Saved from './pages/Saved/Saved';
+import Favorites from './pages/Favorites/Favorites';
 import styles from './App.module.scss';
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
         <Route path="/profile/:username" element={<Profile />} />
         <Route path="/updates" element={<Updates />} />
         <Route path="/manga/:id" element={<MangaDetails />} />
-        <Route path="/saved" element={<Saved />} />
+        <Route path="/favorites" element={<Favorites />} />
       </Routes>
     </div>
   );

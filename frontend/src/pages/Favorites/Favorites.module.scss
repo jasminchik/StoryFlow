@@ -1,6 +1,6 @@
 @import '../../styles/variables';
 
-.savedWrapper {
+.favoritesWrapper {
   min-height: 100vh;
   background-color: var(--bg-main);
   color: var(--text-main);
@@ -50,7 +50,7 @@
   font-weight: 500;
 }
 
-.savedGrid {
+.favoritesGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 24px;
