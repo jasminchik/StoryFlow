@@ -6,7 +6,14 @@
   padding: 20px;
   position: sticky;
   top: 88px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 768px) {
+    position: static;
+  }
 }
 
 .sidebarTitle {
@@ -131,7 +138,9 @@
 
 .moreBtn {
   width: 100%;
-  margin-top: 20px;
+  margin-top: 16px;
+  display: block;
+  text-align: center;
   background: none;
   border: 1px solid rgba(255, 255, 255, 0.05);
   color: var(--text-muted);
