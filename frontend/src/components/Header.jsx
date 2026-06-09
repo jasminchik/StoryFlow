@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SearchOverlay from './SearchOverlay';
 import AuthModal from './AuthModal';
@@ -16,6 +16,8 @@ const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+  const catalogRef = useRef(null);
 
   // Авто-вхід при завантаженні (відновлення сесії)
   useEffect(() => {
@@ -26,6 +28,16 @@ const Header = () => {
       setIsAuth(true);
       setCurrentUser(JSON.parse(user));
     }
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (catalogRef.current && !catalogRef.current.contains(event.target)) {
+        setIsCatalogOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleBookmarksClick = () => {
@@ -71,7 +83,23 @@ const Header = () => {
 
           <div className={styles.centerNav}>
             <nav className={styles.navLinks}>
-              <Link to="/catalog" className={styles.navLink}>Каталог</Link>
+              <div className={styles.catalogContainer} ref={catalogRef}>
+                <button 
+                  className={styles.navLinkBtn} 
+                  onClick={() => setIsCatalogOpen(!isCatalogOpen)}
+                >
+                  Каталог <span className={styles.dropdownArrow}>{isCatalogOpen ? '▲' : '▼'}</span>
+                </button>
+                {isCatalogOpen && (
+                  <div className={styles.catalogDropdown}>
+                    <Link to="/catalog?type=manga" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манґа</Link>
+                    <Link to="/catalog?type=manhwa" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манхва</Link>
+                    <Link to="/catalog?type=fanfics" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Фанфіки</Link>
+                    <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
+                    <Link to="/reading-now" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
+                  </div>
+                )}
+              </div>
               <Link to="/news" className={styles.navLink}>Новини</Link>
 
               <div 
@@ -101,30 +129,18 @@ const Header = () => {
               <span className={styles.icon}>💖</span>
               <span className={styles.btnText}>Обране</span>
             </Link>
-      ...
+            
             {!isAuth ? (
               <button className={styles.authBtn} onClick={handleLoginClick}>Увійти</button>
             ) : (
               <div className={styles.userProfileContainer}>
-                <Link 
-                  to={`/profile/${currentUser?.username || 'user'}`} 
-                  className={styles.avatarLink}
+                <div 
+                  className={styles.avatar} 
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                   title="Мій профіль"
                 >
-                  <div className={styles.avatar}>
-                    {currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'}
-                  </div>
-                </Link>
-                
-                <button 
-                  className={styles.hamburgerBtn} 
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  title="Меню"
-                >
-                  <span className={styles.bar}></span>
-                  <span className={styles.bar}></span>
-                  <span className={styles.bar}></span>
-                </button>
+                  {currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'}
+                </div>
               </div>
             )}
           </div>

@@ -1,0 +1,112 @@
+@import '../../styles/variables';
+
+.pageWrapper {
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+  }
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+.mangaCard {
+  width: 100%;
+  cursor: pointer;
+  transition: transform var(--transition-speed) ease;
+
+  &:hover {
+    transform: translateY(-8px);
+    
+    .imageWrapper {
+      border-color: var(--primary-color);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .imageWrapper {
+    position: relative;
+    aspect-ratio: 2/3;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.3s ease;
+    background-color: #2a2a2a;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .rating {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #ffca28;
+      padding: 4px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: 0.85rem;
+      font-weight: bold;
+      backdrop-filter: blur(4px);
+    }
+
+    .typeBadge {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: var(--primary-color);
+      padding: 4px 8px;
+      border-radius: var(--border-radius-sm);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 0 4px 8px rgba(255, 71, 87, 0.3);
+    }
+  }
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

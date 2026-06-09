@@ -6,6 +6,8 @@ import Profile from './pages/Profile';
 import Updates from './pages/Updates/Updates';
 import MangaDetails from './pages/MangaDetails/MangaDetails';
 import Favorites from './pages/Favorites/Favorites';
+import Authors from './pages/Authors/Authors';
+import ReadingNow from './pages/ReadingNow/ReadingNow';
 import styles from './App.module.scss';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
         <Route path="/updates" element={<Updates />} />
         <Route path="/manga/:id" element={<MangaDetails />} />
         <Route path="/favorites" element={<Favorites />} />
+        <Route path="/authors" element={<Authors />} />
+        <Route path="/reading-now" element={<ReadingNow />} />
       </Routes>
     </div>
   );
