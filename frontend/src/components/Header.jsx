@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SearchOverlay from './SearchOverlay';
 import AuthModal from './AuthModal';
 import ProfileDropdown from './ProfileDropdown';
 import Logo from './Logo/Logo';
 import styles from './Header.module.scss';
+
+const AVAILABLE_IDS = [1, 2, 3, 4, 5, 6];
 
 const Header = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -17,6 +19,7 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const catalogRef = useRef(null);
+  const navigate = useNavigate();
 
   // Авто-вхід при завантаженні (відновлення сесії)
   useEffect(() => {
@@ -62,6 +65,14 @@ const Header = () => {
     setIsProfileMenuOpen(false);
   };
 
+  const handleRandomTitle = () => {
+    const randomIndex = Math.floor(Math.random() * AVAILABLE_IDS.length);
+    const randomId = AVAILABLE_IDS[randomIndex];
+    
+    setIsCatalogOpen(false);
+    navigate(`/manga/${randomId}`);
+  };
+
   return (
     <>
       <header className={styles.headerWrapper}>
@@ -91,6 +102,11 @@ const Header = () => {
                   <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Фанфіки</Link>
                   <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
                   <Link to="/reading-now" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
+                  
+                  <div className={styles.dropdownDivider}></div>
+                  <button className={styles.randomBtn} onClick={handleRandomTitle}>
+                    🎲 Випадковий тайтл
+                  </button>
                 </div>
               )}
             </div>

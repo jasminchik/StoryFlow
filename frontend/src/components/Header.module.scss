@@ -175,34 +175,58 @@
   }
 }
 
+.dropdownDivider {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.05);
+  margin: 8px 0;
+}
+
+.randomBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: #f39c12; /* Золотисто-оранжевий колір */
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(243, 156, 18, 0.1); /* Легкий оранжевий фон при наведенні */
+    color: #f1c40f; /* Світліший жовтий при наведенні */
+    padding-left: 20px;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .searchTrigger {
-  height: auto;
-  background-color: #222;
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  padding: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background-color: #2a2a2a;
-    border-color: rgba(255, 255, 255, 0.08);
-
     .searchIcon {
       color: var(--primary-color);
       transform: scale(1.1);
     }
     
     .searchText {
-      color: var(--text-main);
+      color: var(--primary-color);
     }
   }
 }
