@@ -7,8 +7,8 @@ const MOCK_CATALOG = [
   { id: 1, title: 'Берсерк', type: 'Манґа', rating: 4.9, chapters: 375, image: '/uploads/berserk.jpg' },
   { id: 2, title: 'Атака Титанів', type: 'Манґа', rating: 4.8, chapters: 139, image: '/uploads/attack_on_titan.jpg' },
   { id: 3, title: 'Легенда про меч', type: 'Фанфік', rating: 4.2, chapters: 42, image: '/uploads/novel.jpg' },
-  { id: 4, title: 'Tokyo Ghoul', type: 'Манґа', rating: 4.5, chapters: 143, image: '/uploads/tokyo_ghoul.jpg' },
-  { id: 5, title: 'Tower of God', type: 'Манхва', rating: 4.8, chapters: 550, image: '/uploads/tower_of_god.jpg' },
+  { id: 4, title: 'Токійський ґуль', type: 'Манґа', rating: 4.5, chapters: 143, image: '/uploads/tokyo_ghoul.jpg' },
+  { id: 5, title: 'Вежа Бога', type: 'Манхва', rating: 4.8, chapters: 550, image: '/uploads/tower_of_god.jpg' },
   { id: 6, title: 'Світ без магії', type: 'Фанфік', rating: 3.9, chapters: 15, image: '/uploads/novel.jpg' },
 ];
 

@@ -3,9 +3,9 @@ import './Sidebar.css';
 
 const Sidebar = () => {
   const topManga = [
-    { id: 1, title: 'Solo Leveling', rating: '9.8' },
-    { id: 2, title: 'One Piece', rating: '9.5' },
-    { id: 3, title: 'Berserk', rating: '9.9' },
+    { id: 1, title: 'Підняття рівня поодинці', rating: '9.8' },
+    { id: 2, title: 'Ван Піс', rating: '9.5' },
+    { id: 3, title: 'Берсерк', rating: '9.9' },
   ];
 
   return (

@@ -8,32 +8,32 @@ import Header from '../components/Header';
 
 // Mock data (для основної стрічки)
 const MOCK_POPULAR = [
-  { id: 1, title: 'Naruto', rating: 4.8, image: '/uploads/naruto.jpg' },
-  { id: 2, title: 'Bleach', rating: 4.5, image: '/uploads/bleach.jpg' },
-  { id: 3, title: 'One Piece', rating: 4.9, image: '/uploads/one_piece.jpg' },
-  { id: 4, title: 'Solo Leveling', rating: 4.7, image: '/uploads/solo_leveling.jpg' },
-  { id: 41, title: 'Chainsaw Man', rating: 4.8, image: '/uploads/chainsaw_man.jpg' },
-  { id: 42, title: 'Jujutsu Kaisen', rating: 4.9, image: '/uploads/jujutsu_kaisen.jpg' },
-  { id: 43, title: 'Black Clover', rating: 4.4, image: '/uploads/black_clover.jpg' },
-  { id: 44, title: 'Blue Lock', rating: 4.6, image: '/uploads/blue_lock.jpg' },
+  { id: 1, title: 'Наруто', rating: 4.8, image: '/uploads/naruto.jpg' },
+  { id: 2, title: 'Бліч', rating: 4.5, image: '/uploads/bleach.jpg' },
+  { id: 3, title: 'Ван Піс', rating: 4.9, image: '/uploads/one_piece.jpg' },
+  { id: 4, title: 'Підняття рівня поодинці', rating: 4.7, image: '/uploads/solo_leveling.jpg' },
+  { id: 41, title: 'Людина-бензопила', rating: 4.8, image: '/uploads/chainsaw_man.jpg' },
+  { id: 42, title: 'Магічна битва', rating: 4.9, image: '/uploads/jujutsu_kaisen.jpg' },
+  { id: 43, title: 'Чорна конюшина', rating: 4.4, image: '/uploads/black_clover.jpg' },
+  { id: 44, title: 'Блю Лок', rating: 4.6, image: '/uploads/blue_lock.jpg' },
 ];
 
 const MOCK_READING = [
-  { id: 101, title: 'Blue Lock', rating: 4.7, image: '/uploads/blue_lock.jpg' },
-  { id: 102, title: 'Berserk', rating: 5.0, image: '/uploads/berserk.jpg' },
-  { id: 103, title: 'Tokyo Ghoul', rating: 4.6, image: '/uploads/tokyo_ghoul.jpg' },
-  { id: 104, title: 'Vinland Saga', rating: 4.9, image: '/uploads/vinland_saga.jpg' },
+  { id: 101, title: 'Блю Лок', rating: 4.7, image: '/uploads/blue_lock.jpg' },
+  { id: 102, title: 'Берсерк', rating: 5.0, image: '/uploads/berserk.jpg' },
+  { id: 103, title: 'Токійський ґуль', rating: 4.6, image: '/uploads/tokyo_ghoul.jpg' },
+  { id: 104, title: 'Сага про Вінланд', rating: 4.9, image: '/uploads/vinland_saga.jpg' },
 ];
 
 const MOCK_NEW = [
-  { id: 5, title: 'My Hero Academia', image: '/uploads/my_hero_academia.jpg' },
-  { id: 6, title: 'Black Clover', image: '/uploads/black_clover.jpg' },
-  { id: 7, title: 'Jujutsu Kaisen', image: '/uploads/jujutsu_kaisen.jpg' },
-  { id: 8, title: 'Chainsaw Man', image: '/uploads/chainsaw_man.jpg' },
-  { id: 51, title: 'Demon Slayer', image: '/uploads/demon_slayer.jpg' },
-  { id: 52, title: 'Hell\'s Paradise', image: '/uploads/hells_paradise.jpg' },
-  { id: 53, title: 'Spy x Family', image: '/uploads/spy_x_family.jpg' },
-  { id: 54, title: 'Oshi no Ko', image: '/uploads/oshi_no_ko.jpg' },
+  { id: 5, title: 'Моя геройська академія', image: '/uploads/my_hero_academia.jpg' },
+  { id: 6, title: 'Чорна конюшина', image: '/uploads/black_clover.jpg' },
+  { id: 7, title: 'Магічна битва', image: '/uploads/jujutsu_kaisen.jpg' },
+  { id: 8, title: 'Людина-бензопила', image: '/uploads/chainsaw_man.jpg' },
+  { id: 51, title: 'Клинок, що знищує демонів', image: '/uploads/demon_slayer.jpg' },
+  { id: 52, title: 'Пекельний рай', image: '/uploads/hells_paradise.jpg' },
+  { id: 53, title: 'Сім\'я шпигуна', image: '/uploads/spy_x_family.jpg' },
+  { id: 54, title: 'Зоряне дитя', image: '/uploads/oshi_no_ko.jpg' },
 ];
 
 const Home = () => {

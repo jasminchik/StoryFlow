@@ -4,14 +4,14 @@ import styles from './Updates.module.scss';
 
 // Mock data with timestamps
 const MOCK_UPDATES = [
-  { id: 1, title: 'One Piece', chapter: '1110', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 30 }, // 30 mins ago
-  { id: 2, title: 'Solo Leveling', chapter: '200', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 60 * 2 }, // 2 hours ago
+  { id: 1, title: 'Ван Піс', chapter: '1110', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 30 }, // 30 mins ago
+  { id: 2, title: 'Підняття рівня поодинці', chapter: '200', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 60 * 2 }, // 2 hours ago
   { id: 3, title: 'Тінь Хокаґе', chapter: '15', type: 'Література', updatedAt: Date.now() - 1000 * 60 * 60 * 24 }, // 1 day ago
-  { id: 4, title: 'Naruto: Next Generations', chapter: '80', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 15 }, // 15 mins ago
+  { id: 4, title: 'Наруто: Наступне покоління', chapter: '80', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 15 }, // 15 mins ago
   { id: 5, title: 'Світ без магії', chapter: '3', type: 'Література', updatedAt: Date.now() - 1000 * 60 * 60 * 5 }, // 5 hours ago
-  { id: 6, title: 'Chainsaw Man', chapter: '160', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 60 * 12 }, // 12 hours ago
+  { id: 6, title: 'Людина-бензопила', chapter: '160', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 60 * 12 }, // 12 hours ago
   { id: 7, title: 'Легенда про меча', chapter: '42', type: 'Література', updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 2 }, // 2 days ago
-  { id: 8, title: 'Oshi no Ko', chapter: '145', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 5 }, // 5 mins ago
+  { id: 8, title: 'Зоряне дитя', chapter: '145', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 5 }, // 5 mins ago
 ];
 
 const Updates = () => {

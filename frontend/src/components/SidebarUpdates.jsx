@@ -4,17 +4,17 @@ import styles from './SidebarUpdates.module.scss';
 
 // Тимчасові дані для Манґи
 const MOCK_MANGA = [
-  { id: 1, title: 'One Piece', chapter: 'Розділ 1110', image: '/uploads/one_piece.jpg' },
-  { id: 2, title: 'Berserk', chapter: 'Розділ 375', image: '/uploads/berserk.jpg' },
-  { id: 3, title: 'Naruto', chapter: 'Розділ 700', image: '/uploads/naruto.jpg' },
-  { id: 4, title: 'Bleach', chapter: 'Розділ 686', image: '/uploads/bleach.jpg' },
+  { id: 1, title: 'Ван Піс', chapter: 'Розділ 1110', image: '/uploads/one_piece.jpg' },
+  { id: 2, title: 'Берсерк', chapter: 'Розділ 375', image: '/uploads/berserk.jpg' },
+  { id: 3, title: 'Наруто', chapter: 'Розділ 700', image: '/uploads/naruto.jpg' },
+  { id: 4, title: 'Бліч', chapter: 'Розділ 686', image: '/uploads/bleach.jpg' },
 ];
 
 // Тимчасові дані для Манхви
 const MOCK_MANHWA = [
-  { id: 1, title: 'Підняття рівня поодинці (Solo Leveling)', chapter: 'Розділ 200', image: '/uploads/solo_leveling.jpg' },
-  { id: 2, title: 'Вежа Бога (Tower of God)', chapter: 'Розділ 550', image: '/uploads/tower_of_god.jpg' },
-  { id: 3, title: 'Магічна битва (Jujutsu Kaisen)', chapter: 'Розділ 250', image: '/uploads/jujutsu_kaisen.jpg' },
+  { id: 1, title: 'Підняття рівня поодинці', chapter: 'Розділ 200', image: '/uploads/solo_leveling.jpg' },
+  { id: 2, title: 'Вежа Бога', chapter: 'Розділ 550', image: '/uploads/tower_of_god.jpg' },
+  { id: 3, title: 'Магічна битва', chapter: 'Розділ 250', image: '/uploads/jujutsu_kaisen.jpg' },
 ];
 
 // Тимчасові дані для Фанфіків
