@@ -64,12 +64,12 @@ const Header = () => {
     <>
       <header className={styles.navbar}>
         <div className={styles.navContent}>
-          <div className={styles.leftGroup}>
-            <Link to="/" className={styles.logoLink}>
-              <Logo className={styles.logoSvg} />
-              StoryFlow
-            </Link>
+          <Link to="/" className={styles.logoLink}>
+            <Logo className={styles.logoSvg} />
+            StoryFlow
+          </Link>
 
+          <div className={styles.centerNav}>
             <nav className={styles.navLinks}>
               <Link to="/catalog" className={styles.navLink}>Каталог</Link>
               <Link to="/news" className={styles.navLink}>Новини</Link>
