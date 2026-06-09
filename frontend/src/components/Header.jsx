@@ -75,10 +75,10 @@ const Header = () => {
           </div>
           
           <div className={styles.navRight}>
-            <button className={styles.iconBtn} title="Закладки" onClick={handleBookmarksClick}>
+            <Link to="/saved" className={styles.bookmarkLink} title="Збережене">
               <span className={styles.icon}>🔖</span>
-              <span className={styles.btnText}>Закладки</span>
-            </button>
+              <span className={styles.btnText}>Збережене</span>
+            </Link>
             
             {!isAuth ? (
               <button className={styles.authBtn} onClick={handleLoginClick}>Увійти</button>

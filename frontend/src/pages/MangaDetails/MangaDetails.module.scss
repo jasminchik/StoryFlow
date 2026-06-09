@@ -1,0 +1,341 @@
+.detailsWrapper {
+  min-height: 100vh;
+  background-color: #121212;
+  color: #fff;
+  padding-bottom: 50px;
+}
+
+.bannerContainer {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  width: 100%;
+
+  .bannerBackground {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px);
+    transform: scale(1.1);
+  }
+
+  .bannerOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(18, 18, 18, 0.4) 0%, rgba(18, 18, 18, 1) 100%);
+  }
+}
+
+.mainContainer {
+  max-width: 1200px;
+  margin: -200px auto 0;
+  padding: 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftColumn {
+  .posterWrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background-color: #1e1e1e;
+
+    .poster {
+      width: 100%;
+      display: block;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+  }
+
+  .actionButtons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    button {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 1rem;
+    }
+
+    .readBtn {
+      background-color: #ff4757;
+      color: white;
+
+      &:hover {
+        background-color: #ff6b81;
+        transform: translateY(-2px);
+      }
+    }
+
+    .favoriteBtn {
+      background-color: #1e1e1e;
+      color: white;
+      border: 1px solid #333;
+
+      span {
+        color: #ff4757;
+      }
+
+      &:hover {
+        background-color: #2a2a2a;
+        border-color: #444;
+      }
+
+      &.saved {
+        background-color: rgba(255, 71, 87, 0.1);
+        border-color: #ff4757;
+        color: #ff4757;
+
+        span {
+          color: #ff4757;
+        }
+
+        &:hover {
+          background-color: rgba(255, 71, 87, 0.15);
+        }
+      }
+    }
+  }
+}
+
+.rightColumn {
+  padding-top: 40px;
+
+  .headerInfo {
+    .title {
+      font-size: 2.5rem;
+      margin: 0;
+      font-weight: 800;
+    }
+
+    .originalTitle {
+      color: #b3b3b3;
+      font-size: 1.1rem;
+      margin: 5px 0 20px;
+    }
+
+    .statsRow {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 25px;
+
+      .ratingBox {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 215, 0, 0.1);
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+
+        .star {
+          color: #ffd700;
+        }
+
+        .ratingValue {
+          font-weight: 700;
+          color: #ffd700;
+        }
+      }
+    }
+
+    .infoBlock {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid #333;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+
+      .infoItem {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .label {
+          color: #b3b3b3;
+          font-size: 0.85rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .value {
+          font-weight: 500;
+          font-size: 1rem;
+        }
+
+        .genresList {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 4px;
+
+          .genreBadge {
+            background: #2a2a2a;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid #333;
+            transition: all 0.2s;
+
+            &:hover {
+              border-color: #ff4757;
+              color: #ff4757;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .tabsContainer {
+    margin-top: 40px;
+
+    .tabsHeader {
+      display: flex;
+      gap: 30px;
+      border-bottom: 1px solid #333;
+      margin-bottom: 25px;
+
+      .tabBtn {
+        background: none;
+        border: none;
+        color: #b3b3b3;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 10px 0 15px;
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+
+        &:hover {
+          color: #fff;
+        }
+
+        &.active {
+          color: #ff4757;
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #ff4757;
+            border-radius: 3px 3px 0 0;
+          }
+        }
+      }
+    }
+
+    .tabContent {
+      .description {
+        line-height: 1.7;
+        color: #e0e0e0;
+        font-size: 1.05rem;
+      }
+
+      .chaptersList {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .chapterItem {
+          display: flex;
+          justify-content: space-between;
+          padding: 15px 20px;
+          background: #1e1e1e;
+          border-radius: 8px;
+          border: 1px solid #333;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            border-color: #ff4757;
+            transform: translateX(5px);
+            background: #252525;
+          }
+
+          .chapterTitle {
+            font-weight: 500;
+          }
+
+          .chapterDate {
+            color: #b3b3b3;
+            font-size: 0.9rem;
+          }
+        }
+      }
+
+      .reviewsList {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        .reviewItem {
+          background: #1e1e1e;
+          padding: 20px;
+          border-radius: 12px;
+          border: 1px solid #333;
+
+          .reviewHeader {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+
+            .reviewUser {
+              font-weight: 700;
+              color: #ff4757;
+            }
+
+            .reviewRating {
+              color: #ffd700;
+            }
+          }
+
+          .reviewText {
+            margin: 0;
+            line-height: 1.6;
+            color: #e0e0e0;
+          }
+        }
+      }
+    }
+  }
+}

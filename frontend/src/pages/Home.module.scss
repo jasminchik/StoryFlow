@@ -8,30 +8,41 @@
 /* 2. ОСНОВНИЙ КОНТЕНТ */
 .homeContainer {
   display: flex;
-  gap: 24px;
+  gap: 40px;
+  align-items: flex-start;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   padding: 40px 0;
   color: var(--text-main);
+  box-sizing: border-box;
 
   @media (max-width: 1024px) {
     flex-direction: column;
-    padding: 20px 0;
+    padding: 20px 16px; /* Додано горизонтальний відступ для планшетів */
+  }
+
+  @media (max-width: 768px) {
+    gap: 32px;
+    padding: 20px 12px; /* Додано горизонтальний відступ для телефонів */
   }
 }
 
 .mainContent {
   flex: 1;
+  min-width: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 40px;
+  box-sizing: border-box;
 }
 
 .section {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
 .sectionTitle {
@@ -41,19 +52,22 @@
   padding-left: 12px;
 }
 
-/* Гріди з використанням auto-fill для адаптивності */
+/* Гріди з використанням auto-fit для заповнення простору */
 .popularGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 24px;
+  width: 100%;
 
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr); /* Жорстко 2 колонки на мобільних */
     gap: 12px;
+    justify-items: stretch; /* Розтягуємо елементи на всю ширину колонки */
   }
 }
 
 .mangaCard {
+  width: 100%;
   cursor: pointer;
   transition: transform var(--transition-speed) ease;
 
@@ -98,16 +112,19 @@
 
 .newGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px;
+  width: 100%;
 
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 10px;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr); /* Жорстко 2 колонки на мобільних */
+    gap: 12px;
+    justify-items: stretch;
   }
 }
 
 .compactCard {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -129,9 +146,17 @@
 
 /* Сайдбар */
 .sidebar {
-  flex: 0 0 300px;
+  width: 320px;
+  flex-shrink: 0;
 
   @media (max-width: 1024px) {
-    flex: 1;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    flex-shrink: 1;
+    width: 100%;
+    order: -1;          /* ПЕРЕНОСИМО САЙДБАР ВГОРУ */
+    margin-bottom: 24px; /* Додаємо відступ знизу до контенту */
   }
 }

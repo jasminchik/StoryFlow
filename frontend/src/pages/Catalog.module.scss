@@ -15,6 +15,31 @@
 
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: 20px 16px;
+  }
+}
+
+.mobileToggleBtn {
+  display: none;
+  width: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: var(--border-radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: opacity 0.2s;
+
+  @media (max-width: 768px) {
+    display: block;
+    order: -2;
+  }
+
+  &:active {
+    opacity: 0.8;
   }
 }
 
@@ -151,6 +176,12 @@
 
   @media (max-width: 768px) {
     flex: 0 0 100%;
+    order: -1;
+    display: none;
+
+    &.mobileOpen {
+      display: block;
+    }
   }
 }
 
@@ -160,6 +191,11 @@
   padding: 24px;
   position: sticky;
   top: 88px;
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-bottom: 24px;
+  }
 }
 
 .filterTitle {

@@ -13,7 +13,8 @@
   backdrop-filter: blur(10px);
 
   @media (max-width: 768px) {
-    padding: 0 12px;
+    height: auto;
+    padding: 10px 12px;
   }
 }
 
@@ -24,6 +25,10 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
 }
 
 .navLeft {
@@ -33,6 +38,7 @@
 
   @media (max-width: 768px) {
     gap: 12px;
+    order: 1;
   }
 }
 
@@ -83,7 +89,7 @@
   }
 
   @media (max-width: 768px) {
-    display: none;
+    font-size: 0.85rem;
   }
 }
 
@@ -96,7 +102,10 @@
   }
 
   @media (max-width: 768px) {
-    display: none;
+    width: 100%;
+    flex: 0 0 100%;
+    order: 3;
+    margin: 12px 0 0 0;
   }
 }
 
@@ -107,6 +116,7 @@
 
   @media (max-width: 768px) {
     gap: 8px;
+    order: 2;
   }
 }
 
@@ -124,6 +134,30 @@
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px;
+    
+    .btnText {
+      display: none;
+    }
+  }
+}
+
+.bookmarkLink {
+  color: var(--text-main);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--primary-color);
   }
 
   @media (max-width: 768px) {

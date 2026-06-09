@@ -1,0 +1,94 @@
+@import '../styles/variables';
+
+.authorsCard {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  margin-bottom: 16px;
+  color: var(--text-main);
+  font-weight: 700;
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    width: 4px;
+    height: 24px;
+    background-color: var(--primary-color);
+    border-radius: 0 4px 4px 0;
+  }
+}
+
+.authorsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.authorItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-speed);
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    
+    .nickname {
+      color: var(--primary-color);
+    }
+
+    .avatar {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: white;
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  flex-shrink: 0;
+}
+
+.authorInfo {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.nickname {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--transition-speed);
+}
+
+.worksCount {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}

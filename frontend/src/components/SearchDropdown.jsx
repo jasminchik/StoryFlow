@@ -3,17 +3,17 @@ import styles from './SearchDropdown.module.scss';
 
 const MOCK_DATA = {
   titles: [
-    { id: 1, title: 'Людина-бензопила', type: 'Манґа', chapters: 150, desc: 'Денджі — бідний хлопець, який полює на демонів...', image: 'https://via.placeholder.com/40x60' },
-    { id: 2, title: 'Людина-одинак', type: 'Манхва', chapters: 80, desc: 'Історія про найсильнішого гравця у світі...', image: 'https://via.placeholder.com/40x60' },
-    { id: 3, title: 'Наруто', type: 'Манґа', chapters: 700, desc: 'Пригоди молодого ніндзя, який мріє стати Хокаґе...', image: 'https://via.placeholder.com/40x60' },
-    { id: 4, title: 'One Piece', type: 'Манґа', chapters: 1100, desc: 'Луффі та його команда шукають легендарний скарб...', image: 'https://via.placeholder.com/40x60' },
+    { id: 1, title: 'Людина-бензопила', type: 'Манґа', chapters: 150, desc: 'Денджі — бідний хлопець, який полює на демонів...', image: '/uploads/chainsaw_man.jpg' },
+    { id: 2, title: 'Людина-одинак', type: 'Манхва', chapters: 80, desc: 'Історія про найсильнішого гравця у світі...', image: '/uploads/solo_leveling.jpg' },
+    { id: 3, title: 'Наруто', type: 'Манґа', chapters: 700, desc: 'Пригоди молодого ніндзя, який мріє стати Хокаґе...', image: '/uploads/naruto.jpg' },
+    { id: 4, title: 'One Piece', type: 'Манґа', chapters: 1100, desc: 'Луффі та його команда шукають легендарний скарб...', image: '/uploads/one_piece.jpg' },
   ],
   authors: [
-    { id: 1, title: 'Тацукі Фуджімото', type: 'Автор', chapters: '12 робіт', desc: 'Автор Chainsaw Man, Fire Punch...', image: 'https://via.placeholder.com/40x60?text=Author' },
-    { id: 2, title: 'Ейічіро Ода', type: 'Автор', chapters: '5 робіт', desc: 'Автор легендарного One Piece...', image: 'https://via.placeholder.com/40x60?text=Author' },
+    { id: 1, title: 'Тацукі Фуджімото', type: 'Автор', chapters: '12 робіт', desc: 'Автор Chainsaw Man, Fire Punch...', image: '/uploads/novel.jpg' },
+    { id: 2, title: 'Ейічіро Ода', type: 'Автор', chapters: '5 робіт', desc: 'Автор легендарного One Piece...', image: '/uploads/novel.jpg' },
   ],
   fanfics: [
-    { id: 1, title: 'Легенда про людину', type: 'Фанфік', chapters: 12, desc: 'Альтернативна історія про світ магії...', image: 'https://via.placeholder.com/40x60?text=Fanfic' },
+    { id: 1, title: 'Легенда про людину', type: 'Фанфік', chapters: 12, desc: 'Альтернативна історія про світ магії...', image: '/uploads/novel.jpg' },
   ]
 };
 
