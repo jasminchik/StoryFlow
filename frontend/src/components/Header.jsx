@@ -15,7 +15,6 @@ const Header = () => {
   
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
   const catalogRef = useRef(null);
 
@@ -39,15 +38,6 @@ const Header = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const handleBookmarksClick = () => {
-    if (!isAuth) {
-      setAuthMessage('Щоб додавати твори у закладки, вам потрібно зареєструватися або увійти в акаунт.');
-      setIsModalOpen(true);
-    } else {
-      console.log("Перехід до закладок...");
-    }
-  };
 
   const handleLoginClick = () => {
     setAuthMessage('');
@@ -76,56 +66,45 @@ const Header = () => {
     <>
       <header className={styles.headerWrapper}>
         <div className={styles.headerInner}>
-          <Link to="/" className={styles.logoLink}>
-            <Logo className={styles.logoSvg} />
-            StoryFlow
-          </Link>
-
-          <div className={styles.centerNav}>
-            <nav className={styles.navLinks}>
-              <div className={styles.catalogContainer} ref={catalogRef}>
-                <button 
-                  className={styles.navLinkBtn} 
-                  onClick={() => setIsCatalogOpen(!isCatalogOpen)}
-                >
-                  Каталог <span className={styles.dropdownArrow}>{isCatalogOpen ? '▲' : '▼'}</span>
-                </button>
-                {isCatalogOpen && (
-                  <div className={styles.catalogDropdown}>
-                    <Link to="/catalog?type=manga" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манґа</Link>
-                    <Link to="/catalog?type=manhwa" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манхва</Link>
-                    <Link to="/catalog?type=fanfics" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Фанфіки</Link>
-                    <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
-                    <Link to="/reading-now" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
-                  </div>
-                )}
-              </div>
-
-              <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
-                <span className={styles.searchIcon}>🔍</span>
-                <span className={styles.searchText}>Пошук</span>
-              </button>
-
-              <Link to="/news" className={styles.navLink}>Новини</Link>
-
-              <div 
-                className={styles.moreContainer}
-                onMouseEnter={() => setIsMoreOpen(true)}
-                onMouseLeave={() => setIsMoreOpen(false)}
-              >
-                <button className={styles.moreBtn}>...</button>
-                {isMoreOpen && (
-                  <div className={styles.moreDropdown}>
-                    <Link to="/faq" className={styles.dropdownItem} onClick={() => setIsMoreOpen(false)}>
-                      Питання і відповіді
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </nav>
+          
+          {/* ЛІВА ЗОНА: Тільки логотип */}
+          <div className={styles.leftArea}>
+            <Link to="/" className={styles.logoLink}>
+              <Logo className={styles.logoSvg} />
+              StoryFlow
+            </Link>
           </div>
 
-          <div className={styles.navRight}>
+          {/* ЦЕНТРАЛЬНА ЗОНА: Каталог -> Пошук -> Новини (Строго по центру) */}
+          <div className={styles.centerArea}>
+            <div className={styles.catalogContainer} ref={catalogRef}>
+              <button 
+                className={styles.navLinkBtn} 
+                onClick={() => setIsCatalogOpen(!isCatalogOpen)}
+              >
+                Каталог <span className={styles.dropdownArrow}>{isCatalogOpen ? '▲' : '▼'}</span>
+              </button>
+              {isCatalogOpen && (
+                <div className={styles.catalogDropdown}>
+                  <Link to="/catalog?type=manga" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манґа</Link>
+                  <Link to="/catalog?type=manhwa" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манхва</Link>
+                  <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Фанфіки</Link>
+                  <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
+                  <Link to="/reading-now" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
+                </div>
+              )}
+            </div>
+
+            <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
+              <span className={styles.searchIcon}>🔍</span>
+              <span className={styles.searchText}>Пошук</span>
+            </button>
+
+            <Link to="/news" className={styles.navLink}>Новини</Link>
+          </div>
+
+          {/* ПРАВА ЗОНА: Обране, Профіль та Бургер */}
+          <div className={styles.rightArea}>
             <Link to="/favorites" className={styles.bookmarkLink} title="Обране">
               <span className={styles.icon}>💖</span>
               <span className={styles.btnText}>Обране</span>
@@ -142,9 +121,19 @@ const Header = () => {
                 >
                   {currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'}
                 </div>
+                <button 
+                  className={styles.hamburgerBtn} 
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  title="Меню"
+                >
+                  <span className={styles.bar}></span>
+                  <span className={styles.bar}></span>
+                  <span className={styles.bar}></span>
+                </button>
               </div>
             )}
           </div>
+
         </div>
       </header>
 
