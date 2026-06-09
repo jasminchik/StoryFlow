@@ -15,6 +15,7 @@ const Header = () => {
   
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   // Авто-вхід при завантаженні (відновлення сесії)
   useEffect(() => {
@@ -63,27 +64,44 @@ const Header = () => {
     <>
       <header className={styles.navbar}>
         <div className={styles.navContent}>
-          <div className={styles.navLeft}>
+          <div className={styles.leftGroup}>
             <Link to="/" className={styles.logoLink}>
               <Logo className={styles.logoSvg} />
               StoryFlow
             </Link>
-            <Link to="/catalog" className={styles.navLink}>Каталог</Link>
-          </div>
-          
-          <div className={styles.navCenter}>
+
+            <nav className={styles.navLinks}>
+              <Link to="/catalog" className={styles.navLink}>Каталог</Link>
+              <Link to="/news" className={styles.navLink}>Новини</Link>
+
+              <div 
+                className={styles.moreContainer}
+                onMouseEnter={() => setIsMoreOpen(true)}
+                onMouseLeave={() => setIsMoreOpen(false)}
+              >
+                <button className={styles.moreBtn}>...</button>
+                {isMoreOpen && (
+                  <div className={styles.moreDropdown}>
+                    <Link to="/faq" className={styles.dropdownItem} onClick={() => setIsMoreOpen(false)}>
+                      Питання і відповіді
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </nav>
+
             <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
               <span className={styles.searchIcon}>🔍</span>
-              <span className={styles.searchText}>Пошук...</span>
+              <span className={styles.searchText}>Пошук</span>
             </button>
           </div>
-          
+
           <div className={styles.navRight}>
             <Link to="/favorites" className={styles.bookmarkLink} title="Обране">
               <span className={styles.icon}>💖</span>
               <span className={styles.btnText}>Обране</span>
             </Link>
-            
+      ...
             {!isAuth ? (
               <button className={styles.authBtn} onClick={handleLoginClick}>Увійти</button>
             ) : (
