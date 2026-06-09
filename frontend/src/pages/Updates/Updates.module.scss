@@ -1,0 +1,112 @@
+@import '../../styles/variables';
+
+.updatesPage {
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.pageHeader {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+.updatesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.updateCard {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 20px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  transition: transform 0.2s, border-color 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateX(5px);
+    border-color: rgba(255, 71, 87, 0.3);
+  }
+}
+
+.cardMain {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mangaTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badge {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chapter {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.timeInfo {
+  text-align: right;
+
+  @media (max-width: 600px) {
+    text-align: left;
+  }
+}
+
+.time {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}

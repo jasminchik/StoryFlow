@@ -3,14 +3,19 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import Profile from './pages/Profile';
+import Updates from './pages/Updates/Updates';
+import styles from './App.module.scss';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/catalog" element={<Catalog />} />
-      <Route path="/profile" element={<Profile />} />
-    </Routes>
+    <div className={styles.appWrapper}>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/catalog" element={<Catalog />} />
+        <Route path="/profile/:username" element={<Profile />} />
+        <Route path="/updates" element={<Updates />} />
+      </Routes>
+    </div>
   );
 }
 

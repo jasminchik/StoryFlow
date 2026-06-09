@@ -83,12 +83,22 @@ const Header = () => {
             {!isAuth ? (
               <button className={styles.authBtn} onClick={handleLoginClick}>Увійти</button>
             ) : (
-              <div className={styles.userProfileBtn} onClick={() => setIsProfileMenuOpen(true)}>
-                <div className={styles.avatar}>
-                  {/* Заглушка аватарки */}
-                  {currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'}
-                </div>
-                <button className={styles.hamburgerBtn}>
+              <div className={styles.userProfileContainer}>
+                <Link 
+                  to={`/profile/${currentUser?.username || 'user'}`} 
+                  className={styles.avatarLink}
+                  title="Мій профіль"
+                >
+                  <div className={styles.avatar}>
+                    {currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'}
+                  </div>
+                </Link>
+                
+                <button 
+                  className={styles.hamburgerBtn} 
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  title="Меню"
+                >
                   <span className={styles.bar}></span>
                   <span className={styles.bar}></span>
                   <span className={styles.bar}></span>

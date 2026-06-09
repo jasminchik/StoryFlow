@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styles from './SidebarUpdates.module.scss';
 
 // Тимчасові дані для Манґи
@@ -63,7 +64,7 @@ const SidebarUpdates = () => {
         ))}
       </div>
 
-      <button className={styles.moreBtn}>ДИВИТИСЬ ВСІ</button>
+      <Link to="/updates" className={styles.moreBtn}>ДИВИТИСЬ ВСІ</Link>
     </div>
   );
 };

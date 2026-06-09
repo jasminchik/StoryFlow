@@ -1,65 +1,124 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import styles from './Profile.module.scss';
 
 const Profile = () => {
-  // Тут в майбутньому ми будемо брати дані юзера з глобального стейту (Context/Redux)
-  // Поки що використовуємо мок-дані для верстки
-  const MOCK_USER = {
-    username: 'jecamen_905',
-    role: 'Читач',
-    experience: 34,
-    joinDate: 'Жовтень 2023',
-    avatar: ''
-  };
+  const { username: urlUsername } = useParams();
+  const [user, setUser] = useState(null);
+
+  const STATS = [
+    { label: 'Тайтли', value: 12, icon: '📚' },
+    { label: 'Коментарі', value: 114, icon: '💬' },
+    { label: 'Оцінки', value: 25, icon: '⭐' },
+    { label: 'Прочитано', value: 301, icon: '📖' }
+  ];
+
+  const MOCK_FRIENDS = [
+    { id: 1, name: 'Alex_Manga', status: 'В мережі', isOnline: true },
+    { id: 2, name: 'Sora_Reader', status: 'Офлайн', isOnline: false },
+    { id: 3, name: 'DarthVader', status: 'В мережі', isOnline: true },
+    { id: 4, name: 'NekoGirl', status: 'Офлайн', isOnline: false },
+    { id: 5, name: 'Zoro_Fan', status: 'В мережі', isOnline: true },
+    { id: 6, name: 'Luffy_Pirate', status: 'Офлайн', isOnline: false }
+  ];
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+
+    if (token && storedUser) {
+      if (urlUsername === storedUser.username || !urlUsername) {
+        setUser(storedUser);
+      } else {
+        setUser({
+          username: urlUsername,
+          role: 'Користувач',
+          avatar: null
+        });
+      }
+    } else {
+      setUser({
+        username: urlUsername || 'Гість',
+        role: 'Гість',
+        avatar: null
+      });
+    }
+  }, [urlUsername]);
+
+  if (!user) return <div className={styles.profileWrapper}><Header /></div>;
 
   return (
     <div className={styles.profileWrapper}>
       <Header />
       
-      <main className={styles.container}>
-        <section className={styles.profileCard}>
-          <div className={styles.avatarSection}>
-            <div className={styles.avatar}>
-              {MOCK_USER.avatar ? (
-                <img src={MOCK_USER.avatar} alt="Avatar" />
+      <div className={styles.container}>
+        {/* Unified Header Section */}
+        <section className={styles.headerSection}>
+          <div className={styles.banner}>
+            <div className={styles.bannerImage} />
+          </div>
+          
+          <div className={styles.userInfoBar}>
+            <div className={styles.avatarWrapper}>
+              {user.avatar ? (
+                <img src={user.avatar} alt={user.username} className={styles.avatarImage} />
               ) : (
-                <span className={styles.avatarPlaceholder}>
-                  {MOCK_USER.username.charAt(0).toUpperCase()}
-                </span>
+                <div className={styles.avatarPlaceholder}>
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
               )}
             </div>
             
-            <div className={styles.userInfo}>
-              <h1 className={styles.username}>{MOCK_USER.username}</h1>
-              <div className={styles.badges}>
-                <span className={styles.roleBadge}>{MOCK_USER.role}</span>
-                <span className={styles.expBadge}>⭐ {MOCK_USER.experience} досвіду</span>
+            <div className={styles.userDetails}>
+              <h1 className={styles.nickname}>{user.username}</h1>
+              
+              <div className={styles.statsPanel}>
+                {STATS.map((stat, index) => (
+                  <div key={index} className={styles.statItem}>
+                    <span>{stat.icon}</span>
+                    <span className={styles.statLabel}>{stat.label}</span>
+                    <span className={styles.statValue}>{stat.value}</span>
+                  </div>
+                ))}
               </div>
-              <p className={styles.joinDate}>На сайті з: {MOCK_USER.joinDate}</p>
             </div>
           </div>
-          
-          <button className={styles.editBtn}>Редагувати профіль</button>
         </section>
 
-        {/* Заглушки під майбутній контент */}
-        <div className={styles.contentGrid}>
-          <section className={styles.contentSection}>
-            <h2 className={styles.sectionTitle}>Останні дії</h2>
-            <div className={styles.placeholderCard}>
-              <p>Тут буде історія переглядів та коментарі користувача.</p>
+        {/* Main Content Grid */}
+        <main className={styles.mainContent}>
+          {/* Left Column */}
+          <section className={styles.contentBlock}>
+            <h2 className={styles.blockTitle}>Активність та Список читання</h2>
+            <div className={styles.placeholderContent}>
+              <div style={{ fontSize: '40px' }}>📑</div>
+              <p>Тут будуть відображатися останні прочитані розділи та оновлення у списках користувача.</p>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Ваша активність поки що не записана.</p>
             </div>
           </section>
 
-          <section className={styles.contentSection}>
-            <h2 className={styles.sectionTitle}>Закладки</h2>
-            <div className={styles.placeholderCard}>
-              <p>Тут буде відображатися список доданих у закладки тайтлів.</p>
+          {/* Right Column: Sidebar */}
+          <aside className={styles.sidebar}>
+            <div className={styles.contentBlock}>
+              <h2 className={styles.blockTitle}>Друзі</h2>
+              <div className={styles.friendsList}>
+                {MOCK_FRIENDS.map(friend => (
+                  <div key={friend.id} className={styles.friendItem}>
+                    <div className={`${styles.friendAvatar} ${friend.isOnline ? styles.online : ''}`}>
+                      {friend.name.charAt(0)}
+                    </div>
+                    <div className={styles.friendInfo}>
+                      <span className={styles.friendName}>{friend.name}</span>
+                      <span className={styles.friendStatus}>{friend.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </section>
-        </div>
-      </main>
+          </aside>
+        </main>
+      </div>
     </div>
   );
 };

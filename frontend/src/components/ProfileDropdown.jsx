@@ -29,7 +29,7 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
       <div className={`${styles.sideMenu} ${isOpen ? styles.open : ''}`} ref={menuRef}>
         <div className={styles.menuHeader}>
           <div className={styles.userInfo}>
-            <Link to="/profile" className={styles.profileLink} onClick={onClose}>Мій профіль →</Link>
+            <Link to={`/profile/${user?.username}`} className={styles.profileLink} onClick={onClose}>Мій профіль →</Link>
             <h3 className={styles.username}>{user?.username}</h3>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
