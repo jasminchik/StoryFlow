@@ -1,53 +1,35 @@
 @import '../styles/variables';
 
-.navbar {
+.headerWrapper {
+  width: 100%;
+  background-color: var(--bg-navbar);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: var(--bg-navbar);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 0 24px;
-  height: 64px;
-  display: flex;
-  align-items: center;
   backdrop-filter: blur(10px);
-
-  @media (max-width: 768px) {
-    height: auto;
-    padding: 10px 12px;
-  }
 }
 
-.navContent {
+.headerInner {
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  height: 70px;
   gap: 24px;
 
   @media (max-width: 768px) {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    height: auto;
+    padding: 10px 12px;
     gap: 12px;
   }
 }
-
-.centerNav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-
-  @media (max-width: 768px) {
-    order: 3;
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
 .logoLink {
   display: flex;
   align-items: center;

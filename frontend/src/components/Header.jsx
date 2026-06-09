@@ -74,8 +74,8 @@ const Header = () => {
 
   return (
     <>
-      <header className={styles.navbar}>
-        <div className={styles.navContent}>
+      <header className={styles.headerWrapper}>
+        <div className={styles.headerInner}>
           <Link to="/" className={styles.logoLink}>
             <Logo className={styles.logoSvg} />
             StoryFlow
@@ -100,6 +100,12 @@ const Header = () => {
                   </div>
                 )}
               </div>
+
+              <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
+                <span className={styles.searchIcon}>🔍</span>
+                <span className={styles.searchText}>Пошук</span>
+              </button>
+
               <Link to="/news" className={styles.navLink}>Новини</Link>
 
               <div 
@@ -117,11 +123,6 @@ const Header = () => {
                 )}
               </div>
             </nav>
-
-            <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
-              <span className={styles.searchIcon}>🔍</span>
-              <span className={styles.searchText}>Пошук</span>
-            </button>
           </div>
 
           <div className={styles.navRight}>
