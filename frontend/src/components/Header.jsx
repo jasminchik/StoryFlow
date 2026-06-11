@@ -130,13 +130,17 @@ const Header = () => {
               <button className={styles.authBtn} onClick={handleLoginClick}>Увійти</button>
             ) : (
               <div className={styles.userProfileContainer}>
-                <div 
-                  className={styles.avatar} 
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                <Link 
+                  to={`/profile/${currentUser?.username || ''}`}
+                  className={styles.headerAvatar} 
                   title="Мій профіль"
                 >
-                  {currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'}
-                </div>
+                  {currentUser?.avatar ? (
+                    <img src={currentUser.avatar} alt="Avatar" />
+                  ) : (
+                    currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'
+                  )}
+                </Link>
                 <button 
                   className={styles.hamburgerBtn} 
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
