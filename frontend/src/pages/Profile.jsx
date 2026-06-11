@@ -26,6 +26,23 @@ const Profile = () => {
     { id: 6, name: 'Luffy_Pirate', status: 'Офлайн', isOnline: false }
   ];
 
+  const readingNowData = [
+    { id: 1, title: 'Блю Лок', cover: '/uploads/blue_lock.jpg', currentChapter: 42, totalChapters: 250 },
+    { id: 2, title: 'Ван Піс', cover: '/uploads/one_piece.jpg', currentChapter: 1050, totalChapters: 1110 }
+  ];
+
+  const activityStats = [
+    { day: 'Пн', count: 12 },
+    { day: 'Вв', count: 5 },
+    { day: 'Ср', count: 24 },
+    { day: 'Чт', count: 0 },
+    { day: 'Пт', count: 8 },
+    { day: 'Сб', count: 35 },
+    { day: 'Нд', count: 18 }
+  ];
+
+  const maxActivity = Math.max(...activityStats.map(stat => stat.count));
+
   const loadProfileData = useCallback(() => {
     const storedData = JSON.parse(localStorage.getItem('user_profile_data') || 'null');
     const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
@@ -132,14 +149,46 @@ const Profile = () => {
         </section>
 
         <main className={styles.mainContent}>
-          <section className={styles.contentBlock}>
-            <h2 className={styles.blockTitle}>Активність та Список читання</h2>
-            <div className={styles.placeholderContent}>
-              <div style={{ fontSize: '40px' }}>📑</div>
-              <p>Тут будуть відображатися останні прочитані розділи та оновлення у списках користувача.</p>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Ваша активність поки що не записана.</p>
-            </div>
-          </section>
+          <div className={styles.leftColumn}>
+            <section className={styles.contentBlock}>
+              <h2 className={styles.blockTitle}>Читаю зараз</h2>
+              <div className={styles.progressGrid}>
+                {readingNowData.map(item => (
+                  <div key={item.id} className={styles.progressCard}>
+                    <img src={item.cover} alt={item.title} className={styles.cardCover} />
+                    <div className={styles.cardInfo}>
+                      <h3 className={styles.cardTitle}>{item.title}</h3>
+                      <div className={styles.progressTrack}>
+                        <div 
+                          className={styles.progressFill} 
+                          style={{ width: `${(item.currentChapter / item.totalChapters) * 100}%` }}
+                        />
+                      </div>
+                      <span className={styles.progressText}>
+                        Прочитано {item.currentChapter} / {item.totalChapters} розділів
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className={styles.contentBlock}>
+              <h2 className={styles.blockTitle}>Статистика читання</h2>
+              <div className={styles.chartContainer}>
+                {activityStats.map((stat, index) => (
+                  <div key={index} className={styles.chartBarWrapper}>
+                    <span className={styles.chartValue}>{stat.count > 0 ? stat.count : ''}</span>
+                    <div 
+                      className={styles.chartBar} 
+                      style={{ height: `${maxActivity > 0 ? (stat.count / maxActivity) * 100 : 0}%` }}
+                    />
+                    <span className={styles.chartLabel}>{stat.day}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
 
           <aside className={styles.sidebar}>
             <div className={styles.contentBlock}>
