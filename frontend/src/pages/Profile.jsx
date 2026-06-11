@@ -11,6 +11,32 @@ const Profile = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
 
+  const [profileTab, setProfileTab] = useState('titles');
+
+  const PROFILE_TABS = [
+    { id: 'titles', label: 'Тайтли' },
+    { id: 'comments', label: 'Коментарі' },
+    { id: 'reviews', label: 'Відгуки' },
+    { id: 'friends', label: 'Друзі' },
+    { id: 'history', label: 'Історія' }
+  ];
+
+  const MOCK_COMMENTS = [
+    { id: 1, title: 'Наруто', text: 'Крутий поворот сюжету, чекаю продовження!', date: '2 дні тому' },
+    { id: 2, title: 'Блю Лок', text: 'Ісагі просто неймовірний у цьому розділі!', date: 'Тиждень тому' }
+  ];
+
+  const MOCK_REVIEWS = [
+    { id: 1, title: 'Бліч', rating: 9, text: 'Дуже цікаво, але філлерів багато. Загалом манґа топ, особливо остання арка.', date: 'Тиждень тому' },
+    { id: 2, title: 'Ван Піс', rating: 10, text: 'Легендарна історія, яка ніколи не набридне.', date: 'Місяць тому' }
+  ];
+
+  const MOCK_HISTORY = [
+    { id: 1, title: 'Бліч', details: 'Том 1, Розділ 5, стор. 12', time: '3 години тому' },
+    { id: 2, title: 'Блю Лок', details: 'Том 3, Розділ 24, стор. 1', time: 'Вчора' },
+    { id: 3, title: 'Магічна Битва', details: 'Том 10, Розділ 89, стор. 15', time: '2 дні тому' }
+  ];
+
   const STATS = [
     { label: 'Тайтли', value: 12, icon: '📚' },
     { label: 'Коментарі', value: 114, icon: '💬' },
@@ -93,6 +119,98 @@ const Profile = () => {
   const displayAvatar = profileData?.avatar || user.avatar;
   const displayBanner = profileData?.banner;
 
+  const renderProfileTabContent = () => {
+    switch(profileTab) {
+      case 'titles':
+        return (
+          <div className={styles.progressGrid}>
+            {readingNowData.map(item => (
+              <div key={item.id} className={styles.progressCard}>
+                <img src={item.cover} alt={item.title} className={styles.cardCover} />
+                <div className={styles.cardInfo}>
+                  <h3 className={styles.cardTitle}>{item.title}</h3>
+                  <div className={styles.progressTrack}>
+                    <div 
+                      className={styles.progressFill} 
+                      style={{ width: `${(item.currentChapter / item.totalChapters) * 100}%` }}
+                    />
+                  </div>
+                  <span className={styles.progressText}>
+                    Прочитано {item.currentChapter} / {item.totalChapters} розділів
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'comments':
+        return (
+          <div className={styles.listContainer}>
+            {MOCK_COMMENTS.map(comment => (
+              <div key={comment.id} className={styles.listItem}>
+                <div className={styles.listHeader}>
+                  <span className={styles.listTitle}>{comment.title}</span>
+                  <span className={styles.listDate}>{comment.date}</span>
+                </div>
+                <p className={styles.listText}>"{comment.text}"</p>
+              </div>
+            ))}
+          </div>
+        );
+      case 'reviews':
+        return (
+          <div className={styles.listContainer}>
+            {MOCK_REVIEWS.map(review => (
+              <div key={review.id} className={styles.listItem}>
+                <div className={styles.listHeader}>
+                  <span className={styles.listTitle}>{review.title}</span>
+                  <span className={styles.reviewRating}>⭐ {review.rating}/10</span>
+                </div>
+                <p className={styles.listText}>{review.text}</p>
+                <span className={styles.listDate}>{review.date}</span>
+              </div>
+            ))}
+          </div>
+        );
+      case 'friends':
+        return (
+          <div className={styles.friendsGrid}>
+            {MOCK_FRIENDS.map(friend => (
+              <div key={friend.id} className={styles.friendCard}>
+                <div className={styles.friendAvatarWrapper}>
+                  {friend.avatar ? (
+                    <img src={friend.avatar} alt={friend.name} className={styles.friendAvatarImg} />
+                  ) : (
+                    <div className={styles.friendAvatarPlaceholder}>{friend.name.charAt(0)}</div>
+                  )}
+                  {friend.isOnline ? (
+                    <div className={styles.onlineIndicator}></div>
+                  ) : (
+                    <div className={styles.offlineIndicator}></div>
+                  )}
+                </div>
+                <span className={styles.friendName}>{friend.name}</span>
+              </div>
+            ))}
+          </div>
+        );
+      case 'history':
+        return (
+          <div className={styles.listContainer}>
+            {MOCK_HISTORY.map(history => (
+              <div key={history.id} className={styles.historyItem}>
+                <span className={styles.historyTitle}>{history.title}</span>
+                <span className={styles.historyDetails}>{history.details}</span>
+                <span className={styles.historyTime}>• {history.time}</span>
+              </div>
+            ))}
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className={styles.profileWrapper}>
       <Header />
@@ -153,79 +271,51 @@ const Profile = () => {
           </div>
         </section>
 
-        <main className={styles.mainContent}>
-          <div className={styles.leftColumn}>
-            <section className={styles.contentBlock}>
-              <h2 className={styles.blockTitle}>Читаю зараз</h2>
-              <div className={styles.progressGrid}>
-                {readingNowData.map(item => (
-                  <div key={item.id} className={styles.progressCard}>
-                    <img src={item.cover} alt={item.title} className={styles.cardCover} />
-                    <div className={styles.cardInfo}>
-                      <h3 className={styles.cardTitle}>{item.title}</h3>
-                      <div className={styles.progressTrack}>
-                        <div 
-                          className={styles.progressFill} 
-                          style={{ width: `${(item.currentChapter / item.totalChapters) * 100}%` }}
-                        />
-                      </div>
-                      <span className={styles.progressText}>
-                        Прочитано {item.currentChapter} / {item.totalChapters} розділів
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className={styles.contentBlock}>
-              <div className={styles.statsGrid}>
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Прочитано розділів манґи</span>
-                  <span className={styles.statNumber}>{totalStats.mangaChapters}</span>
-                </div>
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Прочитано фанфіків</span>
-                  <span className={styles.statNumber}>{totalStats.fanficChapters}</span>
-                </div>
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Час за читанням</span>
-                  <span className={styles.statNumber}>{totalStats.totalTime}</span>
-                </div>
-              </div>
-
-              <div className={styles.chartContainer}>
-                <h3 className={styles.chartTitle}>АКТИВНІСТЬ ЗА 7 ДНІВ</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={activityStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="date" stroke="#555" tick={{ fill: '#888', fontSize: 12 }} />
-                    <YAxis stroke="#555" tick={{ fill: '#888', fontSize: 12 }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1e1e1e', borderColor: '#333', color: '#fff', borderRadius: '8px' }} />
-                    <Line type="monotone" dataKey="count" stroke="#ff8c00" strokeWidth={2} dot={{ r: 4, fill: '#ff8c00', stroke: '#121212', strokeWidth: 2 }} activeDot={{ r: 6 }} name="Прочитано розділів" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </section>
+        {/* АНАЛІТИКА (ЗАВЖДИ ЗВЕРХУ) */}
+        <section className={styles.analyticsSection}>
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>Прочитано розділів манґи</span>
+              <span className={styles.statNumber}>{totalStats.mangaChapters}</span>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>Прочитано фанфіків</span>
+              <span className={styles.statNumber}>{totalStats.fanficChapters}</span>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>Час за читанням</span>
+              <span className={styles.statNumber}>{totalStats.totalTime}</span>
+            </div>
           </div>
 
-          <aside className={styles.sidebar}>
-            <div className={styles.contentBlock}>
-              <h2 className={styles.blockTitle}>Друзі</h2>
-              <div className={styles.friendsList}>
-                {MOCK_FRIENDS.map(friend => (
-                  <div key={friend.id} className={styles.friendItem}>
-                    <div className={`${styles.friendAvatar} ${friend.isOnline ? styles.online : ''}`}>
-                      {friend.name.charAt(0)}
-                    </div>
-                    <div className={styles.friendInfo}>
-                      <span className={styles.friendName}>{friend.name}</span>
-                      <span className={styles.friendStatus}>{friend.status}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
+          <div className={styles.chartContainer}>
+            <h3 className={styles.chartTitle}>АКТИВНІСТЬ ЗА 7 ДНІВ</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={activityStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="date" stroke="#555" tick={{ fill: '#888', fontSize: 12 }} />
+                <YAxis stroke="#555" tick={{ fill: '#888', fontSize: 12 }} allowDecimals={false} />
+                <Tooltip contentStyle={{ backgroundColor: '#1e1e1e', borderColor: '#333', color: '#fff', borderRadius: '8px' }} />
+                <Line type="monotone" dataKey="count" stroke="#ff8c00" strokeWidth={2} dot={{ r: 4, fill: '#ff8c00', stroke: '#121212', strokeWidth: 2 }} activeDot={{ r: 6 }} name="Прочитано розділів" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {/* СИСТЕМА ВКЛАДОК */}
+        <div className={styles.profileTabsMenu}>
+          {PROFILE_TABS.map(tab => (
+            <button
+              key={tab.id}
+              className={`${styles.tabBtn} ${profileTab === tab.id ? styles.activeProfileTab : ''}`}
+              onClick={() => setProfileTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <main className={styles.tabContentArea}>
+          {renderProfileTabContent()}
         </main>
       </div>
 
