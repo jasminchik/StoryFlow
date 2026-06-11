@@ -253,6 +253,17 @@
 }
 
 /* Tabs System */
+.tabLayout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  padding-top: 20px;
+
+  @media (max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
 .profileTabsMenu {
   display: flex;
   gap: 24px;

@@ -1,0 +1,105 @@
+.sidebar {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  height: fit-content;
+}
+
+.filterBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.blockTitle {
+  color: #888;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  
+  .hiddenRadio {
+    display: none; /* Приховуємо стандартний кружечок браузера */
+  }
+  
+  .circle {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #555;
+    border-radius: 50%;
+    position: relative;
+    transition: border-color 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: var(--primary-color, #ff4757);
+      border-radius: 50%;
+      transform: scale(0);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+  }
+  
+  .text {
+    color: #ccc;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+  
+  /* Стани при активності (checked) */
+  .hiddenRadio:checked + .circle {
+    border-color: var(--primary-color, #ff4757);
+    
+    &::after {
+      transform: scale(1);
+    }
+  }
+  
+  .hiddenRadio:checked ~ .text {
+    color: #fff;
+    font-weight: 500;
+  }
+  
+  /* Ефекти при наведенні миші */
+  &:hover .circle {
+    border-color: #888;
+  }
+  
+  &:hover .hiddenRadio:checked + .circle {
+    border-color: var(--primary-color, #ff4757);
+  }
+  
+  &:hover .text {
+    color: #fff;
+  }
+}
+
+.emptyFilter {
+  color: #666;
+  font-size: 14px;
+  text-align: center;
+  padding: 40px 0;
+  
+  p {
+    margin: 0;
+  }
+}

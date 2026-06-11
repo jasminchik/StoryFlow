@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from '../components/Header';
+import ProfileSidebar from '../components/ProfileSidebar';
 import ProfileSettingsModal from '../components/ProfileSettingsModal';
 import styles from './Profile.module.scss';
 
@@ -306,6 +307,7 @@ const Profile = () => {
           {PROFILE_TABS.map(tab => (
             <button
               key={tab.id}
+              type="button"
               className={`${styles.tabBtn} ${profileTab === tab.id ? styles.activeProfileTab : ''}`}
               onClick={() => setProfileTab(tab.id)}
             >
@@ -314,9 +316,13 @@ const Profile = () => {
           ))}
         </div>
 
-        <main className={styles.tabContentArea}>
-          {renderProfileTabContent()}
-        </main>
+        <div className={styles.tabLayout}>
+          <main className={styles.tabContentArea}>
+            {renderProfileTabContent()}
+          </main>
+          
+          <ProfileSidebar activeTab={profileTab} />
+        </div>
       </div>
 
       <ProfileSettingsModal 
