@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from '../components/Header';
 import ProfileSettingsModal from '../components/ProfileSettingsModal';
 import styles from './Profile.module.scss';
@@ -32,16 +33,20 @@ const Profile = () => {
   ];
 
   const activityStats = [
-    { day: 'Пн', count: 12 },
-    { day: 'Вв', count: 5 },
-    { day: 'Ср', count: 24 },
-    { day: 'Чт', count: 0 },
-    { day: 'Пт', count: 8 },
-    { day: 'Сб', count: 35 },
-    { day: 'Нд', count: 18 }
+    { date: '05.06', count: 0 },
+    { date: '06.06', count: 2 },
+    { date: '07.06', count: 5 },
+    { date: '08.06', count: 1 },
+    { date: '09.06', count: 12 },
+    { date: '10.06', count: 8 },
+    { date: '11.06', count: 15 }
   ];
 
-  const maxActivity = Math.max(...activityStats.map(stat => stat.count));
+  const totalStats = { 
+    mangaChapters: 142, 
+    fanficChapters: 12, 
+    totalTime: '48 годин' 
+  };
 
   const loadProfileData = useCallback(() => {
     const storedData = JSON.parse(localStorage.getItem('user_profile_data') || 'null');
@@ -174,18 +179,31 @@ const Profile = () => {
             </section>
 
             <section className={styles.contentBlock}>
-              <h2 className={styles.blockTitle}>Статистика читання</h2>
+              <div className={styles.statsGrid}>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>Прочитано розділів манґи</span>
+                  <span className={styles.statNumber}>{totalStats.mangaChapters}</span>
+                </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>Прочитано фанфіків</span>
+                  <span className={styles.statNumber}>{totalStats.fanficChapters}</span>
+                </div>
+                <div className={styles.statCard}>
+                  <span className={styles.statLabel}>Час за читанням</span>
+                  <span className={styles.statNumber}>{totalStats.totalTime}</span>
+                </div>
+              </div>
+
               <div className={styles.chartContainer}>
-                {activityStats.map((stat, index) => (
-                  <div key={index} className={styles.chartBarWrapper}>
-                    <span className={styles.chartValue}>{stat.count > 0 ? stat.count : ''}</span>
-                    <div 
-                      className={styles.chartBar} 
-                      style={{ height: `${maxActivity > 0 ? (stat.count / maxActivity) * 100 : 0}%` }}
-                    />
-                    <span className={styles.chartLabel}>{stat.day}</span>
-                  </div>
-                ))}
+                <h3 className={styles.chartTitle}>АКТИВНІСТЬ ЗА 7 ДНІВ</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={activityStats} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="date" stroke="#555" tick={{ fill: '#888', fontSize: 12 }} />
+                    <YAxis stroke="#555" tick={{ fill: '#888', fontSize: 12 }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ backgroundColor: '#1e1e1e', borderColor: '#333', color: '#fff', borderRadius: '8px' }} />
+                    <Line type="monotone" dataKey="count" stroke="#ff8c00" strokeWidth={2} dot={{ r: 4, fill: '#ff8c00', stroke: '#121212', strokeWidth: 2 }} activeDot={{ r: 6 }} name="Прочитано розділів" />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </section>
           </div>
