@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
+import ProfileSettingsModal from '../components/ProfileSettingsModal';
 import styles from './Profile.module.scss';
 
 const Profile = () => {
   const { username: urlUsername } = useParams();
   const [user, setUser] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [profileData, setProfileData] = useState(null);
 
   const STATS = [
     { label: 'Тайтли', value: 12, icon: '📚' },
@@ -23,6 +26,17 @@ const Profile = () => {
     { id: 6, name: 'Luffy_Pirate', status: 'Офлайн', isOnline: false }
   ];
 
+  const loadProfileData = useCallback(() => {
+    const storedData = JSON.parse(localStorage.getItem('user_profile_data') || 'null');
+    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    
+    if (storedUser && (urlUsername === storedUser.username || !urlUsername)) {
+      setProfileData(storedData);
+    } else {
+      setProfileData(null);
+    }
+  }, [urlUsername]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -30,6 +44,7 @@ const Profile = () => {
     if (token && storedUser) {
       if (urlUsername === storedUser.username || !urlUsername) {
         setUser(storedUser);
+        loadProfileData();
       } else {
         setUser({
           username: urlUsername,
@@ -44,34 +59,64 @@ const Profile = () => {
         avatar: null
       });
     }
-  }, [urlUsername]);
+
+    window.addEventListener('profileUpdate', loadProfileData);
+    return () => window.removeEventListener('profileUpdate', loadProfileData);
+  }, [urlUsername, loadProfileData]);
 
   if (!user) return <div className={styles.profileWrapper}><Header /></div>;
+
+  const isOwnProfile = user.username && (JSON.parse(localStorage.getItem('user'))?.username === user.username);
+  const displayName = profileData?.nickname || user.username;
+  const displayAvatar = profileData?.avatar || user.avatar;
+  const displayBanner = profileData?.banner;
 
   return (
     <div className={styles.profileWrapper}>
       <Header />
       
       <div className={styles.container}>
-        {/* Unified Header Section */}
         <section className={styles.headerSection}>
           <div className={styles.banner}>
-            <div className={styles.bannerImage} />
+            <div 
+              className={styles.bannerImage} 
+              style={{ backgroundImage: displayBanner ? `url(${displayBanner})` : 'none' }}
+            />
+            {isOwnProfile && (
+              <button 
+                className={styles.settingsBtn}
+                onClick={() => setIsSettingsOpen(true)}
+                title="Налаштування"
+              >
+                ⚙️
+              </button>
+            )}
           </div>
           
           <div className={styles.userInfoBar}>
             <div className={styles.avatarWrapper}>
-              {user.avatar ? (
-                <img src={user.avatar} alt={user.username} className={styles.avatarImage} />
+              {displayAvatar ? (
+                <img src={displayAvatar} alt={displayName} className={styles.avatarImage} />
               ) : (
                 <div className={styles.avatarPlaceholder}>
-                  {user.username.charAt(0).toUpperCase()}
+                  {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
             
             <div className={styles.userDetails}>
-              <h1 className={styles.nickname}>{user.username}</h1>
+              <div className={styles.nameRow}>
+                <h1 className={styles.nickname}>{displayName}</h1>
+                {profileData?.gender && profileData.gender !== 'secret' && (
+                  <span className={styles.genderBadge} title={profileData.gender === 'male' ? 'Чоловік' : 'Жінка'}>
+                    {profileData.gender === 'male' ? '♂️' : '♀️'}
+                  </span>
+                )}
+              </div>
+              
+              {profileData?.aboutMe && (
+                <p className={styles.aboutText}>{profileData.aboutMe}</p>
+              )}
               
               <div className={styles.statsPanel}>
                 {STATS.map((stat, index) => (
@@ -86,9 +131,7 @@ const Profile = () => {
           </div>
         </section>
 
-        {/* Main Content Grid */}
         <main className={styles.mainContent}>
-          {/* Left Column */}
           <section className={styles.contentBlock}>
             <h2 className={styles.blockTitle}>Активність та Список читання</h2>
             <div className={styles.placeholderContent}>
@@ -98,7 +141,6 @@ const Profile = () => {
             </div>
           </section>
 
-          {/* Right Column: Sidebar */}
           <aside className={styles.sidebar}>
             <div className={styles.contentBlock}>
               <h2 className={styles.blockTitle}>Друзі</h2>
@@ -119,6 +161,11 @@ const Profile = () => {
           </aside>
         </main>
       </div>
+
+      <ProfileSettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   );
 };
