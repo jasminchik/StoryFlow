@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import styles from './MangaDetails.module.scss';
@@ -6,6 +6,8 @@ import styles from './MangaDetails.module.scss';
 const MangaDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // States
   const [activeTab, setActiveTab] = useState('about');
   const [isListsOpen, setIsListsOpen] = useState(false);
   const [userList, setUserList] = useState(null);
@@ -13,32 +15,44 @@ const MangaDetails = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
 
-  // List labels mapping
-  const listLabels = {
+  // Constants & Static Data
+  const listLabels = useMemo(() => ({
     reading: 'Читаю',
     planned: 'В планах',
     dropped: 'Кинуто',
     read: 'Прочитано',
     favorites: 'В Обраному'
-  };
+  }), []);
 
-  const initialRatingStats = {
-    10: { percent: 74, count: 1576 },
-    9: { percent: 12.5, count: 261 },
-    8: { percent: 8.7, count: 187 },
-    7: { percent: 2.1, count: 45 },
-    6: { percent: 1.2, count: 26 },
-    5: { percent: 0.8, count: 17 },
-    4: { percent: 0.3, count: 6 },
-    3: { percent: 0.2, count: 4 },
-    2: { percent: 0.1, count: 2 },
-    1: { percent: 0.1, count: 2 },
-  };
+  const initialRatingStats = useMemo(() => ({
+    10: 1576,
+    9: 261,
+    8: 187,
+    7: 45,
+    6: 26,
+    5: 17,
+    4: 6,
+    3: 4,
+    2: 2,
+    1: 2,
+  }), []);
 
   const [stats, setStats] = useState(initialRatingStats);
 
-  // Mock data
-  const manga = {
+  // Derived stats for rendering
+  const processedStats = useMemo(() => {
+    const totalVotes = Object.values(stats).reduce((sum, count) => sum + count, 0);
+    const result = {};
+    Object.keys(stats).forEach(key => {
+      result[key] = {
+        count: stats[key],
+        percent: totalVotes > 0 ? parseFloat(((stats[key] / totalVotes) * 100).toFixed(2)) : 0
+      };
+    });
+    return result;
+  }, [stats]);
+
+  const manga = useMemo(() => ({
     id: id,
     title: 'Блю Лок',
     originalTitle: 'ブルーロック',
@@ -52,71 +66,44 @@ const MangaDetails = () => {
     image: '/uploads/blue_lock.jpg',
     bannerImage: null,
     chapters: 245
-  };
+  }), [id]);
 
-  useEffect(() => {
-    // Load list status
-    const lists = JSON.parse(localStorage.getItem('user_manga_lists') || '{}');
-    if (lists[id]) {
-      setUserList(lists[id]);
-    }
+  const tabs = [
+    { id: 'about', label: 'Про тайтл' },
+    { id: 'chapters', label: 'Розділи' },
+    { id: 'discussions', label: 'Обговорення' },
+    { id: 'comments', label: 'Коментарі' },
+    { id: 'reviews', label: 'Відгуки' },
+    { id: 'fanfics', label: 'Фанфіки' }
+  ];
 
-    // Load user rating
-    const savedRating = localStorage.getItem(`manga_${id}_rating`);
-    if (savedRating) {
-      const score = parseInt(savedRating);
-      setUserRating(score);
-      updateStatsDynamically(score, 0);
-    }
-  }, [id]);
+  const chapters = [
+    { id: 1, title: 'Том 1. Розділ 3 — Вибір', date: '18.05.2024', views: '12.4K' },
+    { id: 2, title: 'Том 1. Розділ 2 — Зустріч', date: '15.05.2024', views: '14.1K' },
+    { id: 3, title: 'Том 1. Розділ 1 — Початок', date: '12.05.2024', views: '18.2K' },
+  ];
 
-  const handleSelectList = (listName) => {
-    const lists = JSON.parse(localStorage.getItem('user_manga_lists') || '{}');
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    let newFavorites = [...favorites];
-    
-    // Logic for global favorites list (to keep it synced with the new dropdown)
-    const removeFromGlobalFavorites = () => {
-      newFavorites = newFavorites.filter(item => String(item.id) !== String(id));
-    };
+  const similarManga = [
+    { id: 'haikyuu', title: 'Волейбол!!', image: '/uploads/novel.jpg' },
+    { id: 'ao_ashi', title: 'Ао Аші', image: '/uploads/blue_lock.jpg' },
+    { id: 'kuroko', title: 'Баскетбол Куроко', image: '/uploads/naruto.jpg' },
+  ];
 
-    const addToGlobalFavorites = () => {
-      if (!newFavorites.some(item => String(item.id) === String(id))) {
-        newFavorites.push(manga);
-      }
-    };
+  const fanfics = [
+    { id: 1, title: 'Епізод Наґі: Шлях до геніальності', isOfficial: true, author: 'Кота Саномія' },
+    { id: 2, title: 'Ісаґі: Тінь егоїзму', isOfficial: false, author: 'FanWriter99' },
+  ];
 
-    if (userList === listName) {
-      // Deselecting current list
-      delete lists[id];
-      setUserList(null);
-      if (listName === 'favorites') removeFromGlobalFavorites();
-    } else {
-      // Selecting new list
-      const oldList = userList;
-      lists[id] = listName;
-      setUserList(listName);
-
-      // Handle transition for favorites
-      if (oldList === 'favorites') removeFromGlobalFavorites();
-      if (listName === 'favorites') addToGlobalFavorites();
-    }
-    
-    localStorage.setItem('user_manga_lists', JSON.stringify(lists));
-    localStorage.setItem('favorites', JSON.stringify(newFavorites));
-    setIsListsOpen(false);
-  };
-
+  // Helper Functions
   const updateStatsDynamically = (newScore, oldScore) => {
     setStats(prevStats => {
       const newStats = { ...prevStats };
-      if (oldScore > 0) newStats[oldScore] = { ...newStats[oldScore], count: Math.max(0, newStats[oldScore].count - 1) };
-      if (newScore > 0) newStats[newScore] = { ...newStats[newScore], count: (newStats[newScore]?.count || 0) + 1 };
-      
-      const totalVotes = Object.values(newStats).reduce((sum, s) => sum + s.count, 0);
-      Object.keys(newStats).forEach(key => {
-        newStats[key].percent = totalVotes > 0 ? parseFloat(((newStats[key].count / totalVotes) * 100).toFixed(1)) : 0;
-      });
+      if (oldScore > 0 && newStats[oldScore] !== undefined) {
+        newStats[oldScore] = Math.max(0, newStats[oldScore] - 1);
+      }
+      if (newScore > 0 && newStats[newScore] !== undefined) {
+        newStats[newScore] = newStats[newScore] + 1;
+      }
       return newStats;
     });
   };
@@ -129,22 +116,119 @@ const MangaDetails = () => {
     setIsRatingOpen(false);
   };
 
-  const chapters = [
-    { id: 1, title: 'Том 1. Розділ 1 — Початок', date: '12.05.2024' },
-    { id: 2, title: 'Том 1. Розділ 2 — Зустріч', date: '15.05.2024' },
-    { id: 3, title: 'Том 1. Розділ 3 — Вибір', date: '18.05.2024' },
-  ];
+  const handleSelectList = (listName) => {
+    const lists = JSON.parse(localStorage.getItem('user_manga_lists') || '{}');
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    let newFavorites = [...favorites];
+    
+    const removeFromGlobalFavorites = () => {
+      newFavorites = newFavorites.filter(item => String(item.id) !== String(id));
+    };
 
-  const reviews = [
-    { id: 1, user: 'AnimeFan', text: 'Це найкраща спортивна манґа, яку я коли-небудь читав!', rating: 10 },
-    { id: 2, user: 'MangaReader', text: 'Дуже динамічно і цікаво.', rating: 9 },
-  ];
+    const addToGlobalFavorites = () => {
+      if (!newFavorites.some(item => String(item.id) === String(id))) {
+        newFavorites.push(manga);
+      }
+    };
+
+    if (userList === listName) {
+      delete lists[id];
+      setUserList(null);
+      if (listName === 'favorites') removeFromGlobalFavorites();
+    } else {
+      const oldList = userList;
+      lists[id] = listName;
+      setUserList(listName);
+      if (oldList === 'favorites') removeFromGlobalFavorites();
+      if (listName === 'favorites') addToGlobalFavorites();
+    }
+    
+    localStorage.setItem('user_manga_lists', JSON.stringify(lists));
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
+    setIsListsOpen(false);
+  };
 
   const getBarColor = (rating) => {
     if (rating >= 8) return '#2ecc71';
     if (rating >= 6) return '#f1c40f';
     if (rating >= 4) return '#95a5a6';
     return '#e67e22';
+  };
+
+  // Effects
+  useEffect(() => {
+    const lists = JSON.parse(localStorage.getItem('user_manga_lists') || '{}');
+    if (lists[id]) setUserList(lists[id]);
+
+    const savedRating = localStorage.getItem(`manga_${id}_rating`);
+    if (savedRating) {
+      const score = parseInt(savedRating);
+      setUserRating(score);
+      updateStatsDynamically(score, 0);
+    }
+  }, [id]);
+
+  // Render content function
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'about':
+        return (
+          <div className={styles.aboutTab}>
+            <div className={styles.description}>
+              <p>{manga.description}</p>
+            </div>
+            <div className={styles.similarSection}>
+              <h3 className={styles.sectionTitle}>Схоже</h3>
+              <div className={styles.similarGrid}>
+                {similarManga.map(item => (
+                  <div key={item.id} className={styles.similarCard}>
+                    <img src={item.image} alt={item.title} />
+                    <span className={styles.similarTitle}>{item.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      case 'chapters':
+        return (
+          <div className={styles.chaptersList}>
+            {chapters.map(chapter => (
+              <div key={chapter.id} className={styles.chapterItem}>
+                <div className={styles.chapterMain}>
+                  <span className={styles.chapterTitle}>{chapter.title}</span>
+                  <div className={styles.chapterMeta}>
+                    <span className={styles.views}><span className={styles.eyeIcon}>👁</span> {chapter.views}</span>
+                    <span className={styles.date}>{chapter.date}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      case 'fanfics':
+        return (
+          <div className={styles.fanficsList}>
+            {fanfics.map(fic => (
+              <div key={fic.id} className={styles.fanficItem}>
+                <div className={styles.fanficHeader}>
+                  <span className={styles.fanficTitle}>{fic.title}</span>
+                  {fic.isOfficial && <span className={styles.officialBadge}>Офіційний фанфік</span>}
+                </div>
+                <span className={styles.fanficAuthor}>Автор: {fic.author}</span>
+              </div>
+            ))}
+          </div>
+        );
+      default:
+        const currentTabLabel = tabs.find(t => t.id === activeTab)?.label || 'Контент';
+        return (
+          <div className={styles.placeholderTab}>
+            <div className={styles.placeholderIcon}>💬</div>
+            <p>Тут з'являться {currentTabLabel.toLowerCase()} користувачів. Функціонал у розробці!</p>
+          </div>
+        );
+    }
   };
 
   return (
@@ -163,14 +247,12 @@ const MangaDetails = () => {
 
       <div className={styles.mainContainer}>
         <div className={styles.contentGrid}>
-          {/* Left Column: Poster and Buttons */}
           <aside className={styles.leftColumn}>
             <div className={styles.posterWrapper}>
               <img src={manga.image} alt={manga.title} className={styles.poster} />
             </div>
             <div className={styles.actionButtons}>
               <button className={styles.readBtn}>Читати</button>
-              
               <div className={styles.listsContainer}>
                 <button 
                   className={`${styles.listsBtn} ${userList ? styles.active : ''}`}
@@ -179,7 +261,6 @@ const MangaDetails = () => {
                   {userList ? listLabels[userList] : 'Додати в плани'}
                   <span className={`${styles.arrow} ${isListsOpen ? styles.open : ''}`}>▼</span>
                 </button>
-
                 {isListsOpen && (
                   <div className={styles.listsDropdown}>
                     {Object.entries(listLabels).map(([key, label]) => (
@@ -197,11 +278,10 @@ const MangaDetails = () => {
               </div>
             </div>
 
-            {/* Statistics Histogram */}
             <div className={styles.statsBlock}>
               <h3 className={styles.statsTitle}>Оцінки користувачів</h3>
               <div className={styles.histogram}>
-                {Object.entries(stats).reverse().map(([rate, stat]) => (
+                {Object.entries(processedStats).reverse().map(([rate, stat]) => (
                   <div key={rate} className={styles.histoRow}>
                     <span className={styles.rateLabel}>{rate} ★</span>
                     <div className={styles.barContainer}>
@@ -222,7 +302,6 @@ const MangaDetails = () => {
             </div>
           </aside>
 
-          {/* Right Column: Info and Tabs */}
           <main className={styles.rightColumn}>
             <div className={styles.headerInfo}>
               <h1 className={styles.title}>{manga.title}</h1>
@@ -278,7 +357,7 @@ const MangaDetails = () => {
                 <div className={styles.infoItem}>
                   <span className={styles.label}>Жанри / Теги</span>
                   <div className={styles.genresList}>
-                    {manga.genres.map(genre => (
+                    {manga.genres && manga.genres.map(genre => (
                       <span key={genre} className={styles.genreBadge}>{genre}</span>
                     ))}
                   </div>
@@ -286,60 +365,20 @@ const MangaDetails = () => {
               </div>
             </div>
 
-            {/* Tabs System */}
             <div className={styles.tabsContainer}>
-              <div className={styles.tabsHeader}>
-                <button 
-                  className={`${styles.tabBtn} ${activeTab === 'about' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('about')}
-                >
-                  Про тайтл
-                </button>
-                <button 
-                  className={`${styles.tabBtn} ${activeTab === 'chapters' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('chapters')}
-                >
-                  Розділи ({chapters.length})
-                </button>
-                <button 
-                  className={`${styles.tabBtn} ${activeTab === 'reviews' ? styles.active : ''}`}
-                  onClick={() => setActiveTab('reviews')}
-                >
-                  Відгуки
-                </button>
+              <div className={styles.tabsMenu}>
+                {tabs.map(tab => (
+                  <button 
+                    key={tab.id}
+                    className={`${styles.tabBtn} ${activeTab === tab.id ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
-
               <div className={styles.tabContent}>
-                {activeTab === 'about' && (
-                  <div className={styles.description}>
-                    <p>{manga.description}</p>
-                  </div>
-                )}
-
-                {activeTab === 'chapters' && (
-                  <div className={styles.chaptersList}>
-                    {chapters.map(chapter => (
-                      <div key={chapter.id} className={styles.chapterItem}>
-                        <span className={styles.chapterTitle}>{chapter.title}</span>
-                        <span className={styles.chapterDate}>{chapter.date}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {activeTab === 'reviews' && (
-                  <div className={styles.reviewsList}>
-                    {reviews.map(review => (
-                      <div key={review.id} className={styles.reviewItem}>
-                        <div className={styles.reviewHeader}>
-                          <span className={styles.reviewUser}>{review.user}</span>
-                          <span className={styles.reviewRating}>⭐ {review.rating}</span>
-                        </div>
-                        <p className={styles.reviewText}>{review.text}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {renderTabContent()}
               </div>
             </div>
           </main>

@@ -387,28 +387,35 @@
   .tabsContainer {
     margin-top: 40px;
 
-    .tabsHeader {
+    .tabsMenu {
       display: flex;
-      gap: 30px;
-      border-bottom: 1px solid #333;
-      margin-bottom: 25px;
+      gap: 24px;
+      border-bottom: 1px solid #2a2a2a;
+      margin-bottom: 30px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
       .tabBtn {
         background: none;
         border: none;
         color: #b3b3b3;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
         padding: 10px 0 15px;
         cursor: pointer;
         position: relative;
         transition: color 0.2s;
+        white-space: nowrap;
 
         &:hover {
           color: #fff;
         }
 
-        &.active {
+        &.activeTab {
           color: #ff4757;
 
           &::after {
@@ -426,10 +433,58 @@
     }
 
     .tabContent {
-      .description {
-        line-height: 1.7;
-        color: #e0e0e0;
-        font-size: 1.05rem;
+      .aboutTab {
+        .description {
+          line-height: 1.7;
+          color: #e0e0e0;
+          font-size: 1.05rem;
+          margin-bottom: 40px;
+        }
+
+        .similarSection {
+          .sectionTitle {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #fff;
+          }
+
+          .similarGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+
+            .similarCard {
+              cursor: pointer;
+              transition: transform 0.2s;
+
+              img {
+                width: 100%;
+                aspect-ratio: 2/3;
+                object-fit: cover;
+                border-radius: 8px;
+                margin-bottom: 8px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+              }
+
+              .similarTitle {
+                font-size: 0.9rem;
+                font-weight: 500;
+                display: block;
+                color: #e0e0e0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              &:hover {
+                transform: translateY(-5px);
+                .similarTitle {
+                  color: #ff4757;
+                }
+              }
+            }
+          }
+        }
       }
 
       .chaptersList {
@@ -438,8 +493,6 @@
         gap: 10px;
 
         .chapterItem {
-          display: flex;
-          justify-content: space-between;
           padding: 15px 20px;
           background: #1e1e1e;
           border-radius: 8px;
@@ -449,52 +502,106 @@
 
           &:hover {
             border-color: #ff4757;
-            transform: translateX(5px);
             background: #252525;
+            transform: translateX(5px);
           }
 
-          .chapterTitle {
-            font-weight: 500;
+          .chapterMain {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .chapterTitle {
+              font-weight: 500;
+              color: #fff;
+            }
+
+            .chapterMeta {
+              display: flex;
+              gap: 20px;
+              color: #888;
+              font-size: 0.9rem;
+
+              .views {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                
+                .eyeIcon {
+                  font-size: 0.8rem;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .fanficsList {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+
+        .fanficItem {
+          background: #1e1e1e;
+          padding: 20px;
+          border-radius: 12px;
+          border: 1px solid #333;
+          transition: border-color 0.2s;
+
+          &:hover {
+            border-color: #ff4757;
           }
 
-          .chapterDate {
-            color: #b3b3b3;
+          .fanficHeader {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+
+            .fanficTitle {
+              font-size: 1.1rem;
+              font-weight: 700;
+              color: #fff;
+            }
+
+            .officialBadge {
+              background: linear-gradient(45deg, #f39c12, #f1c40f);
+              color: #000;
+              font-size: 11px;
+              padding: 2px 8px;
+              border-radius: 4px;
+              font-weight: 800;
+              margin-left: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+          }
+
+          .fanficAuthor {
+            color: #888;
             font-size: 0.9rem;
           }
         }
       }
 
-      .reviewsList {
+      .placeholderTab {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        color: #666;
+        text-align: center;
 
-        .reviewItem {
-          background: #1e1e1e;
-          padding: 20px;
-          border-radius: 12px;
-          border: 1px solid #333;
+        .placeholderIcon {
+          font-size: 3rem;
+          margin-bottom: 15px;
+          opacity: 0.3;
+        }
 
-          .reviewHeader {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-
-            .reviewUser {
-              font-weight: 700;
-              color: #ff4757;
-            }
-
-            .reviewRating {
-              color: #ffd700;
-            }
-          }
-
-          .reviewText {
-            margin: 0;
-            line-height: 1.6;
-            color: #e0e0e0;
-          }
+        p {
+          font-size: 1.1rem;
+          max-width: 400px;
+          line-height: 1.5;
         }
       }
     }
