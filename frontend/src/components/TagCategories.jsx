@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import styles from './TagCategories.module.scss';
 
 const CATEGORIES_DATA = [
   { id: 'genres', name: 'Жанри', tags: ['Екшн', 'Комедія', 'Драма', 'Романтика', 'Фентезі', 'Психологія', 'Жахи', 'Пригоди', 'Спорт'] },
-  { id: 'formats', name: 'Формат', tags: ['Манґа', 'Манхва', 'Маньхуа', 'Фанфік', 'Ранобе', 'Комікс'] },
+  { id: 'formats', name: 'Формат', tags: ['Манґа', 'Манхва', 'Маньхуа', 'Література/Фанфік', 'Ранобе', 'Комікс'] },
   { id: 'status', name: 'Статус', tags: ['Онґоінґ', 'Завершено', 'Анонс'] }
 ];
 
@@ -26,7 +27,10 @@ const TagCategories = () => {
               onClick={() => toggleCategory(cat.id)}
             >
               <span>{cat.name}</span>
-              <span className={styles.arrow}>{activeCategory === cat.id ? '▼' : '▶'}</span>
+              <FiChevronDown 
+                size={18} 
+                className={`${styles.arrow} ${activeCategory === cat.id ? styles.rotated : ''}`} 
+              />
             </button>
             
             <div className={`${styles.tagCloud} ${activeCategory === cat.id ? styles.expanded : ''}`}>

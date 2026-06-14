@@ -20,9 +20,7 @@
   font-size: 2rem;
   font-weight: 800;
   margin-bottom: 32px;
-  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-main);
 
   @media (max-width: 480px) {
     font-size: 1.5rem;
@@ -45,12 +43,12 @@
   gap: 16px;
   transition: all 0.3s ease;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
 
   &:hover {
     transform: translateY(-5px);
     border-color: var(--primary-color);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-main);
 
     .nickname {
       color: var(--primary-color);

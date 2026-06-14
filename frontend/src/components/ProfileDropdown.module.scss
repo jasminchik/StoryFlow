@@ -26,7 +26,7 @@
   width: 320px;
   height: 100vh;
   background-color: var(--bg-card);
-  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-main);
   z-index: 2001;
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 
 .userInfo {
@@ -84,27 +84,6 @@
   }
 }
 
-.experienceBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 10px 16px;
-  border-radius: var(--border-radius-md);
-  margin-bottom: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.02);
-}
-
-.starIcon {
-  font-size: 1.1rem;
-}
-
-.expText {
-  color: #ffb800;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
 .menuLinks {
   display: flex;
   flex-direction: column;
@@ -141,7 +120,7 @@
   }
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--secondary-color);
     color: var(--primary-color);
 
     .icon {
@@ -152,7 +131,7 @@
 
 .divider {
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--border-color);
   margin: 12px 0;
 }
 

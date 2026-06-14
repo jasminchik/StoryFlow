@@ -4,7 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StoryFlow — Платформа манґи та фанфіків</title>
+    <title>StoryFlow — Платформа манґи та Література/Фанфік</title>
+    <script>
+      // Force dark theme immediately to avoid white flashes
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'light') {
+          document.documentElement.classList.add('light-theme');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

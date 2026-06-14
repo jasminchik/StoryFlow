@@ -1,41 +1,46 @@
 @import '../styles/variables';
 
-.modalOverlay {
+.backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(5px);
+  background: var(--bg-overlay);
+  backdrop-filter: blur(4px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 2000;
-  animation: fadeIn 0.2s ease-out;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
 }
 
-.modalContent {
-  background-color: var(--bg-card);
-  padding: 32px;
-  border-radius: var(--border-radius-lg);
+.modal {
+  background: var(--bg-modal);
+  width: 100%;
   max-width: 400px;
-  width: 90%;
+  border-radius: 12px;
   position: relative;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+  box-shadow: var(--shadow-main);
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .closeBtn {
   position: absolute;
-  top: 16px;
+  top: 12px;
   right: 16px;
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 1.2rem;
+  font-size: 24px;
   cursor: pointer;
+  z-index: 10;
   transition: color 0.2s;
 
   &:hover {
@@ -43,50 +48,104 @@
   }
 }
 
-.alertMsg {
-  color: var(--text-main);
-  background-color: rgba(255, 71, 87, 0.1);
-  border: 1px solid var(--primary-color);
-  padding: 12px;
-  border-radius: var(--border-radius-md);
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
 .tabs {
   display: flex;
-  margin-bottom: 24px;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tab {
   flex: 1;
+  padding: 16px;
   background: none;
   border: none;
   color: var(--text-muted);
-  padding: 12px;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  position: relative;
+  border-bottom: 2px solid transparent;
 
   &:hover {
     color: var(--text-main);
   }
+}
 
-  &.active {
+.activeTab {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.content {
+  padding: 32px;
+}
+
+.oauthSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.oauthBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card); 
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--secondary-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+  }
+
+  .icon {
+    font-size: 22px;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 400;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+  }
+
+  span {
+    padding: 0 15px;
+    text-transform: lowercase;
+  }
+}
+
+.footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+
+  .link {
     color: var(--primary-color);
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background-color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
     }
   }
 }
@@ -97,77 +156,93 @@
   gap: 16px;
 }
 
-.roleSelection {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 8px;
+.errorMessage {
+  background: var(--accent-light);
+  color: #ff4757;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+  font-size: 14px;
+  text-align: center;
 }
 
-.roleBtn {
-  flex: 1;
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.roleLabel {
   color: var(--text-muted);
-  padding: 12px;
-  border-radius: var(--border-radius-md);
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: -8px;
+}
+
+.roleSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.roleOption {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 14px;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.06);
-  }
-
-  &.activeRole {
-    background-color: rgba(255, 71, 87, 0.1);
     border-color: var(--primary-color);
-    color: var(--primary-color);
+    color: var(--text-main);
   }
 }
 
-.input {
-  background-color: var(--bg-main);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--text-main);
-  padding: 12px 16px;
-  border-radius: var(--border-radius-md);
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.2s;
+.activeRole {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
 
-  &::placeholder {
-    color: var(--text-muted);
-  }
+.formGroup {
+  input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.2s;
 
-  &:focus {
-    border-color: var(--primary-color);
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:focus {
+      border-color: var(--primary-color);
+      background: var(--bg-main);
+    }
   }
 }
 
 .submitBtn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
+  width: 100%;
   padding: 14px;
-  border-radius: var(--border-radius-md);
+  background: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 16px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
   margin-top: 8px;
 
   &:hover {
     opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}

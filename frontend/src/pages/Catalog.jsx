@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { FiX, FiChevronDown, FiStar } from 'react-icons/fi';
 import Header from '../components/Header';
 import styles from './Catalog.module.scss';
 
 const MOCK_CATALOG = [
   { id: 1, title: 'Берсерк', type: 'Манґа', rating: 4.9, chapters: 375, status: 'Завершено', image: '/uploads/berserk.jpg' },
   { id: 2, title: 'Атака Титанів', type: 'Манґа', rating: 4.8, chapters: 139, status: 'Завершено', image: '/uploads/attack_on_titan.jpg' },
-  { id: 3, title: 'Легенда про меч', type: 'Фанфік', rating: 4.2, chapters: 42, status: 'Онґоінґ', image: '/uploads/novel.jpg' },
+  { id: 3, title: 'Легенда про меч', type: 'Література/Фанфік', rating: 4.2, chapters: 42, status: 'Онґоінґ', image: '/uploads/novel.jpg' },
   { id: 4, title: 'Токійський ґуль', type: 'Манґа', rating: 4.5, chapters: 143, status: 'Завершено', image: '/uploads/tokyo_ghoul.jpg' },
   { id: 5, title: 'Вежа Бога', type: 'Манхва', rating: 4.8, chapters: 550, status: 'Онґоінґ', image: '/uploads/tower_of_god.jpg' },
-  { id: 6, title: 'Світ без магії', type: 'Фанфік', rating: 3.9, chapters: 15, status: 'Анонс', image: '/uploads/novel.jpg' },
+  { id: 6, title: 'Світ без магії', type: 'Література/Фанфік', rating: 3.9, chapters: 15, status: 'Анонс', image: '/uploads/novel.jpg' },
 ];
 
 const TYPE_MAP = {
@@ -17,7 +18,7 @@ const TYPE_MAP = {
   'manhwa': 'Манхва',
   'manhua': 'Маньхуа',
   'comics': 'Комікс',
-  'fanfic': 'Фанфік'
+  'fanfic': 'Література/Фанфік'
 };
 
 const REVERSE_TYPE_MAP = {
@@ -25,7 +26,7 @@ const REVERSE_TYPE_MAP = {
   'Манхва': 'manhwa',
   'Маньхуа': 'manhua',
   'Комікс': 'comics',
-  'Фанфік': 'fanfic'
+  'Література/Фанфік': 'fanfic'
 };
 
 const Catalog = () => {
@@ -86,7 +87,7 @@ const Catalog = () => {
           className={styles.mobileToggleBtn} 
           onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
         >
-          {isMobileFiltersOpen ? 'Сховати фільтри ✖' : 'Фільтри 🔽'}
+          {isMobileFiltersOpen ? <><FiX size={18} /> Сховати фільтри</> : <><FiChevronDown size={18} /> Фільтри</>}
         </button>
 
         {/* ЛІВА ЧАСТИНА: Сітка тайтлів (75%) */}
@@ -104,12 +105,12 @@ const Catalog = () => {
                 onClick={() => navigate(`/manga/${item.id}`)}
               >
                 <div className={styles.imageWrapper}>
-                  {item.type !== 'Фанфік' ? (
+                  {item.type !== 'Література/Фанфік' ? (
                     <img src={item.image} alt={item.title} />
                   ) : (
                     <div className={styles.textCover}>{item.title}</div>
                   )}
-                  <div className={styles.rating}>⭐ {item.rating}</div>
+                  <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.rating}</div>
                   <div className={styles.typeBadge}>{item.type}</div>
                 </div>
                 <div className={styles.cardInfo}>
@@ -131,7 +132,7 @@ const Catalog = () => {
             <div className={styles.filterGroup}>
               <h3 className={styles.groupTitle}>Формат</h3>
               <div className={styles.btnGroup}>
-                {['Всі', 'Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Фанфік'].map(format => (
+                {['Всі', 'Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Література/Фанфік'].map(format => (
                   <button 
                     key={format}
                     className={`${styles.filterBtn} ${activeFormat === format ? styles.active : ''}`}

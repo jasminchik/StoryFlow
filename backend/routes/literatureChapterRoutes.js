@@ -20,7 +20,7 @@ router.get('/literature/:literatureId', async (req, res) => {
 
 /**
  * @route   GET /api/literature-chapters/:id
- * @desc    Отримати одну главу (читання фанфіка)
+ * @desc    Отримати одну главу (читання Література/Фанфік)
  * @access  Public
  */
 router.get('/:id', async (req, res) => {

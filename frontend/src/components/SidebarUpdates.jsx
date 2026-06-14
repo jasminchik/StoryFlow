@@ -17,7 +17,7 @@ const MOCK_MANHWA = [
   { id: 3, title: 'Магічна битва', chapter: 'Розділ 250', image: '/uploads/jujutsu_kaisen.jpg' },
 ];
 
-// Тимчасові дані для Фанфіків
+// Тимчасові дані для Література
 const MOCK_FANFICS = [
   { id: 1, title: 'Тінь Хокаґе', chapter: 'Глава 15: Нова сила', image: '/uploads/novel.jpg' },
   { id: 2, title: 'Світ без магії', chapter: 'Глава 3: Зустріч', image: '/uploads/novel.jpg' },
@@ -52,7 +52,7 @@ const SidebarUpdates = () => {
           className={`${styles.tabBtn} ${activeTab === 'fanfics' ? styles.active : ''}`}
           onClick={() => setActiveTab('fanfics')}
         >
-          Фанфіки
+          Література
         </button>
       </div>
 
@@ -77,7 +77,7 @@ const SidebarUpdates = () => {
         ))}
       </div>
 
-      <Link to="/updates" className={styles.moreBtn}>ДИВИТИСЬ ВСІ</Link>
+      <Link to={`/updates?type=${activeTab}`} className={styles.moreBtn}>ДИВИТИСЬ ВСІ</Link>
     </div>
   );
 };

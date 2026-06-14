@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FiSearch, FiHeart, FiChevronDown, FiShuffle, FiUser } from 'react-icons/fi';
 import SearchOverlay from './SearchOverlay';
 import AuthModal from './AuthModal';
 import ProfileDropdown from './ProfileDropdown';
@@ -23,13 +24,38 @@ const Header = () => {
 
   // Авто-вхід при завантаженні (відновлення сесії)
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      setIsAuth(true);
-      setCurrentUser(JSON.parse(user));
+    const refreshUser = () => {
+      try {
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        if (token && user) {
+          setIsAuth(true);
+          setCurrentUser(JSON.parse(user));
+        } else {
+          setIsAuth(false);
+          setCurrentUser(null);
+        }
+      } catch (err) {
+        console.error('Failed to parse user from localStorage:', err);
+        setIsAuth(false);
+        setCurrentUser(null);
+      }
+    };
+
+    refreshUser();
+
+    // Слухаємо оновлення профілю
+    window.addEventListener('profileUpdate', refreshUser);
+
+    // Відкриваємо модалку, якщо є параметри помилки або режиму авторизації
+    // АЛЕ тільки якщо користувач ще не авторизований
+    const params = new URLSearchParams(window.location.search);
+    const hasAuthParams = params.get('auth_mode') || params.get('auth_error');
+    if (hasAuthParams && !localStorage.getItem('token')) {
+      setIsModalOpen(true);
     }
+
+    return () => window.removeEventListener('profileUpdate', refreshUser);
   }, []);
 
   useEffect(() => {
@@ -93,36 +119,36 @@ const Header = () => {
                 className={styles.navLinkBtn} 
                 onClick={() => setIsCatalogOpen(!isCatalogOpen)}
               >
-                Каталог <span className={styles.dropdownArrow}>{isCatalogOpen ? '▲' : '▼'}</span>
+                Каталог <FiChevronDown size={18} className={`${styles.dropdownArrow} ${isCatalogOpen ? styles.rotated : ''}`} />
               </button>
               {isCatalogOpen && (
                 <div className={styles.catalogDropdown}>
                   <Link to="/catalog?type=manga" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манґа</Link>
                   <Link to="/catalog?type=manhwa" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манхва</Link>
-                  <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Фанфіки</Link>
+                  <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Література/Фанфік</Link>
                   <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
                   <Link to="/reading-now" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
                   
                   <div className={styles.dropdownDivider}></div>
                   <button className={styles.randomBtn} onClick={handleRandomTitle}>
-                    🎲 Випадковий тайтл
+                    <FiShuffle size={16} /> Випадковий тайтл
                   </button>
                 </div>
               )}
             </div>
 
             <button className={styles.searchTrigger} onClick={() => setIsSearchOpen(true)}>
-              <span className={styles.searchIcon}>🔍</span>
+              <FiSearch size={20} className={styles.searchIcon} />
               <span className={styles.searchText}>Пошук</span>
             </button>
 
-            <Link to="/news" className={styles.navLink}>Новини</Link>
+            <Link to="/notifications?tab=news" className={styles.navLink}>Новини</Link>
           </div>
 
           {/* ПРАВА ЗОНА: Обране, Профіль та Бургер */}
           <div className={styles.rightArea}>
             <Link to="/favorites" className={styles.bookmarkLink} title="Обране">
-              <span className={styles.icon}>💖</span>
+              <FiHeart size={20} className={styles.icon} />
               <span className={styles.btnText}>Обране</span>
             </Link>
             
@@ -138,7 +164,7 @@ const Header = () => {
                   {currentUser?.avatar ? (
                     <img src={currentUser.avatar} alt="Avatar" />
                   ) : (
-                    currentUser?.username ? currentUser.username[0].toUpperCase() : '👤'
+                    <FiUser size={24} />
                   )}
                 </Link>
                 <button 

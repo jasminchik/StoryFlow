@@ -1,5 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { 
+  FiBook, 
+  FiMessageSquare, 
+  FiStar, 
+  FiBookOpen, 
+  FiSettings, 
+  FiUser, 
+  FiChevronRight
+} from 'react-icons/fi';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from '../components/Header';
 import ProfileSidebar from '../components/ProfileSidebar';
@@ -8,11 +17,43 @@ import styles from './Profile.module.scss';
 
 const Profile = () => {
   const { username: urlUsername } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
 
-  const [profileTab, setProfileTab] = useState('titles');
+  const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
+  const analyticsRef = useRef(null);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'stats') {
+      analyticsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    } else if (tab === 'settings') {
+      setIsSettingsOpen(true);
+    } else if (tab) {
+      setProfileTab(tab);
+      setIsSettingsOpen(false);
+    } else {
+      setIsSettingsOpen(false);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId) => {
+    if (tabId === 'settings') {
+      setSearchParams({ tab: 'settings' });
+    } else {
+      setProfileTab(tabId);
+      setSearchParams({ tab: tabId });
+    }
+  };
+
+  const handleCloseSettings = () => {
+    setIsSettingsOpen(false);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('tab');
+    setSearchParams(newParams);
+  };
 
   const PROFILE_TABS = [
     { id: 'titles', label: 'Тайтли' },
@@ -75,50 +116,58 @@ const Profile = () => {
     totalTime: '48 годин' 
   };
 
-  const loadProfileData = useCallback(() => {
-    const storedData = JSON.parse(localStorage.getItem('user_profile_data') || 'null');
-    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
-    
-    if (storedUser && (urlUsername === storedUser.username || !urlUsername)) {
-      setProfileData(storedData);
-    } else {
-      setProfileData(null);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/profile/${urlUsername}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setUser(data.data);
+        } else {
+          setUser({
+            username: urlUsername,
+            role: 'Гість',
+            avatar: null,
+            error: true
+          });
+        }
+      } catch (err) {
+        console.error('Помилка завантаження профілю:', err);
+      }
+    };
+
+    if (urlUsername) {
+      fetchUserData();
     }
+
+    // Слухаємо оновлення, щоб оновити дані профілю, якщо це власний профіль
+    const handleProfileUpdate = () => {
+      const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
+      if (loggedInUser && (loggedInUser.username === urlUsername || loggedInUser.id === user?._id || loggedInUser._id === user?._id)) {
+        setUser(prev => ({ ...prev, ...loggedInUser }));
+      }
+    };
+
+    window.addEventListener('profileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdate', handleProfileUpdate);
   }, [urlUsername]);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+  if (!user) return <div className={styles.profileWrapper}><Header /><div className={styles.loading}>Завантаження...</div></div>;
 
-    if (token && storedUser) {
-      if (urlUsername === storedUser.username || !urlUsername) {
-        setUser(storedUser);
-        loadProfileData();
-      } else {
-        setUser({
-          username: urlUsername,
-          role: 'Користувач',
-          avatar: null
-        });
-      }
-    } else {
-      setUser({
-        username: urlUsername || 'Гість',
-        role: 'Гість',
-        avatar: null
-      });
-    }
+  const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const isOwnProfile = user.username && (loggedInUser?.username === user.username);
+  
+  const displayName = user.username;
+  const displayAvatar = user.avatar;
+  const displayBanner = user.banner;
 
-    window.addEventListener('profileUpdate', loadProfileData);
-    return () => window.removeEventListener('profileUpdate', loadProfileData);
-  }, [urlUsername, loadProfileData]);
-
-  if (!user) return <div className={styles.profileWrapper}><Header /></div>;
-
-  const isOwnProfile = user.username && (JSON.parse(localStorage.getItem('user'))?.username === user.username);
-  const displayName = profileData?.nickname || user.username;
-  const displayAvatar = profileData?.avatar || user.avatar;
-  const displayBanner = profileData?.banner;
+  const STATS_DYNAMIC = [
+    { label: 'Тайтли', value: user.stats?.titles || 0, icon: <FiBook size={18} /> },
+    { label: 'Коментарі', value: user.stats?.comments || 0, icon: <FiMessageSquare size={18} /> },
+    { label: 'Оцінки', value: user.stats?.ratings || 0, icon: <FiStar size={18} /> },
+    { label: 'Прочитано', value: user.stats?.readCount || 0, icon: <FiBookOpen size={18} /> }
+  ];
 
   const renderProfileTabContent = () => {
     switch(profileTab) {
@@ -165,7 +214,7 @@ const Profile = () => {
               <div key={review.id} className={styles.listItem}>
                 <div className={styles.listHeader}>
                   <span className={styles.listTitle}>{review.title}</span>
-                  <span className={styles.reviewRating}>⭐ {review.rating}/10</span>
+                  <span className={styles.reviewRating}><FiStar size={14} fill="currentColor" /> {review.rating}/10</span>
                 </div>
                 <p className={styles.listText}>{review.text}</p>
                 <span className={styles.listDate}>{review.date}</span>
@@ -221,15 +270,15 @@ const Profile = () => {
           <div className={styles.banner}>
             <div 
               className={styles.bannerImage} 
-              style={{ backgroundImage: displayBanner ? `url(${displayBanner})` : 'none' }}
+              style={{ backgroundImage: displayBanner ? `url("${displayBanner}")` : 'none' }}
             />
             {isOwnProfile && (
               <button 
                 className={styles.settingsBtn}
-                onClick={() => setIsSettingsOpen(true)}
+                onClick={() => handleTabChange('settings')}
                 title="Налаштування"
               >
-                ⚙️
+                <FiSettings size={20} />
               </button>
             )}
           </div>
@@ -240,7 +289,7 @@ const Profile = () => {
                 <img src={displayAvatar} alt={displayName} className={styles.avatarImage} />
               ) : (
                 <div className={styles.avatarPlaceholder}>
-                  {displayName.charAt(0).toUpperCase()}
+                  <FiUser size={40} />
                 </div>
               )}
             </div>
@@ -248,19 +297,19 @@ const Profile = () => {
             <div className={styles.userDetails}>
               <div className={styles.nameRow}>
                 <h1 className={styles.nickname}>{displayName}</h1>
-                {profileData?.gender && profileData.gender !== 'secret' && (
-                  <span className={styles.genderBadge} title={profileData.gender === 'male' ? 'Чоловік' : 'Жінка'}>
-                    {profileData.gender === 'male' ? '♂️' : '♀️'}
+                {user.gender && user.gender !== 'secret' && (
+                  <span className={styles.genderBadge} title={user.gender === 'male' ? 'Чоловік' : 'Жінка'}>
+                    <FiUser size={14} />
                   </span>
                 )}
               </div>
               
-              {profileData?.aboutMe && (
-                <p className={styles.aboutText}>{profileData.aboutMe}</p>
+              {user.aboutMe && (
+                <p className={styles.aboutText}>{user.aboutMe}</p>
               )}
               
               <div className={styles.statsPanel}>
-                {STATS.map((stat, index) => (
+                {STATS_DYNAMIC.map((stat, index) => (
                   <div key={index} className={styles.statItem}>
                     <span>{stat.icon}</span>
                     <span className={styles.statLabel}>{stat.label}</span>
@@ -273,14 +322,14 @@ const Profile = () => {
         </section>
 
         {/* АНАЛІТИКА (ЗАВЖДИ ЗВЕРХУ) */}
-        <section className={styles.analyticsSection}>
+        <section className={styles.analyticsSection} ref={analyticsRef}>
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
               <span className={styles.statLabel}>Прочитано розділів манґи</span>
               <span className={styles.statNumber}>{totalStats.mangaChapters}</span>
             </div>
             <div className={styles.statCard}>
-              <span className={styles.statLabel}>Прочитано фанфіків</span>
+              <span className={styles.statLabel}>Прочитано Література/Фанфік</span>
               <span className={styles.statNumber}>{totalStats.fanficChapters}</span>
             </div>
             <div className={styles.statCard}>
@@ -309,7 +358,7 @@ const Profile = () => {
               key={tab.id}
               type="button"
               className={`${styles.tabBtn} ${profileTab === tab.id ? styles.activeProfileTab : ''}`}
-              onClick={() => setProfileTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
             >
               {tab.label}
             </button>
@@ -327,7 +376,8 @@ const Profile = () => {
 
       <ProfileSettingsModal 
         isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
+        onClose={handleCloseSettings} 
+        user={user}
       />
     </div>
   );

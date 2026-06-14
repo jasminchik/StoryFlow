@@ -3,11 +3,13 @@
 .headerWrapper {
   width: 100%;
   background-color: var(--bg-navbar);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background-color var(--transition-speed), border-color var(--transition-speed);
 }
 
 .headerInner {
@@ -140,8 +142,12 @@
 }
 
 .dropdownArrow {
-  font-size: 0.6rem;
+  transition: transform 0.3s ease;
   opacity: 0.6;
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
 }
 
 .catalogDropdown {
@@ -149,9 +155,9 @@
   top: 100%;
   left: 0;
   background-color: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-main);
   padding: 8px 0;
   min-width: 200px;
   z-index: 100;
@@ -170,7 +176,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background-color: rgba(255, 71, 87, 0.1);
+    background-color: var(--primary-light);
     color: var(--primary-color);
     padding-left: 24px;
   }
@@ -178,7 +184,7 @@
 
 .dropdownDivider {
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--border-color);
   margin: 8px 0;
 }
 
@@ -256,7 +262,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--secondary-color);
     color: var(--primary-color);
   }
 

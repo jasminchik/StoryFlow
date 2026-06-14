@@ -1,7 +1,9 @@
+@import '../styles/variables';
+
 .sidebar {
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -16,7 +18,7 @@
 }
 
 .blockTitle {
-  color: #888;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -32,13 +34,13 @@
   user-select: none;
   
   .hiddenRadio {
-    display: none; /* Приховуємо стандартний кружечок браузера */
+    display: none; 
   }
   
   .circle {
     width: 18px;
     height: 18px;
-    border: 2px solid #555;
+    border: 2px solid var(--border-color);
     border-radius: 50%;
     position: relative;
     transition: border-color 0.2s ease;
@@ -52,7 +54,7 @@
       position: absolute;
       width: 8px;
       height: 8px;
-      background-color: var(--primary-color, #ff4757);
+      background-color: var(--primary-color);
       border-radius: 50%;
       transform: scale(0);
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -60,14 +62,14 @@
   }
   
   .text {
-    color: #ccc;
+    color: var(--text-secondary);
     font-size: 14px;
     transition: color 0.2s ease;
   }
   
   /* Стани при активності (checked) */
   .hiddenRadio:checked + .circle {
-    border-color: var(--primary-color, #ff4757);
+    border-color: var(--primary-color);
     
     &::after {
       transform: scale(1);
@@ -75,26 +77,26 @@
   }
   
   .hiddenRadio:checked ~ .text {
-    color: #fff;
+    color: var(--text-main);
     font-weight: 500;
   }
   
   /* Ефекти при наведенні миші */
   &:hover .circle {
-    border-color: #888;
+    border-color: var(--text-muted);
   }
   
   &:hover .hiddenRadio:checked + .circle {
-    border-color: var(--primary-color, #ff4757);
+    border-color: var(--primary-color);
   }
   
   &:hover .text {
-    color: #fff;
+    color: var(--text-main);
   }
 }
 
 .emptyFilter {
-  color: #666;
+  color: var(--text-muted);
   font-size: 14px;
   text-align: center;
   padding: 40px 0;

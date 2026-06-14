@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FiSearch, FiX } from 'react-icons/fi';
 import styles from './SearchOverlay.module.scss';
 
 const MOCK_DATA = {
@@ -16,8 +17,8 @@ const MOCK_DATA = {
     { id: 6, title: 'Сказання про Демонів та Богів', type: 'Маньхуа', chapters: 450, desc: 'Не Сяо повертається у минуле...', image: '/uploads/novel.jpg' },
   ],
   fanfics: [
-    { id: 7, title: 'Легенда про людину', type: 'Фанфік', chapters: 12, desc: 'Альтернативна історія про світ магії...', image: '/uploads/novel.jpg' },
-    { id: 8, title: 'Тінь Хокаґе', type: 'Фанфік', chapters: 15, desc: 'Нова сила Наруто...', image: '/uploads/novel.jpg' },
+    { id: 7, title: 'Легенда про людину', type: 'Література/Фанфік', chapters: 12, desc: 'Альтернативна історія про світ магії...', image: '/uploads/novel.jpg' },
+    { id: 8, title: 'Тінь Хокаґе', type: 'Література/Фанфік', chapters: 15, desc: 'Нова сила Наруто...', image: '/uploads/novel.jpg' },
   ]
 };
 
@@ -70,7 +71,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     <div className={`${styles.overlay} ${isVisible ? styles.visible : ''}`} onClick={onClose}>
       <div className={styles.searchContainer} onClick={e => e.stopPropagation()}>
         <div className={styles.searchHeader}>
-          <span className={styles.searchIcon}>🔍</span>
+          <FiSearch size={20} className={styles.searchIcon} />
           <input 
             ref={inputRef}
             type="text" 
@@ -79,7 +80,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+          <button className={styles.closeBtn} onClick={onClose}><FiX size={24} /></button>
         </div>
 
         <div className={styles.tabs}>
@@ -105,7 +106,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
             className={`${styles.tab} ${activeTab === 'fanfics' ? styles.active : ''}`}
             onClick={() => setActiveTab('fanfics')}
           >
-            Фанфіки
+            Література/Фанфіки
           </button>
         </div>
 
@@ -135,7 +136,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <div className={styles.noResults}>
-              <span className={styles.noResultsIcon}>😯</span>
+              <FiSearch size={48} className={styles.noResultsIcon} />
               <p>Нічого не знайдено за запитом "{query}"</p>
             </div>
           )}

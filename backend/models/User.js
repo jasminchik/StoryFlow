@@ -22,6 +22,30 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'author', 'admin'],
     default: 'user'
   },
+  avatar: {
+    type: String,
+    default: null
+  },
+  banner: {
+    type: String,
+    default: null
+  },
+  aboutMe: {
+    type: String,
+    maxlength: [500, 'Опис про себе не може бути довшим за 500 символів'],
+    default: ''
+  },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'secret'],
+    default: 'secret'
+  },
+  stats: {
+    titles: { type: Number, default: 0 },
+    comments: { type: Number, default: 0 },
+    ratings: { type: Number, default: 0 },
+    readCount: { type: Number, default: 0 }
+  },
   password: {
     type: String,
     required: [true, 'Please add a password'],

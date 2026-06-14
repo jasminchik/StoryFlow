@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
+import { FiX, FiUploadCloud, FiZap } from 'react-icons/fi';
 import styles from './ProfileSettingsModal.module.scss';
 
-const ProfileSettingsModal = ({ isOpen, onClose }) => {
+const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState('');
   const [banner, setBanner] = useState('');
   const [aboutMe, setAboutMe] = useState('');
   const [gender, setGender] = useState('secret');
+  const [isSaved, setIsSaved] = useState(false);
 
   // Управління завантаженням та обрізкою (Cropper)
   const avatarInputRef = useRef(null);
@@ -22,31 +24,73 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
   const [isDragging, setIsDragging] = useState(null);
 
   useEffect(() => {
-    if (isOpen) {
-      const storedData = JSON.parse(localStorage.getItem('user_profile_data') || '{}');
-      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      
-      setNickname(storedData.nickname || currentUser.username || '');
-      setAvatar(storedData.avatar || '');
-      setBanner(storedData.banner || '');
-      setAboutMe(storedData.aboutMe || '');
-      setGender(storedData.gender || 'secret');
+    if (isOpen && user) {
+      setNickname(user.username || '');
+      setAvatar(user.avatar || '');
+      setBanner(user.banner || '');
+      setAboutMe(user.aboutMe || '');
+      setGender(user.gender || 'secret');
+      setIsSaved(false);
       
       document.body.style.overflow = 'hidden';
-    } else {
+    } else if (!isOpen) {
       document.body.style.overflow = 'unset';
-      setImageSrc(null); // Скидаємо кроппер при закритті
+      setImageSrc(null);
+      setNickname('');
+      setAvatar('');
+      setBanner('');
+      setAboutMe('');
+      setGender('secret');
     }
-    
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+  }, [isOpen, user]);
 
-  const handleSave = () => {
-    const profileData = { nickname, avatar, banner, aboutMe, gender };
-    localStorage.setItem('user_profile_data', JSON.stringify(profileData));
-    window.dispatchEvent(new Event('profileUpdate'));
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:5000/api/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          username: nickname,
+          avatar,
+          banner,
+          aboutMe,
+          gender
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Оновлюємо дані в localStorage
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const updatedUser = { ...currentUser, ...data.data };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        // Повідомляємо інші компоненти про оновлення
+        window.dispatchEvent(new Event('profileUpdate'));
+        
+        setIsSaved(true);
+
+        // Якщо нікнейм змінився, треба змінити URL через деякий час
+        if (nickname !== currentUser.username) {
+          setTimeout(() => {
+            window.location.href = `/profile/${nickname}`;
+          }, 2000);
+        }
+      } else {
+        alert(data.error || 'Помилка при збереженні');
+      }
+    } catch (err) {
+      console.error('Помилка збереження:', err);
+      alert('Не вдалося зберегти зміни');
+    }
+  };
+
+  const handleClose = () => {
     onClose();
   };
 
@@ -146,11 +190,11 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
 
   return (
     <>
-      <div className={styles.backdrop} onClick={onClose}>
+      <div className={styles.backdrop} onClick={handleClose}>
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
           <div className={styles.header}>
             <h2>Налаштування профілю</h2>
-            <button className={styles.closeBtn} onClick={onClose}>&times;</button>
+            <button className={styles.closeBtn} onClick={handleClose}><FiX size={24} /></button>
           </div>
 
           <div className={styles.content}>
@@ -174,7 +218,7 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, 'avatar')}
                 >
-                  <span className={styles.dropIcon}>☁️</span>
+                  <FiUploadCloud size={32} className={styles.dropIcon} />
                   <span>Натисніть або перетягніть зображення</span>
                   <input 
                     type="file" 
@@ -204,7 +248,7 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, 'banner')}
                 >
-                  <span className={styles.dropIcon}>☁️</span>
+                  <FiUploadCloud size={32} className={styles.dropIcon} />
                   <span>Натисніть або перетягніть зображення</span>
                   <input 
                     type="file" 
@@ -261,9 +305,20 @@ const ProfileSettingsModal = ({ isOpen, onClose }) => {
           </div>
 
           <div className={styles.footer}>
-            <button className={styles.saveButton} onClick={handleSave}>
-              Зберегти зміни
-            </button>
+            {isSaved ? (
+              <div className={styles.successWrapper}>
+                <span className={styles.successText}>
+                  <FiZap size={18} className={styles.successIcon} /> Зміни збережено! Ваш аватар та банер оновлено. Тепер ви можете закрити це вікно.
+                </span>
+                <button className={styles.saveButton} onClick={handleClose}>
+                  Закрити
+                </button>
+              </div>
+            ) : (
+              <button className={styles.saveButton} onClick={handleSave}>
+                Зберегти зміни
+              </button>
+            )}
           </div>
         </div>
       </div>

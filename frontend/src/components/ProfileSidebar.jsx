@@ -63,7 +63,7 @@ const ProfileSidebar = ({ activeTab }) => {
             <div className={styles.filterBlock}>
               <h4 className={styles.blockTitle}>Тип</h4>
               <RadioOption name="type" value="manga" checkedValue={commentType} onChange={setCommentType} label="Манґа" />
-              <RadioOption name="type" value="fanfic" checkedValue={commentType} onChange={setCommentType} label="Фанфіки" />
+              <RadioOption name="type" value="fanfic" checkedValue={commentType} onChange={setCommentType} label="Література/Фанфік" />
               <RadioOption name="type" value="manhwa" checkedValue={commentType} onChange={setCommentType} label="Манхва" />
               <RadioOption name="type" value="manhua" checkedValue={commentType} onChange={setCommentType} label="Маньхуа" />
             </div>

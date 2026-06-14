@@ -5,6 +5,7 @@
   background-color: var(--bg-main);
   color: var(--text-main);
   padding-bottom: 50px;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
 .container {
@@ -21,7 +22,7 @@
   width: 100%;
   border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-main);
 }
 
 .banner {
@@ -50,8 +51,8 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--bg-overlay);
+    border: 1px solid var(--border-color);
     color: white;
     font-size: 1.2rem;
     display: flex;
@@ -63,8 +64,8 @@
     z-index: 10;
 
     &:hover {
-      background: #ff4757;
-      border-color: #ff4757;
+      background: var(--primary-color);
+      border-color: var(--primary-color);
       transform: rotate(45deg);
     }
   }
@@ -77,7 +78,7 @@
   align-items: center;
   gap: 30px;
   position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-color);
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -96,7 +97,7 @@
   margin-top: -80px;
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-lg);
   z-index: 2;
 
   @media (max-width: 768px) {
@@ -121,7 +122,7 @@
     font-size: 70px;
     font-weight: bold;
     color: white;
-    background-color: #ff4757;
+    background-color: var(--primary-color);
 
     @media (max-width: 768px) {
       font-size: 50px;
@@ -151,6 +152,7 @@
   font-size: 28px;
   font-weight: 800;
   margin: 0;
+  color: var(--text-main);
 
   @media (max-width: 768px) {
     font-size: 22px;
@@ -159,15 +161,15 @@
 
 .genderBadge {
   font-size: 1.2rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
   padding: 2px 8px;
   border-radius: 6px;
-  color: #888;
+  color: var(--text-muted);
 }
 
 .aboutText {
   margin: 0;
-  color: #b3b3b3;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   max-width: 600px;
   line-height: 1.5;
@@ -223,7 +225,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
 }
 
 .statLabel {
@@ -234,7 +236,7 @@
 .statNumber {
   font-size: 32px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-main);
   line-height: 1;
 }
 
@@ -242,7 +244,7 @@
   background-color: var(--bg-card);
   padding: 24px;
   border-radius: var(--border-radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
 }
 
 .chartTitle {
@@ -267,7 +269,7 @@
 .profileTabsMenu {
   display: flex;
   gap: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color);
   margin-top: 10px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -290,7 +292,7 @@
   white-space: nowrap;
 
   &:hover {
-    color: #fff;
+    color: var(--text-main);
   }
 
   &.activeProfileTab {
@@ -327,12 +329,12 @@
   gap: 16px;
   align-items: center;
   padding: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   transition: transform 0.2s, border-color 0.2s;
 
   &:hover {
     transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-color);
   }
 }
 
@@ -341,7 +343,7 @@
   height: 85px;
   object-fit: cover;
   border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-main);
 }
 
 .cardInfo {
@@ -355,7 +357,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -364,7 +366,7 @@
 .progressTrack {
   width: 100%;
   height: 8px;
-  background: #2a2a2a;
+  background: var(--bg-secondary);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -392,11 +394,11 @@
   background: var(--bg-card);
   padding: 20px;
   border-radius: var(--border-radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   transition: border-color 0.2s;
 
   &:hover {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-color);
   }
 }
 
@@ -424,7 +426,7 @@
 }
 
 .listText {
-  color: #e0e0e0;
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0 0 12px 0;
   font-style: italic;
@@ -442,23 +444,23 @@
   padding: 16px 20px;
   background: var(--bg-card);
   border-radius: var(--border-radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   transition: transform 0.2s;
 
   &:hover {
     transform: translateX(5px);
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-secondary);
   }
 }
 
 .historyTitle {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-main);
   flex: 1;
 }
 
 .historyDetails {
-  color: #bbb;
+  color: var(--text-secondary);
   flex: 2;
   font-size: 0.95rem;
 }
@@ -485,13 +487,13 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   transition: transform 0.2s;
   cursor: pointer;
 
   &:hover {
     transform: translateY(-5px);
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-color);
   }
 }
 
@@ -519,7 +521,7 @@
   justify-content: center;
   font-size: 32px;
   font-weight: bold;
-  color: #fff;
+  color: white;
 }
 
 .onlineIndicator, .offlineIndicator {
@@ -543,6 +545,6 @@
 
 .friendName {
   font-weight: 600;
-  color: #fff;
+  color: var(--text-main);
   text-align: center;
 }

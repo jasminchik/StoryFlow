@@ -1,9 +1,24 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { 
+  FiUser, 
+  FiBell, 
+  FiMessageSquare, 
+  FiClock, 
+  FiBarChart2, 
+  FiSettings, 
+  FiLogOut, 
+  FiMoon, 
+  FiSun,
+  FiX,
+  FiChevronRight
+} from 'react-icons/fi';
+import { useTheme } from '../context/ThemeContext';
 import styles from './ProfileDropdown.module.scss';
 
 const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
   const menuRef = useRef(null);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -29,42 +44,42 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
       <div className={`${styles.sideMenu} ${isOpen ? styles.open : ''}`} ref={menuRef}>
         <div className={styles.menuHeader}>
           <div className={styles.userInfo}>
-            <Link to={`/profile/${user?.username}`} className={styles.profileLink} onClick={onClose}>Мій профіль →</Link>
+            <Link to={`/profile/${user?.username}`} className={styles.profileLink} onClick={onClose}>
+              Мій профіль <FiChevronRight size={16} />
+            </Link>
             <h3 className={styles.username}>{user?.username}</h3>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
-        </div>
-
-        <div className={styles.experienceBadge}>
-          <span className={styles.starIcon}>⭐</span>
-          <span className={styles.expText}>{user?.experience || 0} досвіду</span>
+          <button className={styles.closeBtn} onClick={onClose}>
+            <FiX size={24} />
+          </button>
         </div>
 
         <nav className={styles.menuLinks}>
-          <Link to="/messages" className={styles.menuItem} onClick={onClose}>
-            <span className={styles.icon}>✉️</span> Повідомлення
+          <Link to="/notifications" className={styles.menuItem} onClick={onClose}>
+            <FiBell className={styles.icon} size={20} /> Повідомлення
           </Link>
-          <Link to="/comments" className={styles.menuItem} onClick={onClose}>
-            <span className={styles.icon}>💬</span> Коментарі
+          <Link to={`/profile/${user?.username}?tab=comments`} className={styles.menuItem} onClick={onClose}>
+            <FiMessageSquare className={styles.icon} size={20} /> Коментарі
           </Link>
-          <Link to="/history" className={styles.menuItem} onClick={onClose}>
-            <span className={styles.icon}>👁️</span> Історія переглядів
+          <Link to={`/profile/${user?.username}?tab=history`} className={styles.menuItem} onClick={onClose}>
+            <FiClock className={styles.icon} size={20} /> Історія переглядів
           </Link>
-          <Link to="/stats" className={styles.menuItem} onClick={onClose}>
-            <span className={styles.icon}>📊</span> Статистика
+          <Link to={`/profile/${user?.username}?tab=stats`} className={styles.menuItem} onClick={onClose}>
+            <FiBarChart2 className={styles.icon} size={20} /> Статистика
           </Link>
           
           <div className={styles.divider}></div>
           
-          <button className={styles.menuItem}>
-            <span className={styles.icon}>🌙</span> Тема сайту: <span className={styles.themeText}>Темна</span>
+          <button className={styles.menuItem} onClick={(e) => toggleTheme(e)}>
+            {theme === 'dark' ? <FiMoon className={styles.icon} size={20} /> : <FiSun className={styles.icon} size={20} />}
+            Тема сайту: <span className={styles.themeText}>{theme === 'dark' ? 'Темна' : 'Світла'}</span>
           </button>
-          <Link to="/settings" className={styles.menuItem} onClick={onClose}>
-            <span className={styles.icon}>⚙️</span> Налаштування
+          <Link to={`/profile/${user?.username}?tab=settings`} className={styles.menuItem} onClick={onClose}>
+            <FiSettings className={styles.icon} size={20} /> Налаштування
           </Link>
           
           <button className={`${styles.menuItem} ${styles.logoutBtn}`} onClick={onLogout}>
-            <span className={styles.icon}>🚪</span> Вихід
+            <FiLogOut className={styles.icon} size={20} /> Вихід
           </button>
         </nav>
       </div>

@@ -58,7 +58,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 2px solid var(--border-color);
   padding-bottom: 12px;
 }
 
@@ -100,7 +100,7 @@
   overflow: hidden;
   margin-bottom: 12px;
   background-color: var(--bg-card);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-main);
 
   img {
     width: 100%;
@@ -120,16 +120,16 @@
   font-weight: 700;
   font-size: 1.2rem;
   color: var(--text-main);
-  background: linear-gradient(135deg, var(--bg-card) 0%, #2a2a2a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
 }
 
 .rating {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #ffb800;
+  background: var(--bg-badge);
+  color: var(--rating-color);
   padding: 4px 6px;
   border-radius: var(--border-radius-sm);
   font-size: 0.8rem;
@@ -227,8 +227,8 @@
 }
 
 .filterBtn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid transparent;
+  background: var(--secondary-color);
+  border: 1px solid var(--border-color);
   color: var(--text-main);
   padding: 6px 12px;
   border-radius: 20px;
@@ -237,7 +237,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border-color);
   }
 
   &.active {

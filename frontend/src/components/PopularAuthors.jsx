@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { FiUsers, FiBookOpen } from 'react-icons/fi';
 import styles from './PopularAuthors.module.scss';
 
 const MOCK_AUTHORS = [
@@ -28,7 +30,9 @@ const PopularAuthors = () => {
 
   return (
     <div className={styles.authorsCard}>
-      <h2 className={styles.cardTitle}>Популярні автори</h2>
+      <h2 className={styles.cardTitle}>
+        <FiUsers size={20} className={styles.titleIcon} /> Популярні автори
+      </h2>
       
       <div className={styles.authorsList}>
         {MOCK_AUTHORS.map((author) => (
@@ -42,12 +46,14 @@ const PopularAuthors = () => {
             <div className={styles.authorInfo}>
               <span className={styles.nickname}>{author.nickname}</span>
               <span className={styles.worksCount}>
-                {author.worksCount} {getWorksText(author.worksCount)}
+                <FiBookOpen size={14} className={styles.countIcon} /> {author.worksCount} {getWorksText(author.worksCount)}
               </span>
             </div>
           </div>
         ))}
       </div>
+
+      <Link to="/authors" className={styles.moreBtn}>ДИВИТИСЬ ВСІ</Link>
     </div>
   );
 };

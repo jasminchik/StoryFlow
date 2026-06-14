@@ -31,7 +31,7 @@ const Favorites = () => {
                 onClick={() => navigate(`/manga/${item.id}`)}
               >
                 <div className={styles.imageWrapper}>
-                  {item.type !== 'Фанфік' ? (
+                  {item.type !== 'Література/Фанфік' ? (
                     <img src={item.image} alt={item.title} />
                   ) : (
                     <div className={styles.textCover}>{item.title}</div>

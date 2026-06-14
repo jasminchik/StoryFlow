@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--bg-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,13 +15,14 @@
 }
 
 .modal {
-  background: #121212;
+  background: var(--bg-modal);
   width: 100%;
   max-width: 800px;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-main);
   animation: modalAppear 0.3s ease-out;
+  border: 1px solid var(--border-color);
 
   @keyframes modalAppear {
     from { opacity: 0; transform: translateY(20px); }
@@ -31,7 +32,7 @@
 
 .header {
   padding: 20px 24px;
-  border-bottom: 1px solid #1e1e1e;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -40,20 +41,20 @@
     margin: 0;
     font-size: 1.2rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
   }
 
   .closeBtn {
     background: none;
     border: none;
-    color: #666;
+    color: var(--text-muted);
     font-size: 1.5rem;
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s;
 
     &:hover {
-      color: #fff;
+      color: var(--text-main);
     }
   }
 }
@@ -67,7 +68,7 @@
     width: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: #333;
+    background: var(--border-color);
     border-radius: 10px;
   }
 }
@@ -75,7 +76,7 @@
 /* ЗАГОЛОВКИ СЕКЦІЙ */
 .sectionLabel {
   font-size: 0.85rem;
-  color: #888;
+  color: var(--text-muted);
   text-transform: uppercase;
   font-weight: 700;
   margin: 0 0 15px 0;
@@ -104,11 +105,11 @@
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    background: #1e1e1e;
+    background: var(--bg-card);
     overflow: hidden;
     margin-bottom: 15px;
     align-self: center;
-    border: 1px solid #2a2a2a;
+    border: 2px solid var(--border-color);
 
     .avatarImage {
       width: 100%;
@@ -122,8 +123,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #2a2a2a;
-      color: #888;
+      background: var(--secondary-color);
+      color: var(--text-muted);
       font-size: 3rem;
       font-weight: 800;
     }
@@ -143,6 +144,7 @@
 
     h3 {
       margin: 0;
+      color: var(--text-main);
     }
 
     .fakeTabs {
@@ -159,12 +161,12 @@
       }
 
       .activeTab {
-        color: #fff;
+        color: var(--primary-color);
       }
 
       .inactiveTab {
-        color: #666;
-        &:hover { color: #888; }
+        color: var(--text-muted);
+        &:hover { color: var(--text-main); }
       }
     }
   }
@@ -172,11 +174,11 @@
   .bannerPreviewWrapper {
     width: 100%;
     height: 140px;
-    background: #1e1e1e;
+    background: var(--bg-card);
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 15px;
-    border: 1px solid #2a2a2a;
+    border: 2px solid var(--border-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -188,7 +190,7 @@
     }
 
     .bannerPlaceholder {
-      color: #666;
+      color: var(--text-muted);
       font-size: 0.9rem;
       font-weight: 500;
     }
@@ -200,10 +202,10 @@
   width: 100%;
   padding: 16px;
   margin-top: 12px;
-  border: 1px dashed #555;
+  border: 1px dashed var(--border-color);
   border-radius: 8px;
   background-color: transparent;
-  color: #888;
+  color: var(--text-muted);
   text-align: center;
   cursor: pointer;
   font-size: 14px;
@@ -214,9 +216,9 @@
   gap: 8px;
 
   &:hover, &.activeDrag {
-    border-color: #ff4757;
-    color: #fff;
-    background-color: rgba(255, 71, 87, 0.05);
+    border-color: var(--primary-color);
+    color: var(--text-main);
+    background-color: var(--secondary-color);
   }
 
   .dropIcon {
@@ -251,15 +253,15 @@
 
   label {
     font-size: 0.85rem;
-    color: #888;
+    color: var(--text-muted);
     font-weight: 600;
   }
 
   .textInput, .selectInput, .textArea {
-    background: #1e1e1e;
-    border: 1px solid #2a2a2a;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
-    color: #fff;
+    color: var(--text-main);
     padding: 12px 16px;
     font-size: 0.95rem;
     font-family: inherit;
@@ -267,21 +269,12 @@
 
     &:focus {
       outline: none;
-      border-color: #e67e22;
+      border-color: var(--primary-color);
     }
 
     &::placeholder {
-      color: #555;
+      color: var(--text-muted);
     }
-  }
-
-  .selectInput {
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat, repeat;
-    background-position: right .7em top 50%, 0 0;
-    background-size: .65em auto, 100%;
   }
 
   .textArea {
@@ -293,15 +286,31 @@
 /* ФУТЕР І КНОПКА */
 .footer {
   padding: 20px 24px;
-  border-top: 1px solid #1e1e1e;
+  border-top: 1px solid var(--border-color);
   
+  .successWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    animation: fadeIn 0.3s ease-out;
+
+    .successText {
+      color: #2ecc71;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+  }
+
   .saveButton {
     width: 100%;
-    background-color: var(--primary-color, #ff4757);
+    background-color: var(--primary-color);
     color: white;
     border: none;
     padding: 14px;
-    border-radius: var(--border-radius-md, 8px);
+    border-radius: var(--border-radius-md);
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
@@ -310,7 +319,7 @@
     &:hover {
       opacity: 0.9;
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+      box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
     }
 
     &:active {
@@ -336,25 +345,25 @@
 }
 
 .cropperModal {
-  background: #1e1e1e;
+  background: var(--bg-modal);
   border-radius: 12px;
   width: 100%;
   max-width: 600px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-  border: 1px solid #333;
+  box-shadow: var(--shadow-main);
+  border: 1px solid var(--border-color);
 }
 
 .cropperHeader {
   padding: 20px 24px;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid var(--border-color);
   
   h3 {
     margin: 0;
     font-size: 1.2rem;
-    color: #fff;
+    color: var(--text-main);
   }
 }
 
@@ -362,7 +371,7 @@
   position: relative;
   width: 100%;
   height: 400px;
-  background: #121212;
+  background: #000;
 }
 
 .cropperControls {
@@ -370,13 +379,13 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: #1e1e1e;
-  border-top: 1px solid #2a2a2a;
+  background: var(--bg-modal);
+  border-top: 1px solid var(--border-color);
 
   .zoomSlider {
     width: 100%;
     cursor: pointer;
-    accent-color: #ff4757;
+    accent-color: var(--primary-color);
   }
 
   .cropperButtons {
@@ -386,26 +395,26 @@
 
     .cancelBtn {
       background: transparent;
-      color: var(--text-muted, #b3b3b3);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
       padding: 10px 24px;
-      border-radius: var(--border-radius-md, 8px);
+      border-radius: var(--border-radius-md);
       cursor: pointer;
       font-weight: 600;
       transition: all 0.2s;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text-main, #fff);
+        background: var(--secondary-color);
+        color: var(--text-main);
       }
     }
 
     .cropBtn {
-      background: var(--primary-color, #ff4757);
+      background: var(--primary-color);
       color: #fff;
       border: none;
       padding: 10px 30px;
-      border-radius: var(--border-radius-md, 8px);
+      border-radius: var(--border-radius-md);
       cursor: pointer;
       font-weight: 700;
       transition: all 0.2s;
@@ -413,7 +422,7 @@
       &:hover {
         opacity: 0.9;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
       }
     }
   }

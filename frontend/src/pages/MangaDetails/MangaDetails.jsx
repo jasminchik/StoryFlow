@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck } from 'react-icons/fi';
 import Header from '../../components/Header';
 import styles from './MangaDetails.module.scss';
 
@@ -74,7 +75,7 @@ const MangaDetails = () => {
     { id: 'discussions', label: 'Обговорення' },
     { id: 'comments', label: 'Коментарі' },
     { id: 'reviews', label: 'Відгуки' },
-    { id: 'fanfics', label: 'Фанфіки' }
+    { id: 'fanfics', label: 'Література/Фанфік' }
   ];
 
   const chapters = [
@@ -198,7 +199,7 @@ const MangaDetails = () => {
                 <div className={styles.chapterMain}>
                   <span className={styles.chapterTitle}>{chapter.title}</span>
                   <div className={styles.chapterMeta}>
-                    <span className={styles.views}><span className={styles.eyeIcon}>👁</span> {chapter.views}</span>
+                    <span className={styles.views}><FiEye size={14} className={styles.eyeIcon} /> {chapter.views}</span>
                     <span className={styles.date}>{chapter.date}</span>
                   </div>
                 </div>
@@ -213,7 +214,7 @@ const MangaDetails = () => {
               <div key={fic.id} className={styles.fanficItem}>
                 <div className={styles.fanficHeader}>
                   <span className={styles.fanficTitle}>{fic.title}</span>
-                  {fic.isOfficial && <span className={styles.officialBadge}>Офіційний фанфік</span>}
+                  {fic.isOfficial && <span className={styles.officialBadge}>Офіційний Література/Фанфік</span>}
                 </div>
                 <span className={styles.fanficAuthor}>Автор: {fic.author}</span>
               </div>
@@ -224,7 +225,7 @@ const MangaDetails = () => {
         const currentTabLabel = tabs.find(t => t.id === activeTab)?.label || 'Контент';
         return (
           <div className={styles.placeholderTab}>
-            <div className={styles.placeholderIcon}>💬</div>
+            <div className={styles.placeholderIcon}><FiMessageSquare size={48} /></div>
             <p>Тут з'являться {currentTabLabel.toLowerCase()} користувачів. Функціонал у розробці!</p>
           </div>
         );
@@ -259,7 +260,7 @@ const MangaDetails = () => {
                   onClick={() => setIsListsOpen(!isListsOpen)}
                 >
                   {userList ? listLabels[userList] : 'Додати в плани'}
-                  <span className={`${styles.arrow} ${isListsOpen ? styles.open : ''}`}>▼</span>
+                  <FiChevronDown size={18} className={`${styles.arrow} ${isListsOpen ? styles.open : ''}`} />
                 </button>
                 {isListsOpen && (
                   <div className={styles.listsDropdown}>
@@ -270,7 +271,7 @@ const MangaDetails = () => {
                         onClick={() => handleSelectList(key)}
                       >
                         {label}
-                        {userList === key && <span className={styles.check}>✔</span>}
+                        {userList === key && <FiCheck size={16} className={styles.check} />}
                       </div>
                     ))}
                   </div>
@@ -283,7 +284,7 @@ const MangaDetails = () => {
               <div className={styles.histogram}>
                 {Object.entries(processedStats).reverse().map(([rate, stat]) => (
                   <div key={rate} className={styles.histoRow}>
-                    <span className={styles.rateLabel}>{rate} ★</span>
+                    <span className={styles.rateLabel}>{rate} <FiStar size={12} fill="currentColor" /></span>
                     <div className={styles.barContainer}>
                       <div 
                         className={styles.barFill} 
@@ -309,7 +310,7 @@ const MangaDetails = () => {
               
               <div className={styles.statsRow}>
                 <div className={styles.ratingBox}>
-                  <span className={styles.star}>⭐</span>
+                  <FiStar size={18} className={styles.star} fill="currentColor" />
                   <span className={styles.ratingValue}>{manga.rating}</span>
                 </div>
                 <div className={styles.rateActionWrapper}>
@@ -317,7 +318,7 @@ const MangaDetails = () => {
                     className={styles.rateBtn}
                     onClick={() => setIsRatingOpen(!isRatingOpen)}
                   >
-                    {userRating > 0 ? `★ Ваша оцінка: ${userRating}` : '★ Оцінити'}
+                    {userRating > 0 ? <><FiStar size={16} fill="currentColor" /> Ваша оцінка: {userRating}</> : <><FiStar size={16} /> Оцінити</>}
                   </button>
                   {isRatingOpen && (
                     <div className={styles.ratingPopup}>
@@ -329,7 +330,7 @@ const MangaDetails = () => {
                           onMouseLeave={() => setHoverRating(0)}
                           onClick={() => handleRate(star)}
                         >
-                          ★
+                          <FiStar size={20} fill={(hoverRating || userRating) >= star ? "currentColor" : "none"} />
                         </span>
                       ))}
                     </div>

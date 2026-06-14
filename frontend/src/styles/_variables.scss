@@ -1,20 +1,86 @@
 /* frontend/src/styles/_variables.scss */
 
 :root {
+  /* DARK THEME (Default) */
   --bg-main: #121212;
-  --bg-navbar: #1a1a1a;
+  --bg-navbar: rgba(26, 26, 26, 0.8);
   --bg-card: #1e1e1e;
   --bg-sidebar: #181818;
+  --bg-modal: #1e1e1e;
+  --bg-input: #2a2a2a;
+  --bg-secondary: #2f3542;
+  --bg-overlay: rgba(0, 0, 0, 0.7);
+  --bg-badge: rgba(0, 0, 0, 0.7);
   
-  --primary-color: #ff4757; // Класичний червоний StoryFlow
+  --primary-color: #ff4757; 
+  --primary-light: rgba(255, 71, 87, 0.1);
   --secondary-color: #2f3542;
+  --accent-color: #ff8c00;
+  --accent-light: rgba(255, 140, 0, 0.1);
   
   --text-main: #ffffff;
+  --text-secondary: #e0e0e0;
   --text-muted: #a4b0be;
+  --text-inverse: #121212;
+  
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-light: rgba(255, 255, 255, 0.05);
   
   --border-radius-lg: 12px;
   --border-radius-md: 8px;
   --border-radius-sm: 4px;
   
   --transition-speed: 0.3s;
+  --shadow-main: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  --rating-color: #ffb800;
+  --rating-bg: rgba(255, 184, 0, 0.1);
+}
+
+:root.light-theme {
+  /* LIGHT THEME */
+  --bg-main: #f5f7fa;
+  --bg-navbar: rgba(255, 255, 255, 0.8);
+  --bg-card: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-modal: #ffffff;
+  --bg-input: #f1f2f6;
+  --bg-secondary: #f1f2f6;
+  --bg-overlay: rgba(0, 0, 0, 0.4);
+  --bg-badge: rgba(255, 255, 255, 0.8);
+  
+  --primary-color: #ff4757;
+  --primary-light: rgba(255, 71, 87, 0.08);
+  --secondary-color: #f1f2f6;
+  --accent-color: #ff8c00;
+  --accent-light: rgba(255, 140, 0, 0.08);
+  
+  --text-main: #2f3542;
+  --text-secondary: #57606f;
+  --text-muted: #747d8c;
+  --text-inverse: #ffffff;
+  
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.04);
+  
+  --shadow-main: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+  --rating-bg: rgba(255, 184, 0, 0.15);
+}
+
+
+/* View Transitions CSS */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2147483647;
 }

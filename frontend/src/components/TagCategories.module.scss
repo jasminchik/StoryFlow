@@ -7,7 +7,8 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-main);
+  border: 1px solid var(--border-color);
 }
 
 .cardTitle {
@@ -24,7 +25,7 @@
 }
 
 .categoryItem {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-color);
   
   &:last-child {
     border-bottom: none;
@@ -47,7 +48,7 @@
 
   &:hover {
     color: var(--text-main);
-    background-color: rgba(255, 255, 255, 0.02);
+    background-color: var(--secondary-color);
   }
 
   &.active {
@@ -56,8 +57,12 @@
 }
 
 .arrow {
-  font-size: 0.7rem;
-  transition: transform var(--transition-speed);
+  transition: transform 0.3s ease;
+  color: var(--text-muted);
+
+  &.rotated {
+    transform: rotate(180deg);
+  }
 }
 
 .tagCloud {
@@ -67,16 +72,16 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 0 8px;
-  transition: max-height 0.4s ease-out, padding 0.3s;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s;
 
   &.expanded {
-    max-height: 300px; /* Достатньо для хмари тегів */
+    max-height: 200px; /* Достатньо для хмари тегів */
     padding: 8px 8px 16px 8px;
   }
 }
 
 .tag {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--secondary-color);
   color: var(--text-muted);
   padding: 4px 12px;
   border-radius: 12px;
@@ -89,6 +94,6 @@
     background-color: var(--primary-color);
     color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(255, 71, 87, 0.2);
+    box-shadow: 0 4px 10px rgba(255, 140, 0, 0.2);
   }
 }
