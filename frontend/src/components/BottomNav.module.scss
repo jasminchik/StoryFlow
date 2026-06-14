@@ -1,0 +1,85 @@
+@import '../styles/variables';
+
+.bottomNav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 64px;
+  background-color: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  display: none; /* Сховано на десктопі */
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  padding: 0 10px;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(30, 30, 30, 0.95);
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  gap: 4px;
+  flex: 1;
+  height: 100%;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  cursor: pointer;
+
+  .icon {
+    font-size: 1.4rem;
+  }
+
+  .label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  &.active {
+    color: var(--primary-color);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.homeItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .homeIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    transform: translateY(-4px); /* Зменшуємо виступ */
+
+    .bottomLogo {
+      width: 40px; /* Трішки збільшуємо, бо немає фону */
+      height: 40px;
+      color: var(--primary-color); /* Повертаємо основний колір */
+    }
+  }
+
+  &.active .homeIconWrapper .bottomLogo {
+    color: #ff3344;
+    filter: drop-shadow(0 0 5px rgba(255, 51, 68, 0.4));
+  }
+}

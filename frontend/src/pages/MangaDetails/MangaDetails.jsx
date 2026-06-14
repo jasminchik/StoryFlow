@@ -247,11 +247,29 @@ const MangaDetails = () => {
       </section>
 
       <div className={styles.mainContainer}>
-        <div className={styles.contentGrid}>
-          <aside className={styles.leftColumn}>
-            <div className={styles.posterWrapper}>
-              <img src={manga.image} alt={manga.title} className={styles.poster} />
+        <div className={styles.mangaHeader}>
+          <div className={styles.posterWrapper}>
+            <img src={manga.image} alt={manga.title} className={styles.poster} />
+          </div>
+          
+          <div className={styles.headerContent}>
+            <div className={styles.titleSection}>
+              <h1 className={styles.title}>{manga.title}</h1>
+              <p className={styles.originalTitle}>{manga.originalTitle}</p>
             </div>
+
+            <div className={styles.mainStats}>
+              <div className={styles.ratingBox}>
+                <FiStar size={18} className={styles.star} fill="currentColor" />
+                <span className={styles.ratingValue}>{manga.rating}</span>
+              </div>
+              <div className={styles.mobileMeta}>
+                <span className={styles.type}>{manga.type}</span>
+                <span className={styles.dot}>•</span>
+                <span className={styles.status}>{manga.status}</span>
+              </div>
+            </div>
+
             <div className={styles.actionButtons}>
               <button className={styles.readBtn}>Читати</button>
               <div className={styles.listsContainer}>
@@ -278,7 +296,11 @@ const MangaDetails = () => {
                 )}
               </div>
             </div>
+          </div>
+        </div>
 
+        <div className={styles.contentGrid}>
+          <aside className={styles.leftColumn}>
             <div className={styles.statsBlock}>
               <h3 className={styles.statsTitle}>Оцінки користувачів</h3>
               <div className={styles.histogram}>
@@ -304,64 +326,55 @@ const MangaDetails = () => {
           </aside>
 
           <main className={styles.rightColumn}>
-            <div className={styles.headerInfo}>
-              <h1 className={styles.title}>{manga.title}</h1>
-              <p className={styles.originalTitle}>{manga.originalTitle}</p>
-              
-              <div className={styles.statsRow}>
-                <div className={styles.ratingBox}>
-                  <FiStar size={18} className={styles.star} fill="currentColor" />
-                  <span className={styles.ratingValue}>{manga.rating}</span>
-                </div>
-                <div className={styles.rateActionWrapper}>
-                  <button 
-                    className={styles.rateBtn}
-                    onClick={() => setIsRatingOpen(!isRatingOpen)}
-                  >
-                    {userRating > 0 ? <><FiStar size={16} fill="currentColor" /> Ваша оцінка: {userRating}</> : <><FiStar size={16} /> Оцінити</>}
-                  </button>
-                  {isRatingOpen && (
-                    <div className={styles.ratingPopup}>
-                      {[1,2,3,4,5,6,7,8,9,10].map((star) => (
-                        <span 
-                          key={star}
-                          className={`${styles.popupStar} ${(hoverRating || userRating) >= star ? styles.hovered : ''}`}
-                          onMouseEnter={() => setHoverRating(star)}
-                          onMouseLeave={() => setHoverRating(0)}
-                          onClick={() => handleRate(star)}
-                        >
-                          <FiStar size={20} fill={(hoverRating || userRating) >= star ? "currentColor" : "none"} />
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className={styles.infoBlock}>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Тип</span>
-                  <span className={styles.value}>{manga.type}</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Рік</span>
-                  <span className={styles.value}>{manga.year}</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Статус</span>
-                  <span className={styles.value}>{manga.status}</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Автори</span>
-                  <span className={styles.value}>{manga.authors}</span>
-                </div>
-                <div className={styles.infoItem}>
-                  <span className={styles.label}>Жанри / Теги</span>
-                  <div className={styles.genresList}>
-                    {manga.genres && manga.genres.map(genre => (
-                      <span key={genre} className={styles.genreBadge}>{genre}</span>
+            <div className={styles.rateActionArea}>
+              <div className={styles.rateActionWrapper}>
+                <button 
+                  className={styles.rateBtn}
+                  onClick={() => setIsRatingOpen(!isRatingOpen)}
+                >
+                  {userRating > 0 ? <><FiStar size={16} fill="currentColor" /> Ваша оцінка: {userRating}</> : <><FiStar size={16} /> Оцінити</>}
+                </button>
+                {isRatingOpen && (
+                  <div className={styles.ratingPopup}>
+                    {[1,2,3,4,5,6,7,8,9,10].map((star) => (
+                      <span 
+                        key={star}
+                        className={`${styles.popupStar} ${(hoverRating || userRating) >= star ? styles.hovered : ''}`}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => handleRate(star)}
+                      >
+                        <FiStar size={20} fill={(hoverRating || userRating) >= star ? "currentColor" : "none"} />
+                      </span>
                     ))}
                   </div>
+                )}
+              </div>
+            </div>
+
+            <div className={styles.infoBlock}>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Тип</span>
+                <span className={styles.value}>{manga.type}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Рік</span>
+                <span className={styles.value}>{manga.year}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Статус</span>
+                <span className={styles.value}>{manga.status}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Автори</span>
+                <span className={styles.value}>{manga.authors}</span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.label}>Жанри / Теги</span>
+                <div className={styles.genresList}>
+                  {manga.genres && manga.genres.map(genre => (
+                    <span key={genre} className={styles.genreBadge}>{genre}</span>
+                  ))}
                 </div>
               </div>
             </div>

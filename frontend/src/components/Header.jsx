@@ -42,10 +42,14 @@ const Header = () => {
       }
     };
 
+    const handleOpenMenu = () => setIsProfileMenuOpen(true);
+
     refreshUser();
 
     // Слухаємо оновлення профілю
     window.addEventListener('profileUpdate', refreshUser);
+    // Слухаємо команду відкриття меню (з BottomNav)
+    window.addEventListener('openProfileMenu', handleOpenMenu);
 
     // Відкриваємо модалку, якщо є параметри помилки або режиму авторизації
     // АЛЕ тільки якщо користувач ще не авторизований
@@ -55,7 +59,10 @@ const Header = () => {
       setIsModalOpen(true);
     }
 
-    return () => window.removeEventListener('profileUpdate', refreshUser);
+    return () => {
+      window.removeEventListener('profileUpdate', refreshUser);
+      window.removeEventListener('openProfileMenu', handleOpenMenu);
+    };
   }, []);
 
   useEffect(() => {
@@ -104,17 +111,17 @@ const Header = () => {
       <header className={styles.headerWrapper}>
         <div className={styles.headerInner}>
           
-          {/* ЛІВА ЗОНА: Тільки логотип */}
-          <div className={styles.leftArea}>
+          {/* ЛІВА ЗОНА: Тільки логотип (Сховано на мобільних) */}
+          <div className={`${styles.leftArea} ${styles.desktopOnly}`}>
             <Link to="/" className={styles.logoLink}>
               <Logo className={styles.logoSvg} />
               StoryFlow
             </Link>
           </div>
 
-          {/* ЦЕНТРАЛЬНА ЗОНА: Каталог -> Пошук -> Новини (Строго по центру) */}
+          {/* ЦЕНТРАЛЬНА ЗОНА: Каталог -> Пошук -> Новини */}
           <div className={styles.centerArea}>
-            <div className={styles.catalogContainer} ref={catalogRef}>
+            <div className={`${styles.catalogContainer} ${styles.desktopOnly}`} ref={catalogRef}>
               <button 
                 className={styles.navLinkBtn} 
                 onClick={() => setIsCatalogOpen(!isCatalogOpen)}
@@ -142,12 +149,12 @@ const Header = () => {
               <span className={styles.searchText}>Пошук</span>
             </button>
 
-            <Link to="/notifications?tab=news" className={styles.navLink}>Новини</Link>
+            <Link to="/notifications?tab=news" className={`${styles.navLink} ${styles.desktopOnly}`}>Новини</Link>
           </div>
 
-          {/* ПРАВА ЗОНА: Обране, Профіль та Бургер */}
-          <div className={styles.rightArea}>
-            <Link to="/favorites" className={styles.bookmarkLink} title="Обране">
+          {/* ПРАВА ЗОНА: Обране, Профіль та Бургер (Сховано на мобільних) */}
+          <div className={`${styles.rightArea} ${styles.desktopOnly}`}>
+            <Link to="/favorites" className={`${styles.bookmarkLink} ${styles.desktopOnly}`} title="Обране">
               <FiHeart size={20} className={styles.icon} />
               <span className={styles.btnText}>Обране</span>
             </Link>

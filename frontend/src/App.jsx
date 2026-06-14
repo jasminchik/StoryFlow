@@ -10,6 +10,7 @@ import Authors from './pages/Authors/Authors';
 import ReadingNow from './pages/ReadingNow/ReadingNow';
 import Notifications from './pages/Notifications/Notifications';
 import AuthSuccess from './pages/AuthSuccess';
+import BottomNav from './components/BottomNav';
 import styles from './App.module.scss';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/auth-success" element={<AuthSuccess />} />
       </Routes>
+      <BottomNav />
     </div>
   );
 }

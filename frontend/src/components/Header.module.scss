@@ -25,10 +25,9 @@
 
   @media (max-width: 768px) {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    height: auto;
-    padding: 10px 16px;
+    justify-content: center;
+    height: 60px;
+    padding: 0 16px;
   }
 }
 
@@ -46,9 +45,6 @@
 
   @media (max-width: 768px) {
     width: 100%;
-    order: 3;
-    justify-content: space-between;
-    margin-top: 12px;
   }
 }
 
@@ -58,9 +54,11 @@
   align-items: center;
   gap: 16px;
   justify-content: flex-end;
+}
 
+.desktopOnly {
   @media (max-width: 768px) {
-    gap: 12px;
+    display: none !important;
   }
 }
 
@@ -86,10 +84,6 @@
       transform: scale(1.05);
     }
   }
-
-  @media (max-width: 480px) {
-    font-size: 1.2rem;
-  }
 }
 
 .logoSvg {
@@ -97,10 +91,6 @@
   width: auto;
   color: var(--primary-color);
   transition: transform 0.2s;
-
-  @media (max-width: 480px) {
-    height: 24px;
-  }
 }
 
 .navLink {
@@ -196,7 +186,7 @@
   padding: 10px 16px;
   background: transparent;
   border: none;
-  color: #f39c12; /* Золотисто-оранжевий колір */
+  color: #f39c12; 
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 600;
@@ -205,8 +195,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(243, 156, 18, 0.1); /* Легкий оранжевий фон при наведенні */
-    color: #f1c40f; /* Світліший жовтий при наведенні */
+    background-color: rgba(243, 156, 18, 0.1);
+    color: #f1c40f;
     padding-left: 20px;
   }
 }
@@ -217,29 +207,40 @@
 }
 
 .searchTrigger {
-  background: transparent;
-  border: none;
-  padding: 0;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  padding: 10px 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  border-radius: 20px;
+  min-width: 240px;
 
   &:hover {
+    border-color: var(--primary-color);
+    background-color: var(--bg-card);
+
     .searchIcon {
       color: var(--primary-color);
-      transform: scale(1.1);
     }
     
     .searchText {
-      color: var(--primary-color);
+      color: var(--text-main);
     }
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    min-width: unset;
+    height: 40px;
+    padding: 0 20px;
   }
 }
 
 .searchIcon {
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   color: var(--text-muted);
   transition: all 0.2s;
 }
@@ -265,14 +266,6 @@
     background-color: var(--secondary-color);
     color: var(--primary-color);
   }
-
-  @media (max-width: 768px) {
-    padding: 8px;
-    
-    .btnText {
-      display: none;
-    }
-  }
 }
 
 .authBtn {
@@ -285,11 +278,6 @@
   cursor: pointer;
   transition: all 0.2s;
 
-  @media (max-width: 480px) {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-  }
-
   &:hover {
     opacity: 0.9;
     transform: translateY(-1px);
@@ -300,10 +288,6 @@
   display: flex;
   align-items: center;
   gap: 16px;
-
-  @media (max-width: 768px) {
-    gap: 8px;
-  }
 }
 
 .headerAvatar {
@@ -333,12 +317,6 @@
     border-color: var(--primary-color);
     transform: scale(1.05);
   }
-
-  @media (max-width: 480px) {
-    width: 32px;
-    height: 32px;
-    font-size: 0.9rem;
-  }
 }
 
 .hamburgerBtn {
@@ -353,11 +331,6 @@
   padding: 4px;
   box-sizing: content-box;
   transition: opacity 0.2s;
-
-  @media (max-width: 480px) {
-    width: 20px;
-    height: 14px;
-  }
 
   .bar {
     width: 100%;

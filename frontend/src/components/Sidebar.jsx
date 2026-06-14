@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiStar } from 'react-icons/fi';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -17,7 +18,7 @@ const Sidebar = () => {
             <span className="rank">{index + 1}</span>
             <div className="manga-info">
               <span className="manga-title">{manga.title}</span>
-              <span className="manga-rating">⭐ {manga.rating}</span>
+              <span className="manga-rating"><FiStar size={14} fill="currentColor" /> {manga.rating}</span>
             </div>
           </li>
         ))}
