@@ -24,19 +24,33 @@ const Profile = () => {
 
   const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
   const analyticsRef = useRef(null);
+  const tabsRef = useRef(null);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab === 'stats') {
-      analyticsRef.current?.scrollIntoView({ behavior: 'smooth' });
-    } else if (tab === 'settings') {
+    
+    if (tab === 'settings') {
       setIsSettingsOpen(true);
-    } else if (tab) {
-      setProfileTab(tab);
-      setIsSettingsOpen(false);
-    } else {
-      setIsSettingsOpen(false);
+      return;
     }
+
+    setIsSettingsOpen(false);
+    
+    if (tab) {
+      setProfileTab(tab);
+    }
+
+    // Плавно скролимо до контенту при зміні таба
+    // Використовуємо таймаут, щоб React встиг зарендерити нову вкладку
+    const timer = setTimeout(() => {
+      if (tab === 'stats') {
+        analyticsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (tab) {
+        tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [searchParams]);
 
   const handleTabChange = (tabId) => {
@@ -352,7 +366,7 @@ const Profile = () => {
         </section>
 
         {/* СИСТЕМА ВКЛАДОК */}
-        <div className={styles.profileTabsMenu}>
+        <div className={styles.profileTabsMenu} ref={tabsRef}>
           {PROFILE_TABS.map(tab => (
             <button
               key={tab.id}

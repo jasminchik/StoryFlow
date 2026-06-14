@@ -269,32 +269,32 @@ const MangaDetails = () => {
                 <span className={styles.status}>{manga.status}</span>
               </div>
             </div>
+          </div>
 
-            <div className={styles.actionButtons}>
-              <button className={styles.readBtn}>Читати</button>
-              <div className={styles.listsContainer}>
-                <button 
-                  className={`${styles.listsBtn} ${userList ? styles.active : ''}`}
-                  onClick={() => setIsListsOpen(!isListsOpen)}
-                >
-                  {userList ? listLabels[userList] : 'Додати в плани'}
-                  <FiChevronDown size={18} className={`${styles.arrow} ${isListsOpen ? styles.open : ''}`} />
-                </button>
-                {isListsOpen && (
-                  <div className={styles.listsDropdown}>
-                    {Object.entries(listLabels).map(([key, label]) => (
-                      <div 
-                        key={key} 
-                        className={`${styles.listItem} ${userList === key ? styles.selected : ''}`}
-                        onClick={() => handleSelectList(key)}
-                      >
-                        {label}
-                        {userList === key && <FiCheck size={16} className={styles.check} />}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+          <div className={styles.actionButtons}>
+            <button className={styles.readBtn}>Читати</button>
+            <div className={styles.listsContainer}>
+              <button 
+                className={`${styles.listsBtn} ${userList ? styles.active : ''}`}
+                onClick={() => setIsListsOpen(!isListsOpen)}
+              >
+                {userList ? listLabels[userList] : 'Додати в плани'}
+                <FiChevronDown size={18} className={`${styles.arrow} ${isListsOpen ? styles.open : ''}`} />
+              </button>
+              {isListsOpen && (
+                <div className={styles.listsDropdown}>
+                  {Object.entries(listLabels).map(([key, label]) => (
+                    <div 
+                      key={key} 
+                      className={`${styles.listItem} ${userList === key ? styles.selected : ''}`}
+                      onClick={() => handleSelectList(key)}
+                    >
+                      {label}
+                      {userList === key && <FiCheck size={16} className={styles.check} />}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
