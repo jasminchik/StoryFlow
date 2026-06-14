@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiX, FiChevronDown, FiStar } from 'react-icons/fi';
+import { FiX, FiChevronDown, FiStar, FiArrowLeft, FiSliders } from 'react-icons/fi';
 import Header from '../components/Header';
 import styles from './Catalog.module.scss';
 
@@ -29,10 +29,13 @@ const REVERSE_TYPE_MAP = {
   'Література/Фанфік': 'fanfic'
 };
 
+const GENRES = ['Екшн', 'Комедія', 'Драма', 'Романтика', 'Фентезі', 'Психологія', 'Жахи', 'Пригоди', 'Спорт'];
+
 const Catalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeFormat, setActiveFormat] = useState('Всі');
   const [activeStatuses, setActiveStatuses] = useState([]);
+  const [activeGenres, setActiveGenres] = useState([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -64,10 +67,23 @@ const Catalog = () => {
     }
   };
 
+  const handleGenreToggle = (genre) => {
+    if (activeGenres.includes(genre)) {
+      setActiveGenres(activeGenres.filter(g => g !== genre));
+    } else {
+      setActiveGenres([...activeGenres, genre]);
+    }
+  };
+
   const resetFilters = () => {
     setActiveFormat('Всі');
     setActiveStatuses([]);
+    setActiveGenres([]);
     setSearchParams({});
+  };
+
+  const applyMobileFilters = () => {
+    setIsMobileFiltersOpen(false);
   };
 
   // Фільтрація каталогу
@@ -78,22 +94,28 @@ const Catalog = () => {
   });
   
   return (
-    <div className={styles.catalogWrapper}>
+    <div className={`${styles.catalogWrapper} ${isMobileFiltersOpen ? styles.noScroll : ''}`}>
       <Header />
       
       <div className={styles.container}>
-        {/* Кнопка для мобільних */}
-        <button 
-          className={styles.mobileToggleBtn} 
-          onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-        >
-          {isMobileFiltersOpen ? <><FiX size={18} /> Сховати фільтри</> : <><FiChevronDown size={18} /> Фільтри</>}
-        </button>
+        {/* КАТАЛОГ HEADER (Тільки для мобільних) */}
+        <div className={styles.mobileActions}>
+          <button className={styles.backBtn} onClick={() => navigate('/')}>
+            <FiArrowLeft size={24} />
+          </button>
+          <div className={styles.mobileTitle}>Каталог</div>
+          <button 
+            className={styles.mobileFilterToggle} 
+            onClick={() => setIsMobileFiltersOpen(true)}
+          >
+            <FiSliders size={20} />
+          </button>
+        </div>
 
         {/* ЛІВА ЧАСТИНА: Сітка тайтлів (75%) */}
         <main className={styles.mainContent}>
           <div className={styles.catalogHeader}>
-            <h1 className={styles.pageTitle}>Каталог творів</h1>
+            <h1 className={`${styles.pageTitle} ${styles.desktopOnly}`}>Каталог творів</h1>
             <span className={styles.resultsCount}>Знайдено: {filteredCatalog.length}</span>
           </div>
 
@@ -123,49 +145,77 @@ const Catalog = () => {
         </main>
 
 
-        {/* ПРАВА ЧАСТИНА: Фільтри (25%) */}
+        {/* ПРАВА ЧАСТИНА: Фільтри (Off-canvas на мобільних) */}
         <aside className={`${styles.sidebar} ${isMobileFiltersOpen ? styles.mobileOpen : ''}`}>
-          <div className={styles.filterCard}>
-            <h2 className={styles.filterTitle}>Фільтри</h2>
-            
-            {/* Фільтр: Формат */}
-            <div className={styles.filterGroup}>
-              <h3 className={styles.groupTitle}>Формат</h3>
-              <div className={styles.btnGroup}>
-                {['Всі', 'Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Література/Фанфік'].map(format => (
-                  <button 
-                    key={format}
-                    className={`${styles.filterBtn} ${activeFormat === format ? styles.active : ''}`}
-                    onClick={() => handleFormatChange(format)}
-                  >
-                    {format}
-                  </button>
-                ))}
+          {/* Overlay для мобілок */}
+          <div className={styles.overlay} onClick={() => setIsMobileFiltersOpen(false)}></div>
+          
+          <div className={styles.filterPanel}>
+            {/* Header для мобільної панелі */}
+            <div className={styles.panelHeader}>
+              <h2 className={styles.panelTitle}>Фільтри</h2>
+              <button className={styles.closeBtn} onClick={() => setIsMobileFiltersOpen(false)}>
+                <FiX size={24} />
+              </button>
+            </div>
+
+            <div className={styles.panelContent}>
+              <h2 className={`${styles.filterTitle} ${styles.desktopOnly}`}>Фільтри</h2>
+              
+              {/* Фільтр: Формат */}
+              <div className={styles.filterGroup}>
+                <h3 className={styles.groupTitle}>Формат</h3>
+                <div className={styles.btnGroup}>
+                  {['Всі', 'Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Література/Фанфік'].map(format => (
+                    <button 
+                      key={format}
+                      className={`${styles.filterBtn} ${activeFormat === format ? styles.active : ''}`}
+                      onClick={() => handleFormatChange(format)}
+                    >
+                      {format}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Фільтр: Жанри */}
+              <div className={styles.filterGroup}>
+                <h3 className={styles.groupTitle}>Жанри</h3>
+                <div className={styles.genreGrid}>
+                  {GENRES.map(genre => (
+                    <button 
+                      key={genre}
+                      className={`${styles.genreBtn} ${activeGenres.includes(genre) ? styles.active : ''}`}
+                      onClick={() => handleGenreToggle(genre)}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Фільтр: Статус */}
+              <div className={styles.filterGroup}>
+                <h3 className={styles.groupTitle}>Статус</h3>
+                <div className={styles.checkboxGroup}>
+                  {['Онґоінґ', 'Завершено', 'Анонс'].map(status => (
+                    <label key={status} className={styles.checkboxLabel}>
+                      <input 
+                        type="checkbox" 
+                        checked={activeStatuses.includes(status)}
+                        onChange={() => handleStatusChange(status)}
+                      /> {status}
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Фільтр: Статус */}
-            <div className={styles.filterGroup}>
-              <h3 className={styles.groupTitle}>Статус</h3>
-              <div className={styles.checkboxGroup}>
-                {['Онґоінґ', 'Завершено', 'Анонс'].map(status => (
-                  <label key={status} className={styles.checkboxLabel}>
-                    <input 
-                      type="checkbox" 
-                      checked={activeStatuses.includes(status)}
-                      onChange={() => handleStatusChange(status)}
-                    /> {status}
-                  </label>
-                ))}
-              </div>
+            {/* Footer для мобільної панелі (Sticky/Fixed) */}
+            <div className={styles.panelFooter}>
+              <button className={styles.resetBtn} onClick={resetFilters}>Скинути</button>
+              <button className={styles.applyBtn} onClick={applyMobileFilters}>Застосувати</button>
             </div>
-
-            <button 
-              className={styles.applyBtn}
-              onClick={resetFilters}
-            >
-              Скинути фільтри
-            </button>
           </div>
         </aside>
       </div>

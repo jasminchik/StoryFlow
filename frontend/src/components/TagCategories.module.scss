@@ -75,7 +75,7 @@
   transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s;
 
   &.expanded {
-    max-height: 200px; /* Достатньо для хмари тегів */
+    max-height: 1000px; /* Достатньо для будь-якої кількості тегів */
     padding: 8px 8px 16px 8px;
   }
 }
