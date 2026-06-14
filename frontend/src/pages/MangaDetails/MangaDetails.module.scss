@@ -376,21 +376,22 @@
         width: 100%;
 
         .rateLabel {
-          width: 30px;
+          width: 25px;
           color: var(--text-muted);
           flex-shrink: 0;
           display: flex;
           align-items: center;
           gap: 2px;
+          font-size: 0.75rem;
         }
 
         .barContainer {
           flex-grow: 1;
-          height: 8px;
+          height: 6px;
           background: var(--bg-sidebar);
           border-radius: 4px;
           overflow: hidden;
-          min-width: 40px;
+          min-width: 30px;
 
           .barFill {
             height: 100%;
@@ -400,16 +401,17 @@
         }
 
         .rateStats {
-          width: 75px;
+          width: 65px;
           text-align: right;
           color: var(--text-main);
           font-weight: 500;
           flex-shrink: 0;
           white-space: nowrap;
+          font-size: 0.75rem;
 
           .rateCount {
             color: var(--text-muted);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             margin-left: 2px;
           }
         }
@@ -513,6 +515,10 @@
         font-size: 0.85rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+
+        @media (max-width: 768px) {
+          font-size: 0.7rem;
+        }
       }
 
       .value {
@@ -520,6 +526,10 @@
         font-size: 1rem;
         color: var(--text-secondary);
         word-break: break-word;
+
+        @media (max-width: 768px) {
+          font-size: 0.85rem;
+        }
       }
 
       .genresList {
@@ -550,7 +560,6 @@
   .tabsContainer {
     margin-top: 40px;
     width: 100%;
-    overflow: hidden;
 
     @media (max-width: 768px) {
       margin-top: 24px;
@@ -563,10 +572,12 @@
       border-bottom: 1px solid var(--border-color);
       margin-bottom: 30px;
       overflow-x: auto;
+      overflow-y: hidden;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       width: 100%;
       box-sizing: border-box;
+      padding-right: 40px; /* Space to reach the last tab */
       
       &::-webkit-scrollbar {
         display: none;
@@ -584,6 +595,11 @@
         transition: color 0.2s;
         white-space: nowrap;
         flex-shrink: 0;
+
+        @media (max-width: 768px) {
+          font-size: 0.8rem;
+          padding: 8px 0 12px;
+        }
 
         &:hover {
           color: var(--text-main);
@@ -635,18 +651,28 @@
           }
 
           .similarGrid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 16px;
+            padding-bottom: 12px;
+            padding-right: 40px; /* Space for the last card */
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
 
-            @media (max-width: 480px) {
-              grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-              gap: 12px;
+            &::-webkit-scrollbar {
+              display: none;
             }
 
             .similarCard {
               cursor: pointer;
               transition: transform 0.2s;
+              flex-shrink: 0;
+              width: 120px;
+
+              @media (min-width: 769px) {
+                width: auto;
+              }
 
               img {
                 width: 100%;
@@ -675,7 +701,7 @@
               }
             }
           }
-        }
+          }
       }
 
       .chaptersList {

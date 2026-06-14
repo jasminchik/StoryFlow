@@ -75,7 +75,10 @@ const MangaDetails = () => {
     { id: 'discussions', label: 'Обговорення' },
     { id: 'comments', label: 'Коментарі' },
     { id: 'reviews', label: 'Відгуки' },
-    { id: 'fanfics', label: 'Література/Фанфік' }
+    { 
+      id: 'fanfics', 
+      label: window.innerWidth <= 768 ? 'Література' : 'Література/Фанфік' 
+    }
   ];
 
   const chapters = [
