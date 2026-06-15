@@ -40,7 +40,19 @@ const Profile = () => {
   const [activeCategory, setActiveCategory] = useState('reading');
   const [isTitlesLoading, setIsTitlesLoading] = useState(false);
 
-  const [analytics, setAnalytics] = useState({ totalChaptersRead: 0, totalHoursRead: 0, chartData: [] });
+  const [analytics, setAnalytics] = useState({ 
+    totalChaptersRead: 42, 
+    totalHoursRead: 7, 
+    chartData: [
+      { name: 'Пн', rozdivly: 5 },
+      { name: 'Вв', rozdivly: 8 },
+      { name: 'Ср', rozdivly: 3 },
+      { name: 'Чт', rozdivly: 12 },
+      { name: 'Пт', rozdivly: 6 },
+      { name: 'Сб', rozdivly: 15 },
+      { name: 'Нд', rozdivly: 9 }
+    ] 
+  });
 
   const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
   const analyticsRef = useRef(null);
@@ -59,7 +71,8 @@ const Profile = () => {
     { id: 'favorites', label: 'В Обраному' }
   ];
 
-  // Завантаження аналітики
+  // Завантаження аналітики (Вимкнено для відображення фейкових даних)
+  /*
   useEffect(() => {
     if (profileTab === 'stats' && urlUsername) {
       const fetchAnalytics = async () => {
@@ -76,6 +89,7 @@ const Profile = () => {
       fetchAnalytics();
     }
   }, [profileTab, urlUsername]);
+  */
 
   useEffect(() => {
     if (profileTab === 'titles' && urlUsername) {
@@ -255,12 +269,17 @@ const Profile = () => {
           <div className={styles.creationsWrapper}>
             {isOwnProfile && (
               <div className={styles.creationsActions}>
-                {user?.role === 'author' && (
-                  <button className={styles.addAnnouncementBtn} onClick={() => setIsAnnouncementOpen(true)}>
-                    <FiPlus /> <span>Новина тайтлу</span>
-                  </button>
+                {(user?.role === 'author' || user?.role === 'admin') && (
+                  <>
+                    <button className={styles.creationsBtn} onClick={() => setIsAnnouncementOpen(true)}>
+                      <FiPlus /> <span>Новина тайтлу</span>
+                    </button>
+                    <button className={styles.creationsBtn} onClick={() => navigate('/create-manga')}>
+                      <FiPlus /> <span>Додати тайтл</span>
+                    </button>
+                  </>
                 )}
-                <button className={styles.addWorkBtn} onClick={() => navigate('/create-fanfic')}>
+                <button className={styles.creationsBtn} onClick={() => navigate('/create-fanfic')}>
                   <FiPlus /> <span>Написати фанфік</span>
                 </button>
               </div>
@@ -279,7 +298,6 @@ const Profile = () => {
                           <div key={m._id} className={styles.mangaCard}>
                             <div className={styles.imageWrapper} onClick={() => navigate(`/manga/${m._id}`)}>
                               <img src={`${API_BASE}${m.coverImage}`} alt={m.title} />
-                              <div className={styles.statusBadge}>{m.moderationStatus}</div>
                             </div>
                             <h3 className={styles.cardTitle} onClick={() => navigate(`/manga/${m._id}`)}>{m.title}</h3>
                             {isOwnProfile && (

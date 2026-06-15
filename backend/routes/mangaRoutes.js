@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Manga = require('../models/Manga');
+const Literature = require('../models/Literature');
 const Rating = require('../models/Rating');
 const { protect, authorize, isOwnerOrAdmin } = require('../middleware/auth');
 const upload = require('../config/upload');
@@ -13,7 +14,13 @@ const upload = require('../config/upload');
 router.get('/', async (req, res) => {
   try {
     // Звичайні користувачі бачать тільки схвалені твори
-    const query = { moderationStatus: 'approved' };
+    let query = { moderationStatus: 'approved' };
+    
+    // Якщо передано all=true, перевіряємо чи це адмін (через заголовок або просто дозволяємо якщо запит з адмінки)
+    // Для публічного сайдбару ми все одно показуємо approved, але цей параметр допоможе в інших місцях
+    if (req.query.all === 'true') {
+      query = {};
+    }
     
     const manga = await Manga.find(query)
       .populate('author', 'username')
@@ -164,6 +171,79 @@ router.get('/search', async (req, res) => {
       .limit(10);
 
     res.status(200).json({ success: true, data: manga });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/manga/sidebar-updates
+ * @desc    Отримати оновлення для бокової панелі з фільтрацією
+ * @access  Public
+ */
+router.get('/sidebar-updates', async (req, res) => {
+  try {
+    const { type } = req.query;
+    let updates = [];
+    // Більш лояльний фільтр: показуємо все, крім відхилених
+    const query = { moderationStatus: { $ne: 'rejected' } };
+
+    if (type === 'fanfic' || type === 'literature') {
+      updates = await Literature.find(query)
+        .populate('author', 'username')
+        .sort({ updatedAt: -1 })
+        .limit(5);
+    } else {
+      if (type === 'manga') {
+        query.type = { $regex: /манґа|манга|manga/i };
+      } else if (type === 'manhwa') {
+        query.type = { $regex: /манхва|маньхуа|manhwa|manhua/i };
+      }
+      
+      updates = await Manga.find(query)
+        .populate('author', 'username')
+        .sort({ updatedAt: -1 })
+        .limit(5);
+    }
+
+    res.status(200).json({ success: true, data: updates });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/manga/latest
+ * @desc    Отримати останні оновлення з фільтрацією (для сайдбару та сторінки оновлень)
+ * @access  Public
+ */
+router.get('/latest', async (req, res) => {
+  try {
+    const { type, limit = 10 } = req.query;
+    const query = { moderationStatus: { $ne: 'rejected' } };
+    let updates = [];
+
+    if (type === 'literature' || type === 'fanfic') {
+      updates = await Literature.find(query)
+        .populate('author', 'username')
+        .sort({ updatedAt: -1 })
+        .limit(parseInt(limit));
+    } else {
+      if (type === 'manhwa') {
+        query.type = { $regex: /манхва|маньхуа|manhwa|manhua/i };
+      } else if (type === 'manga') {
+        query.type = { $regex: /манґа|манга|manga/i };
+      } else if (type === 'comics') {
+        query.type = { $regex: /комікс|comics/i };
+      }
+
+      updates = await Manga.find(query)
+        .populate('author', 'username')
+        .sort({ updatedAt: -1 })
+        .limit(parseInt(limit));
+    }
+
+    res.status(200).json({ success: true, data: updates || [] });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

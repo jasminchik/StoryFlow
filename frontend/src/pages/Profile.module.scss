@@ -603,9 +603,10 @@
   gap: 12px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
 }
 
-.addAnnouncementBtn, .addWorkBtn {
+.creationsBtn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -615,19 +616,19 @@
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-}
-
-.addAnnouncementBtn {
-  background: var(--bg-secondary);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  &:hover { border-color: var(--primary-color); }
-}
-
-.addWorkBtn {
   background: var(--primary-color);
   color: white;
-  &:hover { opacity: 0.9; transform: translateY(-2px); }
+  font-size: 0.9rem;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
 }
 
 .myWorksSection {

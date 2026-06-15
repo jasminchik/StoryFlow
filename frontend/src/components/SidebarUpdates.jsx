@@ -4,70 +4,56 @@ import styles from './SidebarUpdates.module.scss';
 
 const SidebarUpdates = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('manga'); // 'manga', 'manhwa' або 'fanfics'
-  const [data, setData] = useState({ manga: [], manhwa: [], fanfics: [] });
+  const [activeTab, setActiveTab] = useState('manga'); // 'manga', 'manhwa' або 'fanfic'
+  const [updates, setUpdates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUpdates = async () => {
       setIsLoading(true);
       try {
-        const [mangaRes, announcementsRes, literatureRes] = await Promise.all([
-          fetch('http://localhost:5000/api/manga'),
-          fetch('http://localhost:5000/api/announcements'),
-          fetch('http://localhost:5000/api/literature')
-        ]);
+        const response = await fetch(`http://localhost:5000/api/manga/sidebar-updates?type=${activeTab}`);
+        const result = await response.json();
         
-        const mangaResult = await mangaRes.json();
-        const announcementsResult = await announcementsRes.json();
-        const literatureResult = await literatureRes.json();
-        
-        if (mangaResult.success) {
-          let allUpdates = mangaResult.data.map(m => ({ ...m, updateType: 'manga' }));
-          
-          if (announcementsResult.success) {
-            allUpdates = [...allUpdates, ...announcementsResult.data.map(a => ({ ...a, updateType: 'announcement' }))];
-          }
-
-          if (literatureResult.success) {
-            allUpdates = [...allUpdates, ...literatureResult.data.map(l => ({ ...l, updateType: 'literature' }))];
-          }
-          
-          // Сортуємо все за часом створення
-          allUpdates.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-          const manga = allUpdates.filter(m => (m.updateType === 'announcement' ? m.manga?.type : m.type) === 'Манґа').slice(0, 4);
-          const manhwa = allUpdates.filter(m => (m.updateType === 'announcement' ? m.manga?.type : m.type) === 'Манхва').slice(0, 4);
-          const fanfics = allUpdates.filter(m => m.updateType === 'literature' || (m.updateType === 'announcement' && m.manga?.type === 'Комікс')).slice(0, 4); 
-
-          setData({ manga, manhwa, fanfics });
+        if (result.success && Array.isArray(result.data)) {
+          setUpdates(result.data);
+        } else {
+          setUpdates([]);
         }
       } catch (err) {
         console.error('Помилка завантаження оновлень:', err);
+        setUpdates([]);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUpdates();
-  }, []);
-
-  const currentData = activeTab === 'manga' ? data.manga : activeTab === 'manhwa' ? data.manhwa : data.fanfics;
+  }, [activeTab]);
 
   const getTypeLabel = (type) => {
     if (type === 'manga') return 'Манґа';
     if (type === 'manhwa') return 'Манхва';
-    return 'Література';
+    if (type === 'fanfic') return 'Література';
+    return type;
   };
 
   const handleItemClick = (item) => {
-    if (item.updateType === 'announcement') {
-      navigate(`/manga/${item.manga?._id || item.manga}`);
-    } else if (item.updateType === 'literature') {
+    if (activeTab === 'fanfic') {
       navigate(`/fanfic/${item._id}`);
     } else {
       navigate(`/manga/${item._id}`);
     }
+  };
+
+  const formatTime = (date) => {
+    if (!date) return '';
+    const now = new Date();
+    const diff = Math.floor((now - new Date(date)) / 60000);
+    if (diff < 1) return 'щойно';
+    if (diff < 60) return `${diff} хв. тому`;
+    if (diff < 1440) return `${Math.floor(diff / 60)} год. тому`;
+    return new Date(date).toLocaleDateString('uk-UA');
   };
 
   return (
@@ -75,7 +61,7 @@ const SidebarUpdates = () => {
       <h2 className={styles.sidebarTitle}>Останні оновлення</h2>
 
       <div className={styles.tabs}>
-        {['manga', 'manhwa', 'fanfics'].map(tab => (
+        {['manga', 'manhwa', 'fanfic'].map(tab => (
           <button 
             key={tab}
             className={`${styles.tabBtn} ${activeTab === tab ? styles.active : ''}`}
@@ -88,35 +74,27 @@ const SidebarUpdates = () => {
 
       <div className={styles.updatesList} key={activeTab}>
         {!isLoading ? (
-          currentData.length > 0 ? (
-            currentData.map((item) => (
+          updates.length > 0 ? (
+            updates.map((item) => (
               <div 
                 key={item._id} 
-                className={`${styles.updateItem} ${item.updateType === 'announcement' ? styles.announcementItem : ''} ${item.updateType === 'literature' ? styles.literatureItem : ''}`}
+                className={styles.updateItem}
                 onClick={() => handleItemClick(item)}
                 style={{ cursor: 'pointer' }}
               >
-                {item.updateType !== 'literature' && (
-                  <img 
-                    src={item.updateType === 'announcement' 
-                      ? (item.manga?.coverImage ? `http://localhost:5000${item.manga.coverImage}` : '')
-                      : (item.coverImage ? (item.coverImage.startsWith('http') ? item.coverImage : `http://localhost:5000${item.coverImage}`) : '')
-                    } 
-                    alt={item.title} 
-                    className={styles.updateAvatar} 
-                  />
-                )}
+                <img 
+                  src={item.coverImage ? (item.coverImage.startsWith('http') ? item.coverImage : `http://localhost:5000${item.coverImage}`) : 'http://localhost:5000/uploads/no-photo.jpg'} 
+                  alt={item.title} 
+                  className={styles.updateAvatar} 
+                />
                 <div className={styles.updateInfo}>
-                  <span className={styles.updateName}>
-                    {item.updateType === 'announcement' && <span className={styles.newsTag}>Новина: </span>}
-                    {item.title}
-                  </span>
+                  <span className={styles.updateName}>{item.title}</span>
                   <div className={styles.updateMeta}>
                     <span className={styles.updateType}>
-                      {item.updateType === 'announcement' ? item.manga?.type : item.updateType === 'literature' ? 'Фанфік' : item.type}
+                      {activeTab === 'fanfic' ? 'Фанфік' : item.type}
                     </span>
-                    <span className={styles.updateChapter}>
-                      {item.updateType === 'announcement' ? 'Анонс' : item.updateType === 'literature' ? (item.status === 'completed' ? 'Завершено' : 'В процесі') : item.status}
+                    <span className={styles.updateTime}>
+                      {formatTime(item.updatedAt || item.createdAt)}
                     </span>
                   </div>
                 </div>
