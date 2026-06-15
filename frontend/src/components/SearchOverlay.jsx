@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiX, FiSearch, FiTrendingUp, FiHistory, FiBookOpen, FiUser } from 'react-icons/fi';
+import { FiX, FiSearch, FiTrendingUp, FiClock, FiBookOpen, FiUser } from 'react-icons/fi';
 import styles from './SearchOverlay.module.scss';
 
 const SearchOverlay = ({ isOpen, onClose }) => {
@@ -109,7 +109,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
               </div>
 
               <div className={styles.suggestionBlock}>
-                <h3><FiHistory className={styles.blockIcon} /> Недавній пошук</h3>
+                <h3><FiClock className={styles.blockIcon} /> Недавній пошук</h3>
                 <p className={styles.emptyHint}>Історія пошуку порожня</p>
               </div>
             </div>

@@ -23,6 +23,39 @@ const LiteratureSchema = new mongoose.Schema({
     type: [String],
     required: [true, 'Будь ласка, додайте принаймні один жанр']
   },
+  manga: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Manga',
+    default: null
+  },
+  isOfficial: {
+    type: Boolean,
+    default: false
+  },
+  status: {
+    type: String,
+    enum: ['in_progress', 'completed'],
+    default: 'in_progress'
+  },
+  direction: {
+    type: String,
+    default: 'Джен'
+  },
+  ageRating: {
+    type: String,
+    enum: ['G', 'PG-13', 'R', 'NC-17'],
+    default: 'PG-13'
+  },
+  authorNote: {
+    type: String,
+    trim: true
+  },
+  likes: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User'
+    }
+  ],
   moderationStatus: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],

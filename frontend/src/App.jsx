@@ -11,6 +11,9 @@ import ReadingNow from './pages/ReadingNow/ReadingNow';
 import Notifications from './pages/Notifications/Notifications';
 import CreateManga from './pages/CreateManga/CreateManga';
 import EditManga from './pages/CreateManga/EditManga';
+import CreateFanfic from './pages/Fanfic/CreateFanfic';
+import FanficDetails from './pages/Fanfic/FanficDetails';
+import ReadFanfic from './pages/Fanfic/ReadFanfic';
 import AuthSuccess from './pages/AuthSuccess';
 import BottomNav from './components/BottomNav';
 import styles from './App.module.scss';
@@ -30,6 +33,9 @@ function App() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/create-manga" element={<CreateManga />} />
         <Route path="/edit-manga/:id" element={<EditManga />} />
+        <Route path="/create-fanfic" element={<CreateFanfic />} />
+        <Route path="/fanfic/:id" element={<FanficDetails />} />
+        <Route path="/fanfic/:id/read/:chapterId" element={<ReadFanfic />} />
         <Route path="/auth-success" element={<AuthSuccess />} />
       </Routes>
       <BottomNav />

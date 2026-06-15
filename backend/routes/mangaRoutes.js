@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Manga = require('../models/Manga');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const Rating = require('../models/Rating');
+const { protect, authorize, isOwnerOrAdmin } = require('../middleware/auth');
 const upload = require('../config/upload');
 
 /**
@@ -14,7 +15,6 @@ router.get('/', async (req, res) => {
     // Звичайні користувачі бачать тільки схвалені твори
     const query = { moderationStatus: 'approved' };
     
-    // Сортуємо за датою створення (спочатку нові)
     const manga = await Manga.find(query)
       .populate('author', 'username')
       .sort({ createdAt: -1 });
@@ -97,19 +97,104 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
+ * @route   POST /api/manga/:id/rate
+ * @desc    Поставити оцінку тайтлу
+ * @access  Private
+ */
+router.post('/:id/rate', protect, async (req, res) => {
+  try {
+    const { score } = req.body;
+    if (!score || score < 1 || score > 10) {
+      return res.status(400).json({ success: false, error: 'Оцінка має бути від 1 до 10' });
+    }
+
+    const manga = await Manga.findById(req.params.id);
+    if (!manga) return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+
+    // Оновлюємо або створюємо оцінку
+    let rating = await Rating.findOne({ manga: req.params.id, user: req.user.id });
+
+    if (rating) {
+      rating.score = score;
+      await rating.save();
+    } else {
+      rating = await Rating.create({
+        manga: req.params.id,
+        user: req.user.id,
+        score
+      });
+    }
+
+    // Отримуємо оновлений тайтл із середнім рейтингом
+    const updatedManga = await Manga.findById(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        score: rating.score,
+        averageRating: updatedManga.averageRating,
+        ratingCount: updatedManga.ratingCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/manga/:id/my-rate
+ * @desc    Отримати оцінку поточного користувача для тайтлу
+ * @access  Private
+ */
+router.get('/:id/my-rate', protect, async (req, res) => {
+  try {
+    const rating = await Rating.findOne({ manga: req.params.id, user: req.user.id });
+    res.status(200).json({
+      success: true,
+      data: rating ? rating.score : 0
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   POST /api/manga/:id/like
+ * @desc    Переключити лайк для тайтлу
+ * @access  Private
+ */
+router.post('/:id/like', protect, async (req, res) => {
+  try {
+    const manga = await Manga.findById(req.params.id);
+    if (!manga) return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+
+    const isLiked = manga.likes.includes(req.user.id);
+    if (isLiked) {
+      manga.likes = manga.likes.filter(id => id.toString() !== req.user.id.toString());
+    } else {
+      manga.likes.push(req.user.id);
+    }
+
+    await manga.save();
+
+    res.status(200).json({
+      success: true,
+      data: manga.likes,
+      isLiked: !isLiked
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * @route   POST /api/manga
  * @desc    Створити новий тайтл
  * @access  Private (Admin, Author)
  */
 router.post('/', protect, authorize('admin', 'author'), upload.any(), async (req, res) => {
   try {
-    console.log('Manga Creation Request:', {
-      body: req.body,
-      files: req.files ? req.files.map(f => ({ fieldname: f.fieldname, filename: f.filename })) : 'none',
-      user: req.user ? req.user.id : 'none'
-    });
-
-    // Обробка файлів (тепер через req.files як масив)
+    // Обробка файлів
     if (req.files) {
       const coverFile = req.files.find(f => f.fieldname === 'coverImage');
       const bannerFile = req.files.find(f => f.fieldname === 'bannerImage');
@@ -125,17 +210,14 @@ router.post('/', protect, authorize('admin', 'author'), upload.any(), async (req
     // Автоматично додаємо ID поточного користувача як автора
     req.body.author = req.user.id;
 
-    // Обробимо жанри, якщо вони прийшли рядком (через кому) від FormData
+    // Обробимо жанри
     if (req.body.genres && typeof req.body.genres === 'string') {
       req.body.genres = req.body.genres.split(',').map(g => g.trim());
     }
 
     const manga = await Manga.create(req.body);
-    console.log('Manga created successfully:', manga._id);
-
     res.status(201).json({ success: true, data: manga });
   } catch (error) {
-    console.error('Manga Creation Error:', error);
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -145,21 +227,12 @@ router.post('/', protect, authorize('admin', 'author'), upload.any(), async (req
  * @desc    Редагувати тайтл
  * @access  Private (Admin, Author)
  */
-router.put('/:id', protect, authorize('admin', 'author'), upload.fields([
+router.put('/:id', protect, isOwnerOrAdmin('Manga'), upload.fields([
   { name: 'coverImage', maxCount: 1 },
   { name: 'bannerImage', maxCount: 1 }
 ]), async (req, res) => {
   try {
     let manga = await Manga.findById(req.params.id);
-
-    if (!manga) {
-      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
-    }
-
-    // Перевірка прав (тільки автор або адмін)
-    if (manga.author.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(401).json({ success: false, error: 'У вас немає прав для редагування цього твору' });
-    }
 
     // Якщо завантажено нові файли
     if (req.files) {
@@ -171,7 +244,7 @@ router.put('/:id', protect, authorize('admin', 'author'), upload.fields([
       }
     }
 
-    // Обробимо жанри, якщо вони прийшли рядком
+    // Обробимо жанри
     if (req.body.genres && typeof req.body.genres === 'string') {
       req.body.genres = req.body.genres.split(',').map(g => g.trim());
     }
@@ -193,21 +266,10 @@ router.put('/:id', protect, authorize('admin', 'author'), upload.fields([
  * @desc    Видалити тайтл
  * @access  Private (Admin, Author)
  */
-router.delete('/:id', protect, authorize('admin', 'author'), async (req, res) => {
+router.delete('/:id', protect, isOwnerOrAdmin('Manga'), async (req, res) => {
   try {
     const manga = await Manga.findById(req.params.id);
-
-    if (!manga) {
-      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
-    }
-
-    // Перевірка прав (тільки автор або адмін)
-    if (manga.author.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(401).json({ success: false, error: 'У вас немає прав для видалення цього твору' });
-    }
-
     await manga.deleteOne();
-
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

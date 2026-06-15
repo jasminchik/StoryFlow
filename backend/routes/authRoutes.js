@@ -53,7 +53,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/auth');
 
 // @desc    Get current user profile
 // @route   GET /api/auth/me

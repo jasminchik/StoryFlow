@@ -31,20 +31,20 @@ StoryFlow/
 │   ├── config/
 │   │   └── upload.js       # Конфігурація Multer (локальне сховище)
 │   ├── middleware/
-│   │   └── authMiddleware.js # Захист маршрутів (protect, authorize)
+│   │   └── auth.js             # Захист маршрутів (protect, authorize, isOwnerOrAdmin)
 │   ├── models/
 │   │   ├── User.js              # Користувачі
 │   │   ├── Manga.js             # Тайтли (Манґа, Манхва тощо)
-│   │   ├── Chapter.js           # Глави манґи (картинки)
+│   │   ├── Chapter.js           # Розділи манґи (картинки)
 │   │   ├── Literature.js        # Література/Фанфік (текст)
-│   │   └── LiteratureChapter.js # Текстові глави
+│   │   └── LiteratureChapter.js # Текстові розділи
 │   ├── routes/
 │   │   ├── authRoutes.js        # Реєстрація та Логін
 │   │   ├── userRoutes.js        # Керування юзерами
 │   │   ├── mangaRoutes.js       # CRUD манґи + модерація
-│   │   ├── chapterRoutes.js     # Керування главами манґи
+│   │   ├── chapterRoutes.js     # Керування розділами манґи
 │   │   ├── literatureRoutes.js  # CRUD Література/Фанфік
-│   │   └── literatureChapterRoutes.js # Текстові глави
+│   │   └── literatureChapterRoutes.js # Текстові розділи
 │   ├── uploads/            # Папка для локальних медіа (ігнорується git)
 │   ├── index.js            # Головний файл сервера
 │   └── Dockerfile

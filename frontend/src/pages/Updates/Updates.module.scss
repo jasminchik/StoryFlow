@@ -47,6 +47,56 @@
     transform: translateX(5px);
     border-color: var(--primary-color);
   }
+
+  &.announcementCard {
+    border-left: 4px solid var(--primary-color);
+    background: rgba(255, 140, 0, 0.05);
+
+    &:hover {
+      background: rgba(255, 140, 0, 0.1);
+    }
+  }
+
+  &.literatureCard {
+    border-left: 4px solid #a855f7;
+    background: rgba(168, 85, 247, 0.05);
+
+    &:hover {
+      background: rgba(168, 85, 247, 0.1);
+    }
+  }
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.newsBadge, .fanficBadge {
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  height: fit-content;
+}
+
+.newsBadge {
+  background: var(--primary-color);
+}
+
+.fanficBadge {
+  background: #a855f7;
+  color: white;
+}
+
+.newsContent {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .empty {

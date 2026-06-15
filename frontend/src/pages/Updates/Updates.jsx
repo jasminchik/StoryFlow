@@ -18,14 +18,37 @@ const Updates = () => {
   };
 
   useEffect(() => {
-    const fetchUpdates = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/manga');
-        const data = await response.json();
-        if (data.success) {
-          setUpdates(data.data);
+        const [mangaRes, announcementsRes, literatureRes] = await Promise.all([
+          fetch('http://localhost:5000/api/manga'),
+          fetch('http://localhost:5000/api/announcements'),
+          fetch('http://localhost:5000/api/literature')
+        ]);
+        
+        const mangaData = await mangaRes.json();
+        const announcementsData = await announcementsRes.json();
+        const literatureData = await literatureRes.json();
+        
+        let combinedUpdates = [];
+        
+        if (mangaData.success) {
+          combinedUpdates = [...combinedUpdates, ...mangaData.data.map(m => ({ ...m, updateType: 'manga' }))];
         }
+        
+        if (announcementsData.success) {
+          combinedUpdates = [...combinedUpdates, ...announcementsData.data.map(a => ({ ...a, updateType: 'announcement' }))];
+        }
+
+        if (literatureData.success) {
+          combinedUpdates = [...combinedUpdates, ...literatureData.data.map(l => ({ ...l, updateType: 'literature' }))];
+        }
+        
+        // Sort by creation date
+        combinedUpdates.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        setUpdates(combinedUpdates);
       } catch (error) {
         console.error('Помилка завантаження оновлень:', error);
       } finally {
@@ -33,18 +56,8 @@ const Updates = () => {
       }
     };
 
-    fetchUpdates();
+    fetchData();
   }, []);
-
-  const filteredUpdates = useMemo(() => {
-    let data = [...updates];
-    
-    if (typeFilter && typeMap[typeFilter]) {
-      data = data.filter(item => item.type === typeMap[typeFilter]);
-    }
-    
-    return data; // Бекенд вже сортує за createdAt: -1
-  }, [typeFilter, updates]);
 
   // Simple relative time formatter
   const formatRelativeTime = (dateString) => {
@@ -59,6 +72,39 @@ const Updates = () => {
     return `Оновлено ${days} дн. тому`;
   };
 
+  const filteredUpdates = useMemo(() => {
+    let data = [...updates];
+    
+    if (typeFilter) {
+      if (typeFilter === 'announcements') {
+        data = data.filter(item => item.updateType === 'announcement');
+      } else if (typeFilter === 'fanfics') {
+        data = data.filter(item => item.updateType === 'literature');
+      } else if (typeMap[typeFilter]) {
+        data = data.filter(item => {
+          // Для новин та фанфіків беремо тип тайтлу, до якого вони належать
+          const itemType = item.updateType === 'announcement' ? item.manga?.type : (item.updateType === 'literature' ? 'Комікс' : item.type);
+          return itemType === typeMap[typeFilter];
+        });
+      }
+    }
+    
+    return data;
+  }, [typeFilter, updates]);
+
+  // Handle click on update card
+  const handleUpdateClick = (update) => {
+    if (update.updateType === 'announcement') {
+      if (update.manga) {
+        navigate(`/manga/${update.manga._id || update.manga}`);
+      }
+    } else if (update.updateType === 'literature') {
+      navigate(`/fanfic/${update._id}`);
+    } else {
+      navigate(`/manga/${update._id}`);
+    }
+  };
+
   return (
     <div className={styles.updatesPage}>
       <Header />
@@ -66,9 +112,11 @@ const Updates = () => {
       <main className={styles.container}>
         <header className={styles.pageHeader}>
           <h1 className={styles.title}>
-            {typeFilter && typeMap[typeFilter] ? `Оновлення: ${typeMap[typeFilter]}` : 'Усі оновлення'}
+            {typeFilter === 'announcements' ? 'Новини та анонси' : 
+             typeFilter === 'fanfics' ? 'Фанфіки та література' :
+             typeFilter && typeMap[typeFilter] ? `Оновлення: ${typeMap[typeFilter]}` : 'Усі оновлення'}
           </h1>
-          <p className={styles.subtitle}>Хронологія останніх розділів та глав</p>
+          <p className={styles.subtitle}>Хронологія останніх розділів, глав та новин</p>
         </header>
 
         <div className={styles.updatesList}>
@@ -77,17 +125,34 @@ const Updates = () => {
               filteredUpdates.map((update) => (
                 <div 
                   key={update._id} 
-                  className={styles.updateCard}
-                  onClick={() => navigate(`/manga/${update._id}`)}
+                  className={`${styles.updateCard} ${update.updateType === 'announcement' ? styles.announcementCard : ''} ${update.updateType === 'literature' ? styles.literatureCard : ''}`}
+                  onClick={() => handleUpdateClick(update)}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className={styles.cardMain}>
                     <div className={styles.info}>
-                      <h3 className={styles.mangaTitle}>{update.title}</h3>
-                      <div className={styles.meta}>
-                        <span className={styles.badge}>{update.type}</span>
-                        <span className={styles.chapter}>{update.status}</span>
+                      <div className={styles.titleRow}>
+                        {update.updateType === 'announcement' && <span className={styles.newsBadge}>Новина</span>}
+                        {update.updateType === 'literature' && <span className={styles.fanficBadge}>Фанфік</span>}
+                        <h3 className={styles.mangaTitle}>
+                          {update.title}
+                        </h3>
                       </div>
+                      
+                      {update.updateType === 'announcement' ? (
+                        <p className={styles.newsContent}>
+                          {update.manga?.title ? `Тайтл: ${update.manga.title}` : update.content.substring(0, 100) + '...'}
+                        </p>
+                      ) : update.updateType === 'literature' ? (
+                        <p className={styles.newsContent}>
+                          Автор: {update.author?.username || 'Анонім'} • {update.status === 'completed' ? 'Завершено' : 'В процесі'}
+                        </p>
+                      ) : (
+                        <div className={styles.meta}>
+                          <span className={styles.badge}>{update.type}</span>
+                          <span className={styles.chapter}>{update.status}</span>
+                        </div>
+                      )}
                     </div>
                     <div className={styles.timeInfo}>
                       <span className={styles.time}>{formatRelativeTime(update.createdAt)}</span>

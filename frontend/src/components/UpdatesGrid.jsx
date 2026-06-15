@@ -19,7 +19,7 @@ const UpdatesGrid = () => {
             id: m._id,
             title: m.title,
             chapter: m.status, // Тимчасово замість розділу показуємо статус
-            cover: m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`
+            cover: m.coverImage ? (m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`) : ''
           }));
           setUpdates(formatted);
         }

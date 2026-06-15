@@ -4,7 +4,7 @@ const ChapterSchema = new mongoose.Schema({
   manga: {
     type: mongoose.Schema.ObjectId,
     ref: 'Manga',
-    required: [true, 'Будь ласка, вкажіть до якого твору належить ця глава']
+    required: [true, 'Будь ласка, вкажіть до якого твору належить цей розділ']
   },
   volume: {
     type: Number,

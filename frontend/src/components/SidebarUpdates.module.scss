@@ -134,6 +134,21 @@
   margin-top: 2px;
 }
 
+.newsTag {
+  color: #ff8c00;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.announcementItem {
+  background: rgba(255, 140, 0, 0.03);
+  
+  &:hover {
+    background: rgba(255, 140, 0, 0.08) !important;
+  }
+}
+
 .moreBtn {
   width: 100%;
   margin-top: 16px;

@@ -71,7 +71,7 @@ const ProfileSidebar = ({ activeTab }) => {
             <div className={styles.filterBlock}>
               <h4 className={styles.blockTitle}>Розміщення</h4>
               <RadioOption name="location" value="under_title" checkedValue={commentLocation} onChange={setCommentLocation} label="Під тайтлом" />
-              <RadioOption name="location" value="under_chapters" checkedValue={commentLocation} onChange={setCommentLocation} label="Під главами" />
+              <RadioOption name="location" value="under_chapters" checkedValue={commentLocation} onChange={setCommentLocation} label="Під розділами" />
             </div>
           </>
         );

@@ -45,7 +45,7 @@ const ReadingNow = () => {
                   onClick={() => navigate(`/manga/${item._id}`)}
                 >
                   <div className={styles.imageWrapper}>
-                    <img src={`${API_BASE}${item.coverImage}`} alt={item.title} />
+                    <img src={item.coverImage ? (item.coverImage.startsWith('http') ? item.coverImage : `${API_BASE}${item.coverImage}`) : ''} alt={item.title} />
                     <div className={styles.rating}>
                       <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
                     </div>

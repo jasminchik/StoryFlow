@@ -26,7 +26,7 @@ const Home = () => {
           const latest = data.data.slice(0, 8).map(m => ({
             id: m._id,
             title: m.title,
-            image: m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`,
+            image: m.coverImage ? (m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`) : '',
             rating: m.rating || 0
           }));
           setNewArrivals(latest);

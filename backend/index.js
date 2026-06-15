@@ -24,12 +24,17 @@ const mangaRoutes = require('./routes/mangaRoutes');
 const chapterRoutes = require('./routes/chapterRoutes');
 const literatureRoutes = require('./routes/literatureRoutes');
 const literatureChapterRoutes = require('./routes/literatureChapterRoutes');
+const announcementRoutes = require('./routes/announcementRoutes');
+const commentRoutes = require('./routes/commentRoutes');
+
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/manga', mangaRoutes);
 app.use('/api/chapters', chapterRoutes);
 app.use('/api/literature', literatureRoutes);
 app.use('/api/literature-chapters', literatureChapterRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
