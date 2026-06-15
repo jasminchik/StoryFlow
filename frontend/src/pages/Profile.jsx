@@ -9,6 +9,7 @@ import {
   FiUser, 
   FiChevronRight
 } from 'react-icons/fi';
+import { FaMars, FaVenus } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from '../components/Header';
 import ProfileSidebar from '../components/ProfileSidebar';
@@ -91,13 +92,6 @@ const Profile = () => {
     { id: 1, title: 'Бліч', details: 'Том 1, Розділ 5, стор. 12', time: '3 години тому' },
     { id: 2, title: 'Блю Лок', details: 'Том 3, Розділ 24, стор. 1', time: 'Вчора' },
     { id: 3, title: 'Магічна Битва', details: 'Том 10, Розділ 89, стор. 15', time: '2 дні тому' }
-  ];
-
-  const STATS = [
-    { label: 'Тайтли', value: 12, icon: '📚' },
-    { label: 'Коментарі', value: 114, icon: '💬' },
-    { label: 'Оцінки', value: user.stats?.ratings || 0, icon: <FiStar size={18} /> },
-    { label: 'Прочитано', value: 301, icon: '📖' }
   ];
 
   const MOCK_FRIENDS = [
@@ -312,8 +306,11 @@ const Profile = () => {
               <div className={styles.nameRow}>
                 <h1 className={styles.nickname}>{displayName}</h1>
                 {user.gender && user.gender !== 'secret' && (
-                  <span className={styles.genderBadge} title={user.gender === 'male' ? 'Чоловік' : 'Жінка'}>
-                    <FiUser size={14} />
+                  <span 
+                    className={`${styles.genderBadge} ${user.gender === 'male' ? styles.male : styles.female}`} 
+                    title={user.gender === 'male' ? 'Чоловік' : 'Жінка'}
+                  >
+                    {user.gender === 'male' ? <FaMars size={14} /> : <FaVenus size={14} />}
                   </span>
                 )}
               </div>

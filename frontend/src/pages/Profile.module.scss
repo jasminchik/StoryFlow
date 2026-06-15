@@ -160,11 +160,24 @@
 }
 
 .genderBadge {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   background: var(--bg-secondary);
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 6px;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &.male {
+    color: #3498db;
+    background: rgba(52, 152, 219, 0.1);
+  }
+  
+  &.female {
+    color: #e84393;
+    background: rgba(232, 67, 147, 0.1);
+  }
 }
 
 .aboutText {

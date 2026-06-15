@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
-import { FiX, FiUploadCloud, FiZap } from 'react-icons/fi';
+import { FiX, FiUploadCloud, FiZap, FiUser as GenderIcon } from 'react-icons/fi';
+import { FaMars, FaVenus } from 'react-icons/fa';
 import styles from './ProfileSettingsModal.module.scss';
 
 const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
@@ -279,15 +280,32 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
                 
                 <div className={styles.formGroup}>
                   <label>Стать</label>
-                  <select 
-                    className={styles.selectInput}
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                  >
-                    <option value="secret">Секрет</option>
-                    <option value="male">Чоловіча</option>
-                    <option value="female">Жіноча</option>
-                  </select>
+                  <div className={styles.genderSelector}>
+                    <button 
+                      type="button"
+                      className={`${styles.genderOption} ${gender === 'male' ? styles.active : ''}`}
+                      onClick={() => setGender('male')}
+                    >
+                      <FaMars size={18} className={styles.icon} />
+                      <span>Чоловіча</span>
+                    </button>
+                    <button 
+                      type="button"
+                      className={`${styles.genderOption} ${gender === 'female' ? styles.active : ''}`}
+                      onClick={() => setGender('female')}
+                    >
+                      <FaVenus size={18} className={styles.icon} />
+                      <span>Жіноча</span>
+                    </button>
+                    <button 
+                      type="button"
+                      className={`${styles.genderOption} ${gender === 'secret' ? styles.active : ''}`}
+                      onClick={() => setGender('secret')}
+                    >
+                      <GenderIcon size={18} className={styles.icon} />
+                      <span>Секрет</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

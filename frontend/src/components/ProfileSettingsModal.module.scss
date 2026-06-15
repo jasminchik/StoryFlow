@@ -277,6 +277,52 @@
     }
   }
 
+  .genderSelector {
+    display: flex;
+    gap: 10px;
+
+    .genderOption {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+      font-weight: 600;
+
+      &:hover {
+        border-color: var(--primary-color);
+        color: var(--text-main);
+      }
+
+      &.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+
+        .icon {
+          color: white;
+        }
+      }
+
+      .icon {
+        color: var(--text-muted);
+        transition: color 0.2s;
+      }
+      
+      &.active .icon {
+        color: white;
+      }
+    }
+  }
+
   .textArea {
     resize: vertical;
     min-height: 100px;
