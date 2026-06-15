@@ -12,6 +12,11 @@ const Home = () => {
   const [readingNow, setReadingNow] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [activeGenre, setActiveGenre] = useState(null);
+  const [activeFormat, setActiveFormat] = useState(null);
+  const [activeStatus, setActiveStatus] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,17 +27,19 @@ const Home = () => {
         const data = await response.json();
         
         if (data.success) {
-          // Форматуємо дані для відображення
           const formatManga = (m) => ({
             id: m._id,
             title: m.title,
             image: m.coverImage ? (m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`) : '',
-            rating: m.averageRating || 0
+            rating: m.averageRating || 0,
+            genres: m.genres || [],
+            type: m.type || '',
+            status: m.status || ''
           });
 
           setNewArrivals(data.data.newArrivals.map(formatManga));
           setPopular(data.data.topRated.map(formatManga));
-          setReadingNow([]); // Можна додати логіку пізніше
+          setReadingNow(data.data.readingNow ? data.data.readingNow.map(formatManga) : []); 
         }
       } catch (err) {
         console.error('Помилка завантаження даних:', err);
@@ -44,17 +51,41 @@ const Home = () => {
     fetchMangaData();
   }, []);
 
+  const filterManga = (list) => {
+    return list
+      .filter(item => !activeGenre || item.genres?.includes(activeGenre))
+      .filter(item => {
+        if (!activeFormat) return true;
+        const type = item.type?.toLowerCase();
+        if (activeFormat === 'Манґа') return type === 'манга' || type === 'манґа' || type === 'manga';
+        if (activeFormat === 'Манхва') return type === 'манхва' || type === 'manhwa';
+        if (activeFormat === 'Маньхуа') return type === 'маньхуа' || type === 'manhua';
+        if (activeFormat === 'Література/Фанфік') return type === 'література' || type === 'фанфік';
+        return type === activeFormat.toLowerCase();
+      })
+      .filter(item => {
+        if (!activeStatus) return true;
+        const status = item.status;
+        if (activeStatus === 'Онґоінґ') return status === 'В процесі' || status === 'in_progress';
+        return status === activeStatus;
+      });
+  };
+
+  const filteredPopular = filterManga(popular);
+  const filteredNew = filterManga(newArrivals);
+  const filteredReadingNow = filterManga(readingNow);
+
   return (
     <div className={styles.homeWrapper}>
       <Header />
 
       <div className={styles.homeContainer}>
         <main className={styles.mainContent}>
-          {newArrivals.length > 0 && (
+          {filteredPopular.length > 0 && (
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Найпопулярніші</h2>
               <div className={styles.popularGrid}>
-                {popular.map((item) => (
+                {filteredPopular.map((item) => (
                   <div 
                     key={item.id} 
                     className={styles.mangaCard}
@@ -73,11 +104,11 @@ const Home = () => {
             </section>
           )}
 
-          {readingNow.length > 0 && (
+          {filteredReadingNow.length > 0 && (
             <section className={styles.section}>
               <h2 className={styles.sectionTitle}>Читають зараз</h2>
               <div className={styles.popularGrid}>
-                {readingNow.map((item) => (
+                {filteredReadingNow.map((item) => (
                   <div 
                     key={item.id} 
                     className={styles.mangaCard}
@@ -98,9 +129,9 @@ const Home = () => {
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Новинки</h2>
-            {newArrivals.length > 0 ? (
+            {filteredNew.length > 0 ? (
               <div className={styles.newGrid}>
-                {newArrivals.map((item) => (
+                {filteredNew.map((item) => (
                   <div 
                     key={item.id} 
                     className={styles.compactCard}
@@ -112,7 +143,7 @@ const Home = () => {
                 ))}
               </div>
             ) : (
-              !isLoading && <p className={styles.emptyText}>Тайтлів ще не додано.</p>
+              !isLoading && <p className={styles.emptyText}>За вашим запитом нічого не знайдено.</p>
             )}
           </section>
         </main>
@@ -120,7 +151,11 @@ const Home = () => {
         <aside className={styles.sidebar}>
           <SidebarUpdates />
           <PopularAuthors />
-          <TagCategories />
+          <TagCategories 
+            activeGenre={activeGenre} setActiveGenre={setActiveGenre}
+            activeFormat={activeFormat} setActiveFormat={setActiveFormat}
+            activeStatus={activeStatus} setActiveStatus={setActiveStatus}
+          />
         </aside>
       </div>
     </div>

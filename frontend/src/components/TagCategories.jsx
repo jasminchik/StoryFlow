@@ -4,15 +4,36 @@ import styles from './TagCategories.module.scss';
 
 const CATEGORIES_DATA = [
   { id: 'genres', name: 'Жанри', tags: ['Екшн', 'Комедія', 'Драма', 'Романтика', 'Фентезі', 'Психологія', 'Жахи', 'Пригоди', 'Спорт'] },
-  { id: 'formats', name: 'Формат', tags: ['Манґа', 'Манхва', 'Маньхуа', 'Література/Фанфік', 'Ранобе', 'Комікс'] },
+  { id: 'formats', name: 'Формат', tags: ['Манґа', 'Манхва'] },
   { id: 'status', name: 'Статус', tags: ['Онґоінґ', 'Завершено', 'Анонс'] }
 ];
 
-const TagCategories = () => {
-  const [activeCategory, setActiveCategory] = useState(null);
+const TagCategories = ({ 
+  activeGenre, setActiveGenre, 
+  activeFormat, setActiveFormat, 
+  activeStatus, setActiveStatus 
+}) => {
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
   const toggleCategory = (id) => {
-    setActiveCategory(activeCategory === id ? null : id);
+    setExpandedCategory(expandedCategory === id ? null : id);
+  };
+
+  const handleTagClick = (categoryId, tag) => {
+    if (categoryId === 'genres') {
+      setActiveGenre(activeGenre === tag ? null : tag);
+    } else if (categoryId === 'formats') {
+      setActiveFormat(activeFormat === tag ? null : tag);
+    } else if (categoryId === 'status') {
+      setActiveStatus(activeStatus === tag ? null : tag);
+    }
+  };
+
+  const isTagActive = (categoryId, tag) => {
+    if (categoryId === 'genres') return activeGenre === tag;
+    if (categoryId === 'formats') return activeFormat === tag;
+    if (categoryId === 'status') return activeStatus === tag;
+    return false;
   };
 
   return (
@@ -23,19 +44,23 @@ const TagCategories = () => {
         {CATEGORIES_DATA.map((cat) => (
           <div key={cat.id} className={styles.categoryItem}>
             <button 
-              className={`${styles.categoryHeader} ${activeCategory === cat.id ? styles.active : ''}`}
+              className={`${styles.categoryHeader} ${expandedCategory === cat.id ? styles.active : ''}`}
               onClick={() => toggleCategory(cat.id)}
             >
               <span>{cat.name}</span>
               <FiChevronDown 
                 size={18} 
-                className={`${styles.arrow} ${activeCategory === cat.id ? styles.rotated : ''}`} 
+                className={`${styles.arrow} ${expandedCategory === cat.id ? styles.rotated : ''}`} 
               />
             </button>
             
-            <div className={`${styles.tagCloud} ${activeCategory === cat.id ? styles.expanded : ''}`}>
+            <div className={`${styles.tagCloud} ${expandedCategory === cat.id ? styles.expanded : ''}`}>
               {cat.tags.map((tag, index) => (
-                <span key={index} className={styles.tag}>
+                <span 
+                  key={index} 
+                  className={`${styles.tag} ${isTagActive(cat.id, tag) ? styles.active : ''}`}
+                  onClick={() => handleTagClick(cat.id, tag)}
+                >
                   {tag}
                 </span>
               ))}

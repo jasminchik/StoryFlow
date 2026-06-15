@@ -27,7 +27,11 @@ const Catalog = () => {
   const [catalog, setCatalog] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFormat, setActiveFormat] = useState('Всі');
-  const [activeStatuses, setActiveStatuses] = useState([]);
+  
+  // Ініціалізація статусів з URL
+  const initialStatus = searchParams.get('status');
+  const [activeStatuses, setActiveStatuses] = useState(initialStatus ? (initialStatus === 'reading' ? ['Онґоінґ'] : [initialStatus]) : []);
+  
   const [activeGenres, setActiveGenres] = useState([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const navigate = useNavigate();

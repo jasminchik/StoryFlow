@@ -11,14 +11,32 @@ const upload = require('../config/upload');
  */
 router.get('/manga/:mangaId', async (req, res) => {
   try {
-    const chapters = await Chapter.find({ manga: req.params.mangaId })
-      .sort({ chapterNumber: 1 });
+    const chapters = await Chapter.find({ mangaId: req.params.mangaId })
+      .select('number title volume createdAt')
+      .sort({ number: 1 });
 
     res.status(200).json({
       success: true,
       count: chapters.length,
       data: chapters
     });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/titles/:titleId/chapters
+ * @desc    Виведення списку розділів на сторінці тайтлу (Аліас)
+ * @access  Public
+ */
+router.get('/titles/:titleId/chapters', async (req, res) => {
+  try {
+    const chapters = await Chapter.find({ mangaId: req.params.titleId })
+      .select('number title volume createdAt')
+      .sort({ number: 1 });
+
+    res.status(200).json({ success: true, data: chapters });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

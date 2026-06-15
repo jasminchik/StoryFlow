@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
-import { FiUpload, FiX, FiCheck, FiArrowLeft, FiImage } from 'react-icons/fi';
+import { FiUpload, FiX, FiCheck, FiArrowLeft, FiImage, FiPlus, FiBookOpen, FiTrash2 } from 'react-icons/fi';
 import styles from './CreateManga.module.scss';
 
 const EditManga = () => {
@@ -44,6 +44,27 @@ const EditManga = () => {
     'Повсякденність', 'Трагедія', 'Надприродне', 'Екшн', 'Військове'
   ];
 
+  const [chapters, setChapters] = useState([]);
+  const [isChapterFormOpen, setIsChapterFormOpen] = useState(false);
+  const [newChapter, setNewChapter] = useState({
+    number: '',
+    title: '',
+  });
+  const [localPages, setLocalPages] = useState([]); // { file, preview }
+  const [orderedIndices, setOrderedIndices] = useState([]); // indices of localPages in order
+
+  const fetchChapters = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/chapters/manga/${id}`);
+      const data = await res.json();
+      if (data.success) {
+        setChapters(data.data.sort((a, b) => a.number - b.number));
+      }
+    } catch (err) {
+      console.error('Error fetching chapters:', err);
+    }
+  }, [id, API_BASE]);
+
   useEffect(() => {
     const fetchManga = async () => {
       try {
@@ -76,6 +97,8 @@ const EditManga = () => {
 
           if (manga.coverImage) setPreview(`${API_BASE}${manga.coverImage}`);
           if (manga.bannerImage) setBannerPreview(`${API_BASE}${manga.bannerImage}`);
+          
+          fetchChapters();
         }
       } catch (err) {
         setError('Помилка завантаження даних тайтлу');
@@ -85,7 +108,94 @@ const EditManga = () => {
     };
 
     fetchManga();
-  }, [id, navigate]);
+  }, [id, navigate, fetchChapters]);
+
+  const handlePagesFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const newPages = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
+    }));
+    setLocalPages(prev => [...prev, ...newPages]);
+    // Reset order when new files are added
+    setOrderedIndices([]);
+  };
+
+  const togglePageSelection = (index) => {
+    setOrderedIndices(prev => {
+      if (prev.includes(index)) {
+        return prev.filter(i => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
+  };
+
+  const resetOrder = () => setOrderedIndices([]);
+
+  const handleAddChapter = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (orderedIndices.length === 0) {
+      setError('Будь ласка, оберіть порядок сторінок, клікаючи на них');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const data = new FormData();
+      data.append('mangaId', id);
+      data.append('number', Number(newChapter.number));
+      data.append('title', newChapter.title);
+      
+      // Append files in the specific order chosen by the user
+      orderedIndices.forEach((idx) => {
+        data.append('pages', localPages[idx].file);
+      });
+
+      const response = await fetch(`${API_BASE}/api/chapters`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: data
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setNewChapter({ number: '', title: '' });
+        setLocalPages([]);
+        setOrderedIndices([]);
+        setIsChapterFormOpen(false);
+        fetchChapters();
+      } else {
+        setError(result.error || 'Помилка при додаванні розділу');
+      }
+    } catch (err) {
+      setError('Помилка з\'єднання з сервером');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteChapter = async (chapterId) => {
+    if (!window.confirm('Ви впевнені, що хочете видалити цей розділ?')) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/chapters/${chapterId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        fetchChapters();
+      }
+    } catch (err) {
+      console.error('Error deleting chapter:', err);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -235,10 +345,15 @@ const EditManga = () => {
           <span>Назад</span>
         </button>
         <h1>Редагувати тайтл</h1>
-        <p>Оновіть інформацію про твір.</p>
+        <p>Оновіть інформацію про твір та керуйте розділами.</p>
+      </div>
+
+      <div className={styles.editTabs}>
+        <button className={styles.active}>Основна інформація</button>
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
+        {/* ... (rest of the form stays mostly same, but I'll add the chapters section after it) */}
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.bannerUploadSection}>
@@ -378,6 +493,127 @@ const EditManga = () => {
           </div>
         </div>
       </form>
+
+      <div className={styles.chaptersSection}>
+        <div className={styles.sectionHeader}>
+          <h2><FiBookOpen /> Розділи ({chapters.length})</h2>
+          <button 
+            type="button"
+            className={styles.addChapterBtn} 
+            onClick={() => setIsChapterFormOpen(!isChapterFormOpen)}
+          >
+            {isChapterFormOpen ? <><FiX /> Закрити</> : <><FiPlus /> Додати розділ</>}
+          </button>
+        </div>
+
+        {isChapterFormOpen && (
+          <div className={styles.chapterForm}>
+            <h3>Новий розділ</h3>
+            <div className={styles.chapterRow}>
+              <div className={styles.formGroup}>
+                <label>Номер глави *</label>
+                <input 
+                  type="number" 
+                  value={newChapter.number} 
+                  onChange={(e) => setNewChapter({...newChapter, number: e.target.value})} 
+                  placeholder="Напр. 1" 
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Назва глави (опц.)</label>
+                <input 
+                  type="text" 
+                  value={newChapter.title} 
+                  onChange={(e) => setNewChapter({...newChapter, title: e.target.value})} 
+                  placeholder="Напр. Початок" 
+                />
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label>Завантажити сторінки *</label>
+              <div className={styles.pagesUploadBox}>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handlePagesFileChange} 
+                  id="pages-upload"
+                  className={styles.hiddenInput}
+                />
+                <label htmlFor="pages-upload" className={styles.pagesUploadLabel}>
+                  <FiUpload /> Обрати файли
+                </label>
+                {localPages.length > 0 && (
+                  <button type="button" className={styles.resetBtn} onClick={resetOrder}>
+                    Скинути порядок
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {localPages.length > 0 && (
+              <div className={styles.pagesOrderingGallery}>
+                <p className={styles.galleryHint}>Клікніть на сторінки у порядку їх слідування (1, 2, 3...):</p>
+                <div className={styles.pagesGrid}>
+                  {localPages.map((page, index) => {
+                    const orderIndex = orderedIndices.indexOf(index);
+                    return (
+                      <div 
+                        key={index} 
+                        className={`${styles.pagePreviewItem} ${orderIndex !== -1 ? styles.selectedPage : ''}`}
+                        onClick={() => togglePageSelection(index)}
+                      >
+                        <img src={page.preview} alt={`Page ${index}`} />
+                        {orderIndex !== -1 && (
+                          <div className={styles.pageBadge}>{orderIndex + 1}</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            
+            <button 
+              type="button" 
+              className={styles.saveChapterBtn} 
+              onClick={handleAddChapter}
+              disabled={isLoading || orderedIndices.length === 0}
+            >
+              <FiCheck /> {isLoading ? 'Збереження...' : 'Зберегти розділ'}
+            </button>
+          </div>
+        )}
+
+        <div className={styles.chaptersGrid}>
+          {chapters.length > 0 ? (
+            chapters.map(ch => (
+              <div key={ch._id} className={styles.chapterCard}>
+                <div className={styles.chapterCardInfo}>
+                  <span className={styles.chapterCardNumber}>Розділ {ch.number}</span>
+                  <span className={styles.chapterCardTitle}>{ch.title || 'Без назви'}</span>
+                  <span className={styles.chapterCardPages}>{ch.pages?.length || 0} сторінок</span>
+                </div>
+                <div className={styles.chapterCardActions}>
+                  <button 
+                    type="button"
+                    className={styles.deleteBtn} 
+                    onClick={() => handleDeleteChapter(ch._id)}
+                    title="Видалити розділ"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className={styles.emptyText}>
+              <FiBookOpen size={32} style={{ marginBottom: '12px', opacity: 0.5 }} />
+              <p>Розділів ще не додано. Ви можете додати перший розділ вище.</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {imageSrc && (
         <div className={styles.cropperOverlay}>

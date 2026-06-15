@@ -74,7 +74,8 @@ router.put('/sections/:key', protect, isAdmin, async (req, res) => {
     if (!section) {
       const titles = {
         'new_releases': 'Новинки',
-        'popular': 'Найпопулярніші'
+        'popular': 'Найпопулярніші',
+        'reading_now': 'Читають зараз'
       };
       section = await MainSection.create({ 
         key: req.params.key, 

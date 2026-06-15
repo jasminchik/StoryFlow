@@ -423,3 +423,57 @@
 
 .placeholderTab { text-align: center; padding: 50px; color: var(--text-muted); }
 .loading { text-align: center; padding: 100px; color: var(--text-muted); }
+
+/* CHAPTERS */
+.chaptersList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.chaptersGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chapterItem {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 16px 24px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+    background: var(--bg-secondary);
+  }
+}
+
+.chapterInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chapterNumber {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.chapterTitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.chapterDate {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+

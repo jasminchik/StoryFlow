@@ -39,6 +39,8 @@ const MangaDetails = () => {
   const [hoverRating, setHoverRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
   const [fanfics, setFanfics] = useState([]);
+  const [chapters, setChapters] = useState([]);
+  const [isChaptersLoading, setIsChaptersLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
 
@@ -128,6 +130,26 @@ const MangaDetails = () => {
   useEffect(() => {
     if (id) fetchMangaDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (id && activeTab === 'chapters') {
+      const fetchChapters = async () => {
+        setIsChaptersLoading(true);
+        try {
+          const response = await fetch(`${API_BASE}/api/chapters/manga/${id}`);
+          const result = await response.json();
+          if (result.success) {
+            setChapters(result.data);
+          }
+        } catch (err) {
+          console.error('Помилка завантаження розділів:', err);
+        } finally {
+          setIsChaptersLoading(false);
+        }
+      };
+      fetchChapters();
+    }
+  }, [id, activeTab]);
 
   const handleLike = async () => {
     if (!loggedInUser) {
@@ -258,7 +280,27 @@ const MangaDetails = () => {
           </div>
         );
       case 'chapters':
-        return <div className={styles.placeholderTab}><p>Розділів ще немає.</p></div>;
+        return (
+          <div className={styles.chaptersList}>
+            {isChaptersLoading ? (
+              <div className={styles.loading}>Завантаження розділів...</div>
+            ) : Array.isArray(chapters) && chapters.length > 0 ? (
+              <div className={styles.chaptersGrid}>
+                {chapters.map(ch => (
+                  <Link key={ch._id} to={`/manga/${id}/read/${ch._id}`} className={styles.chapterItem}>
+                    <div className={styles.chapterInfo}>
+                      <span className={styles.chapterNumber}>Розділ {ch.number}</span>
+                      {ch.title && <span className={styles.chapterTitle}>{ch.title}</span>}
+                    </div>
+                    <span className={styles.chapterDate}>{new Date(ch.createdAt).toLocaleDateString('uk-UA')}</span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.placeholderTab}><p>Розділів ще немає.</p></div>
+            )}
+          </div>
+        );
       case 'comments':
         return <InteractionSection type="comment" targetId={id} resourceType="Manga" />;
       case 'reviews':

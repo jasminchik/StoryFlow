@@ -62,7 +62,8 @@ const AdminPanel = () => {
         if (sectionsData.data.length === 0) {
            setSections([
              { key: 'new_releases', title: 'Новинки', mangas: [] },
-             { key: 'popular', title: 'Найпопулярніші', mangas: [] }
+             { key: 'popular', title: 'Найпопулярніші', mangas: [] },
+             { key: 'reading_now', title: 'Читають зараз', mangas: [] }
            ]);
         } else {
            setSections(sectionsData.data);
@@ -190,6 +191,7 @@ const AdminPanel = () => {
                     <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className={styles.categorySelect}>
                       <option value="new_releases">Новинки</option>
                       <option value="popular">Найпопулярніші</option>
+                      <option value="reading_now">Читають зараз</option>
                       <option value="admin_choice">Вибір адміна</option>
                     </select>
                     <select value={addMangaId} onChange={(e) => setAddMangaId(e.target.value)} className={styles.addInput}>

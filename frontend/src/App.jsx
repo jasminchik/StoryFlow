@@ -14,6 +14,7 @@ import EditManga from './pages/CreateManga/EditManga';
 import CreateFanfic from './pages/Fanfic/CreateFanfic';
 import FanficDetails from './pages/Fanfic/FanficDetails';
 import ReadFanfic from './pages/Fanfic/ReadFanfic';
+import ReadManga from './pages/Manga/ReadManga';
 import AuthSuccess from './pages/AuthSuccess';
 import AdminPanel from './pages/Admin/AdminPanel';
 import BottomNav from './components/BottomNav';
@@ -38,6 +39,7 @@ function App() {
         <Route path="/create-fanfic" element={<CreateFanfic />} />
         <Route path="/fanfic/:id" element={<FanficDetails />} />
         <Route path="/fanfic/:id/read/:chapterId" element={<ReadFanfic />} />
+        <Route path="/manga/:titleId/read/:chapterId" element={<ReadManga />} />
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>

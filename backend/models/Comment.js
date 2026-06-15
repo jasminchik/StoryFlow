@@ -15,7 +15,8 @@ const CommentSchema = new mongoose.Schema({
   // Посилання на ресурс, який коментують
   resourceId: {
     type: mongoose.Schema.ObjectId,
-    required: true
+    required: true,
+    refPath: 'resourceType'
   },
   // Тип ресурсу ('Manga', 'Literature', 'Announcement')
   resourceType: {

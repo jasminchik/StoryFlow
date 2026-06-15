@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   FiUser, 
   FiBell, 
@@ -14,7 +14,8 @@ import {
   FiChevronRight,
   FiEdit3,
   FiPlusSquare,
-  FiShield
+  FiShield,
+  FiShuffle
 } from 'react-icons/fi';
 import { LuShieldCheck } from 'react-icons/lu';
 import { useTheme } from '../context/ThemeContext';
@@ -22,7 +23,21 @@ import styles from './ProfileDropdown.module.scss';
 
 const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
   const menuRef = useRef(null);
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+
+  const handleRandomClick = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/manga/random');
+      const data = await response.json();
+      if (data.success && data.id) {
+        onClose();
+        navigate(`/manga/${data.id}`);
+      }
+    } catch (err) {
+      console.error('Помилка при отриманні випадкового тайтлу:', err);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -92,6 +107,10 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
           <Link to={`/profile/${user?.username}?tab=stats`} className={styles.menuItem} onClick={onClose}>
             <FiBarChart2 className={styles.icon} size={20} /> Статистика
           </Link>
+
+          <button className={styles.menuItem} onClick={handleRandomClick}>
+            <FiShuffle className={styles.icon} size={20} /> Випадковий тайтл
+          </button>
           
           <div className={styles.divider}></div>
           

@@ -101,9 +101,11 @@ router.get('/home', async (req, res) => {
 
     let newArrivals = [];
     let topRated = [];
+    let readingNow = [];
 
     const customNew = sections.find(s => s.key === 'new_releases');
     const customPopular = sections.find(s => s.key === 'popular');
+    const customReadingNow = sections.find(s => s.key === 'reading_now');
 
     if (customNew && customNew.mangas.length > 0) {
       newArrivals = customNew.mangas;
@@ -126,11 +128,16 @@ router.get('/home', async (req, res) => {
         .limit(8);
     }
 
+    if (customReadingNow && customReadingNow.mangas.length > 0) {
+      readingNow = customReadingNow.mangas;
+    }
+
     res.status(200).json({
       success: true,
       data: {
         newArrivals,
-        topRated
+        topRated,
+        readingNow
       }
     });
   } catch (error) {
@@ -244,6 +251,33 @@ router.get('/latest', async (req, res) => {
     }
 
     res.status(200).json({ success: true, data: updates || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/manga/random
+ * @desc    Отримати випадковий тайтл (тільки Манґа або Манхва)
+ * @access  Public
+ */
+router.get('/random', async (req, res) => {
+  try {
+    const randomTitle = await Manga.aggregate([
+      { 
+        $match: { 
+          type: { $in: ['Манґа', 'Манхва', 'Manga', 'Manhwa'] },
+          moderationStatus: { $ne: 'rejected' }
+        } 
+      },
+      { $sample: { size: 1 } }
+    ]);
+
+    if (randomTitle.length > 0) {
+      res.json({ success: true, id: randomTitle[0]._id });
+    } else {
+      res.status(404).json({ success: false, error: "Тайтлів не знайдено" });
+    }
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

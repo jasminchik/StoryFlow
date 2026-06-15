@@ -37,8 +37,16 @@ const Profile = () => {
   const [isMyWorksLoading, setIsMyWorksLoading] = useState(false);
 
   const [userTitles, setUserTitles] = useState([]);
-  const [activeCategory, setActiveCategory] = useState('reading');
+  const [activeCategory, setActiveCategory] = useState('all');
   const [isTitlesLoading, setIsTitlesLoading] = useState(false);
+
+  // States для коментарів та відгуків
+  const [userComments, setUserComments] = useState([]);
+  const [userReviews, setUserReviews] = useState([]);
+  const [isActivityLoading, setIsActivityLoading] = useState(false);
+  
+  const [commentTypeFilter, setCommentTypeFilter] = useState('all');
+  const [commentLocationFilter, setCommentLocationFilter] = useState('all');
 
   const [analytics, setAnalytics] = useState({ 
     totalChaptersRead: 42, 
@@ -125,6 +133,28 @@ const Profile = () => {
       fetchTitles();
     }
   }, [profileTab, urlUsername]);
+
+  useEffect(() => {
+    if ((profileTab === 'comments' || profileTab === 'reviews') && user?._id) {
+      const fetchActivity = async () => {
+        setIsActivityLoading(true);
+        try {
+          const endpoint = profileTab === 'comments' ? 'comments' : 'reviews';
+          const response = await fetch(`${API_BASE}/api/${endpoint}/user/${user._id}`);
+          const data = await response.json();
+          if (data.success) {
+            if (profileTab === 'comments') setUserComments(data.data);
+            else setUserReviews(data.data);
+          }
+        } catch (err) {
+          console.error('Помилка завантаження активності:', err);
+        } finally {
+          setIsActivityLoading(false);
+        }
+      };
+      fetchActivity();
+    }
+  }, [profileTab, user]);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -366,18 +396,6 @@ const Profile = () => {
 
         return (
           <div className={styles.titlesWrapper}>
-            <div className={styles.filterMenu}>
-              {TITLE_CATEGORIES.map(cat => (
-                <button 
-                  key={cat.id}
-                  className={`${styles.filterBtn} ${activeCategory === cat.id ? styles.activeFilter : ''}`}
-                  onClick={() => setActiveCategory(cat.id)}
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-
             {isTitlesLoading ? (
               <div className={styles.loading}>Завантаження списку...</div>
             ) : filteredTitles.length > 0 ? (
@@ -437,6 +455,43 @@ const Profile = () => {
         );
       case 'comments':
       case 'reviews':
+        const activityData = profileTab === 'comments' ? userComments : userReviews;
+        const filteredActivity = activityData.filter(item => {
+          const typeMap = { 'manga': 'Манґа', 'manhwa': 'Манхва', 'fanfic': 'Література', 'manhua': 'Маньхуа' };
+          const matchType = commentTypeFilter === 'all' || item.resourceId?.type === typeMap[commentTypeFilter];
+          const matchLocation = commentLocationFilter === 'all' || commentLocationFilter === 'under_title';
+          return matchType && matchLocation;
+        });
+
+        return (
+          <div className={styles.activityContainer}>
+            {isActivityLoading ? (
+              <div className={styles.loading}>Завантаження...</div>
+            ) : filteredActivity.length > 0 ? (
+              <div className={styles.activityList}>
+                {filteredActivity.map(item => (
+                  <div key={item._id} className={styles.activityCard}>
+                    <div className={styles.activityHeader}>
+                      <span className={styles.targetTitle} onClick={() => navigate(`/${item.resourceType?.toLowerCase() === 'manga' ? 'manga' : 'fanfic'}/${item.resourceId?._id}`)}>
+                        {item.resourceId?.title || 'Видалений твір'}
+                      </span>
+                      <span className={styles.activityDate}>{new Date(item.createdAt).toLocaleDateString('uk-UA')}</span>
+                    </div>
+                    <p className={styles.activityContent}>{item.content}</p>
+                    <div className={styles.activityMeta}>
+                      <span className={styles.typeBadge}>{item.resourceId?.type || (item.resourceType === 'Literature' ? 'Література' : 'Твір')}</span>
+                      <span className={styles.activityDate}>
+                        {profileTab === 'reviews' ? 'Відгук' : 'Коментар'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyState}>Тут поки що порожньо.</div>
+            )}
+          </div>
+        );
       case 'history':
         return <div className={styles.listContainer}><div className={styles.emptyState}>Тут поки що порожньо.</div></div>;
       case 'friends':
@@ -511,7 +566,15 @@ const Profile = () => {
         </div>
         <div className={styles.tabLayout}>
           <main className={styles.tabContentArea}>{renderProfileTabContent()}</main>
-          <ProfileSidebar activeTab={profileTab} />
+          <ProfileSidebar 
+            activeTab={profileTab} 
+            listFilter={activeCategory}
+            setListFilter={setActiveCategory}
+            commentType={commentTypeFilter}
+            setCommentType={setCommentTypeFilter}
+            commentLocation={commentLocationFilter}
+            setCommentLocation={setCommentLocationFilter}
+          />
         </div>
       </div>
       <ProfileSettingsModal isOpen={isSettingsOpen} onClose={handleCloseSettings} user={user} onSaveSuccess={handleSaveSuccess} />

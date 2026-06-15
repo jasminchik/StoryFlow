@@ -90,9 +90,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
+  &:hover, &.active {
     background-color: var(--primary-color);
     color: white;
+  }
+
+  &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(255, 140, 0, 0.2);
   }

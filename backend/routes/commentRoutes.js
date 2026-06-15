@@ -4,6 +4,26 @@ const Comment = require('../models/Comment');
 const { protect } = require('../middleware/auth');
 
 /**
+ * @route   GET /api/comments/user/:userId
+ * @desc    Отримати всі коментарі конкретного користувача
+ * @access  Public
+ */
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const comments = await Comment.find({ author: req.params.userId })
+      .populate('resourceId', 'title type')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: comments
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * @route   GET /api/comments/:resourceId
  * @desc    Отримати коментарі для конкретного ресурсу
  * @access  Public

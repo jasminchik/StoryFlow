@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ChapterSchema = new mongoose.Schema({
-  manga: {
+  mangaId: {
     type: mongoose.Schema.ObjectId,
     ref: 'Manga',
     required: [true, 'Будь ласка, вкажіть до якого твору належить цей розділ']
@@ -10,7 +10,7 @@ const ChapterSchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
-  chapterNumber: {
+  number: {
     type: Number,
     required: [true, 'Будь ласка, вкажіть номер глави']
   },
@@ -27,6 +27,6 @@ const ChapterSchema = new mongoose.Schema({
 });
 
 // Додаємо індекс для швидкого пошуку глав конкретної манґи
-ChapterSchema.index({ manga: 1, chapterNumber: 1 }, { unique: true });
+ChapterSchema.index({ mangaId: 1, number: 1 }, { unique: true });
 
 module.exports = mongoose.model('Chapter', ChapterSchema);

@@ -29,6 +29,7 @@ const commentRoutes = require('./routes/commentRoutes');
 const userListRoutes = require('./routes/userListRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const newsRoutes = require('./routes/newsRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
@@ -41,6 +42,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/user-list', userListRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

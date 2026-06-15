@@ -98,12 +98,17 @@ const Header = () => {
     setIsProfileMenuOpen(false);
   };
 
-  const handleRandomTitle = () => {
-    const randomIndex = Math.floor(Math.random() * AVAILABLE_IDS.length);
-    const randomId = AVAILABLE_IDS[randomIndex];
-    
-    setIsCatalogOpen(false);
-    navigate(`/manga/${randomId}`);
+  const handleRandomClick = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/manga/random');
+      const data = await response.json();
+      if (data.success && data.id) {
+        setIsCatalogOpen(false);
+        navigate(`/manga/${data.id}`);
+      }
+    } catch (err) {
+      console.error('Помилка при отриманні випадкового тайтлу:', err);
+    }
   };
 
   return (
@@ -134,10 +139,10 @@ const Header = () => {
                   <Link to="/catalog?type=manhwa" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манхва</Link>
                   <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Література/Фанфік</Link>
                   <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
-                  <Link to="/reading-now" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
+                  <Link to="/catalog?status=reading" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
                   
                   <div className={styles.dropdownDivider}></div>
-                  <button className={styles.randomBtn} onClick={handleRandomTitle}>
+                  <button className={styles.randomBtn} onClick={handleRandomClick}>
                     <FiShuffle size={16} /> Випадковий тайтл
                   </button>
                 </div>
