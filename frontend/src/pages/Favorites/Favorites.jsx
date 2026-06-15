@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiStar } from 'react-icons/fi';
 import Header from '../../components/Header';
 import styles from './Favorites.module.scss';
 
@@ -36,7 +37,9 @@ const Favorites = () => {
                   ) : (
                     <div className={styles.textCover}>{item.title}</div>
                   )}
-                  <div className={styles.rating}>⭐ {item.rating}</div>
+                  <div className={styles.rating}>
+                    <FiStar size={12} fill="currentColor" /> {item.rating ? (item.rating > 5 ? item.rating : (item.rating * 2)).toFixed(1) : '0.0'}
+                  </div>
                   <div className={styles.typeBadge}>{item.type}</div>
                 </div>
                 <div className={styles.cardInfo}>

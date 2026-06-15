@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiStar } from 'react-icons/fi';
 import styles from './Home.module.scss';
 import SidebarUpdates from '../components/SidebarUpdates';
 import PopularAuthors from '../components/PopularAuthors';
@@ -8,21 +9,21 @@ import Header from '../components/Header';
 
 // Mock data (для основної стрічки)
 const MOCK_POPULAR = [
-  { id: 1, title: 'Наруто', rating: 4.8, image: '/uploads/naruto.jpg' },
-  { id: 2, title: 'Бліч', rating: 4.5, image: '/uploads/bleach.jpg' },
-  { id: 3, title: 'Ван Піс', rating: 4.9, image: '/uploads/one_piece.jpg' },
-  { id: 4, title: 'Підняття рівня поодинці', rating: 4.7, image: '/uploads/solo_leveling.jpg' },
-  { id: 41, title: 'Людина-бензопила', rating: 4.8, image: '/uploads/chainsaw_man.jpg' },
-  { id: 42, title: 'Магічна битва', rating: 4.9, image: '/uploads/jujutsu_kaisen.jpg' },
-  { id: 43, title: 'Чорна конюшина', rating: 4.4, image: '/uploads/black_clover.jpg' },
-  { id: 44, title: 'Блю Лок', rating: 4.6, image: '/uploads/blue_lock.jpg' },
+  { id: 1, title: 'Наруто', rating: 9.6, image: '/uploads/naruto.jpg' },
+  { id: 2, title: 'Бліч', rating: 9.0, image: '/uploads/bleach.jpg' },
+  { id: 3, title: 'Ван Піс', rating: 9.8, image: '/uploads/one_piece.jpg' },
+  { id: 4, title: 'Підняття рівня поодинці', rating: 9.4, image: '/uploads/solo_leveling.jpg' },
+  { id: 41, title: 'Людина-бензопила', rating: 9.6, image: '/uploads/chainsaw_man.jpg' },
+  { id: 42, title: 'Магічна битва', rating: 9.8, image: '/uploads/jujutsu_kaisen.jpg' },
+  { id: 43, title: 'Чорна конюшина', rating: 8.8, image: '/uploads/black_clover.jpg' },
+  { id: 44, title: 'Блю Лок', rating: 9.2, image: '/uploads/blue_lock.jpg' },
 ];
 
 const MOCK_READING = [
-  { id: 101, title: 'Блю Лок', rating: 4.7, image: '/uploads/blue_lock.jpg' },
-  { id: 102, title: 'Берсерк', rating: 5.0, image: '/uploads/berserk.jpg' },
-  { id: 103, title: 'Токійський ґуль', rating: 4.6, image: '/uploads/tokyo_ghoul.jpg' },
-  { id: 104, title: 'Сага про Вінланд', rating: 4.9, image: '/uploads/vinland_saga.jpg' },
+  { id: 101, title: 'Блю Лок', rating: 9.4, image: '/uploads/blue_lock.jpg' },
+  { id: 102, title: 'Берсерк', rating: 10.0, image: '/uploads/berserk.jpg' },
+  { id: 103, title: 'Токійський ґуль', rating: 9.2, image: '/uploads/tokyo_ghoul.jpg' },
+  { id: 104, title: 'Сага про Вінланд', rating: 9.8, image: '/uploads/vinland_saga.jpg' },
 ];
 
 const MOCK_NEW = [
@@ -66,7 +67,9 @@ const Home = () => {
                 >
                   <div className={styles.imageWrapper}>
                     <img src={item.image} alt={item.title} />
-                    <div className={styles.rating}>{item.rating}</div>
+                    <div className={styles.rating}>
+                      <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+                    </div>
                   </div>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
                 </div>
@@ -85,7 +88,9 @@ const Home = () => {
                 >
                   <div className={styles.imageWrapper}>
                     <img src={item.image} alt={item.title} />
-                    <div className={styles.rating}>{item.rating}</div>
+                    <div className={styles.rating}>
+                      <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+                    </div>
                   </div>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
                 </div>

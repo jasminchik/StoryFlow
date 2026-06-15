@@ -96,7 +96,7 @@ const Profile = () => {
   const STATS = [
     { label: 'Тайтли', value: 12, icon: '📚' },
     { label: 'Коментарі', value: 114, icon: '💬' },
-    { label: 'Оцінки', value: 25, icon: '⭐' },
+    { label: 'Оцінки', value: user.stats?.ratings || 0, icon: <FiStar size={18} /> },
     { label: 'Прочитано', value: 301, icon: '📖' }
   ];
 

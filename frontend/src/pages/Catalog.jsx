@@ -5,12 +5,12 @@ import Header from '../components/Header';
 import styles from './Catalog.module.scss';
 
 const MOCK_CATALOG = [
-  { id: 1, title: 'Берсерк', type: 'Манґа', rating: 4.9, chapters: 375, status: 'Завершено', image: '/uploads/berserk.jpg' },
-  { id: 2, title: 'Атака Титанів', type: 'Манґа', rating: 4.8, chapters: 139, status: 'Завершено', image: '/uploads/attack_on_titan.jpg' },
-  { id: 3, title: 'Легенда про меч', type: 'Література/Фанфік', rating: 4.2, chapters: 42, status: 'Онґоінґ', image: '/uploads/novel.jpg' },
-  { id: 4, title: 'Токійський ґуль', type: 'Манґа', rating: 4.5, chapters: 143, status: 'Завершено', image: '/uploads/tokyo_ghoul.jpg' },
-  { id: 5, title: 'Вежа Бога', type: 'Манхва', rating: 4.8, chapters: 550, status: 'Онґоінґ', image: '/uploads/tower_of_god.jpg' },
-  { id: 6, title: 'Світ без магії', type: 'Література/Фанфік', rating: 3.9, chapters: 15, status: 'Анонс', image: '/uploads/novel.jpg' },
+  { id: 1, title: 'Берсерк', type: 'Манґа', rating: 9.8, chapters: 375, status: 'Завершено', image: '/uploads/berserk.jpg' },
+  { id: 2, title: 'Атака Титанів', type: 'Манґа', rating: 9.6, chapters: 139, status: 'Завершено', image: '/uploads/attack_on_titan.jpg' },
+  { id: 3, title: 'Легенда про меч', type: 'Література/Фанфік', rating: 8.4, chapters: 42, status: 'Онґоінґ', image: '/uploads/novel.jpg' },
+  { id: 4, title: 'Токійський ґуль', type: 'Манґа', rating: 9.0, chapters: 143, status: 'Завершено', image: '/uploads/tokyo_ghoul.jpg' },
+  { id: 5, title: 'Вежа Бога', type: 'Манхва', rating: 9.6, chapters: 550, status: 'Онґоінґ', image: '/uploads/tower_of_god.jpg' },
+  { id: 6, title: 'Світ без магії', type: 'Література/Фанфік', rating: 7.8, chapters: 15, status: 'Анонс', image: '/uploads/novel.jpg' },
 ];
 
 const TYPE_MAP = {
@@ -132,7 +132,7 @@ const Catalog = () => {
                   ) : (
                     <div className={styles.textCover}>{item.title}</div>
                   )}
-                  <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.rating}</div>
+                  <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}</div>
                   <div className={styles.typeBadge}>{item.type}</div>
                 </div>
                 <div className={styles.cardInfo}>

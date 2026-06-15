@@ -656,9 +656,17 @@
             overflow-x: auto;
             gap: 16px;
             padding-bottom: 12px;
-            padding-right: 40px; /* Space for the last card */
+            padding-right: 40px;
             scrollbar-width: none;
             -webkit-overflow-scrolling: touch;
+
+            @media (min-width: 769px) {
+              display: grid; /* Повертаємо сітку для ПК */
+              grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Компактні картки */
+              gap: 20px;
+              overflow: visible;
+              padding-right: 0;
+            }
 
             &::-webkit-scrollbar {
               display: none;
@@ -671,9 +679,9 @@
               width: 120px;
 
               @media (min-width: 769px) {
-                width: auto;
+                width: 100%; /* У сітці займає всю ширину колонки */
               }
-
+          // ... rest of the styles ...
               img {
                 width: 100%;
                 aspect-ratio: 2/3;
