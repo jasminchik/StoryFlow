@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiArrowLeft, FiChevronLeft, FiChevronRight, FiList } from 'react-icons/fi';
 import Header from '../../components/Header';
+import NotificationModal from '../../components/NotificationModal';
 import styles from './ReadManga.module.scss';
 
 const ReadManga = () => {
@@ -13,6 +14,9 @@ const ReadManga = () => {
   const [allChapters, setAllChapters] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState('');
 
   const API_BASE = 'http://localhost:5000';
 
@@ -66,10 +70,15 @@ const ReadManga = () => {
       // Перехід до наступного розділу
       navigate(`/manga/${titleId}/read/${nextChapter._id}`);
     } else {
-      alert('Всі доступні розділи прочитано!');
-      navigate(`/manga/${titleId}?tab=chapters`);
+      setNotifyMessage('Всі доступні розділи прочитано!');
+      setIsNotifyOpen(true);
     }
   }, [currentPage, chapter, titleId, navigate, nextChapter]);
+
+  const handleNotifyClose = () => {
+    setIsNotifyOpen(false);
+    navigate(`/manga/${titleId}?tab=chapters`);
+  };
 
   const handlePrevPage = useCallback(() => {
     if (currentPage > 0) {
@@ -139,6 +148,12 @@ const ReadManga = () => {
           </div>
         </div>
       </div>
+
+      <NotificationModal 
+        isOpen={isNotifyOpen} 
+        message={notifyMessage} 
+        onClose={handleNotifyClose} 
+      />
     </div>
   );
 };
