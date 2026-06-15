@@ -15,6 +15,7 @@ import CreateFanfic from './pages/Fanfic/CreateFanfic';
 import FanficDetails from './pages/Fanfic/FanficDetails';
 import ReadFanfic from './pages/Fanfic/ReadFanfic';
 import AuthSuccess from './pages/AuthSuccess';
+import AdminPanel from './pages/Admin/AdminPanel';
 import BottomNav from './components/BottomNav';
 import styles from './App.module.scss';
 
@@ -37,6 +38,7 @@ function App() {
         <Route path="/fanfic/:id" element={<FanficDetails />} />
         <Route path="/fanfic/:id/read/:chapterId" element={<ReadFanfic />} />
         <Route path="/auth-success" element={<AuthSuccess />} />
+        <Route path="/admin" element={<AdminPanel />} />
       </Routes>
       <BottomNav />
     </div>

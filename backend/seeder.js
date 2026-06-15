@@ -31,6 +31,13 @@ const importData = async () => {
     // 1. Seed Users
     console.log('Creating essential users...');
     
+    const adminUser = await User.create({
+      username: 'admin_test',
+      email: 'admin@gmail.com',
+      password: '123456',
+      role: 'admin'
+    });
+
     await User.create({
       username: 'admin',
       email: 'admin@storyflow.com',
@@ -38,7 +45,7 @@ const importData = async () => {
       role: 'admin'
     });
 
-    await User.create({
+    const authorUser = await User.create({
       username: 'author_official',
       email: 'author@storyflow.com',
       password: 'password123',
@@ -53,7 +60,55 @@ const importData = async () => {
     });
 
     console.log('Essential users created.');
-    console.log('Database successfully initialized with essential users! 🌱');
+
+    // 2. Seed Mock Mangas
+    console.log('Creating mock mangas...');
+    const manga1 = await Manga.create({
+      title: 'Берсерк: Початок',
+      alternativeTitle: 'Berserk',
+      description: 'Легендарна історія Гатса, Чорного Мечника, що мандрує темним світом.',
+      type: 'Манґа',
+      genres: ['Сейнен', 'Темне фентезі', 'Бойовик', 'Драма'],
+      status: 'Завершено',
+      releaseYear: 1989,
+      author: authorUser._id,
+      moderationStatus: 'approved',
+      averageRating: 9.8,
+      ratingCount: 150,
+      coverImage: 'https://cdn.readmanga.live/manga_posters/berserk.jpg' // Заглушка
+    });
+
+    const manga2 = await Manga.create({
+      title: 'Підняття рівня наодинці',
+      alternativeTitle: 'Solo Leveling',
+      description: 'Історія про найслабшого мисливця E-рангу, який отримує унікальну здатність підвищувати свій рівень.',
+      type: 'Манхва',
+      genres: ['Екшн', 'Пригоди', 'Фентезі'],
+      status: 'В процесі',
+      releaseYear: 2018,
+      author: authorUser._id,
+      moderationStatus: 'approved',
+      averageRating: 9.5,
+      ratingCount: 320,
+      coverImage: 'https://cdn.readmanga.live/manga_posters/solo_leveling.jpg' // Заглушка
+    });
+
+    // 3. Seed Mock Literature (Fanfics)
+    console.log('Creating mock literature...');
+    await Literature.create({
+      title: 'Альтернативний кінець',
+      description: 'Як би завершилася історія, якби головний герой обрав інший шлях...',
+      direction: 'Джен',
+      ageRating: 'PG-13',
+      status: 'completed',
+      genres: ['Драма', 'Ангст'],
+      manga: manga2._id, // Прив'язка до Манхви
+      author: adminUser._id, // Написав адмін
+      moderationStatus: 'approved',
+      isOfficial: false
+    });
+
+    console.log('Database successfully initialized with essential users and mock data! 🌱');
     process.exit(0);
   } catch (error) {
     console.error('Error during data import:', error);

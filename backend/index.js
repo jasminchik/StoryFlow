@@ -27,6 +27,7 @@ const literatureChapterRoutes = require('./routes/literatureChapterRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const userListRoutes = require('./routes/userListRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
@@ -37,6 +38,7 @@ app.use('/api/literature-chapters', literatureChapterRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/user-list', userListRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

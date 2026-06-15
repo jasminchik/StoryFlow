@@ -84,19 +84,40 @@ router.patch('/:id/moderation', protect, authorize('admin'), async (req, res) =>
  */
 router.get('/home', async (req, res) => {
   try {
-    const approvedQuery = { moderationStatus: 'approved' };
+    const MainSection = require('../models/MainSection');
+    
+    // Спробуємо отримати кастомні секції
+    const sections = await MainSection.find().populate({
+      path: 'mangas',
+      populate: { path: 'author', select: 'username' }
+    });
 
-    // 1. Новинки (сортування за датою створення) - дозволяємо бачити всі нові, щоб автори бачили свої твори
-    const newArrivals = await Manga.find()
-      .populate('author', 'username')
-      .sort({ createdAt: -1 })
-      .limit(8);
+    let newArrivals = [];
+    let topRated = [];
 
-    // 2. Популярні/Найкращі (сортування за рейтингом та кількістю оцінок)
-    const topRated = await Manga.find(approvedQuery)
-      .populate('author', 'username')
-      .sort({ averageRating: -1, ratingCount: -1 })
-      .limit(8);
+    const customNew = sections.find(s => s.key === 'new_releases');
+    const customPopular = sections.find(s => s.key === 'popular');
+
+    if (customNew && customNew.mangas.length > 0) {
+      newArrivals = customNew.mangas;
+    } else {
+      // Fallback: автоматичне сортування
+      newArrivals = await Manga.find()
+        .populate('author', 'username')
+        .sort({ createdAt: -1 })
+        .limit(8);
+    }
+
+    if (customPopular && customPopular.mangas.length > 0) {
+      topRated = customPopular.mangas;
+    } else {
+      // Fallback: автоматичне сортування
+      const approvedQuery = { moderationStatus: 'approved' };
+      topRated = await Manga.find(approvedQuery)
+        .populate('author', 'username')
+        .sort({ averageRating: -1, ratingCount: -1 })
+        .limit(8);
+    }
 
     res.status(200).json({
       success: true,
