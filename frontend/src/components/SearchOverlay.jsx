@@ -68,16 +68,16 @@ const SearchOverlay = ({ isOpen, onClose }) => {
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className={styles.overlay}>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <div className={styles.searchField}>
+    <div className={`${styles.overlay} ${isOpen ? styles.visible : ''}`} onClick={onClose}>
+      <div className={styles.searchContainer} onClick={(e) => e.stopPropagation()}>
+        
+        <div className={styles.searchHeader}>
+          <div className={styles.inputWrapper}>
             <FiSearch className={styles.searchIcon} />
             <input 
               type="text" 
+              className={styles.searchInput}
               placeholder="Пошук манґи, авторів..." 
               value={searchQuery}
               onChange={handleSearch}
@@ -85,11 +85,13 @@ const SearchOverlay = ({ isOpen, onClose }) => {
             />
             {searchQuery && (
               <button className={styles.clearBtn} onClick={() => setSearchQuery('')}>
-                <FiX />
+                <FiX size={20} />
               </button>
             )}
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>Закрити</button>
+          <button className={styles.closeBtn} onClick={onClose}>
+            <FiX size={28} />
+          </button>
         </div>
 
         <div className={styles.tabs}>
@@ -124,7 +126,7 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                     onClick={() => handleResultClick(item.id, activeTab === 'authors' ? 'author' : 'manga')}
                   >
                     <div className={styles.resultAvatar}>
-                      {activeTab === 'authors' ? <FiUser /> : <FiBookOpen />}
+                      {activeTab === 'authors' ? <FiUser /> : (item.image ? <img src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`} alt={item.title} className={styles.resultImg} /> : <FiBookOpen />)}
                     </div>
                     <div className={styles.resultInfo}>
                       <span className={styles.resultTitle}>{item.title || item.name}</span>
@@ -136,27 +138,13 @@ const SearchOverlay = ({ isOpen, onClose }) => {
                 ))
               ) : (
                 <div className={styles.noResults}>
-                  <p>За запитом "{searchQuery}" нічого не знайдено</p>
+                  <p>Нічого не знайдено за цим запитом</p>
                 </div>
               )}
             </div>
           ) : (
-            <div className={styles.suggestions}>
-              <div className={styles.suggestionBlock}>
-                <h3><FiTrendingUp className={styles.blockIcon} /> Популярні запити</h3>
-                <div className={styles.tagList}>
-                  {['Берсерк', 'Наруто', 'Ван Піс', 'Блю Лок', 'Магічна битва'].map(tag => (
-                    <button key={tag} className={styles.tagBtn} onClick={() => setSearchQuery(tag)}>
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.suggestionBlock}>
-                <h3><FiClock className={styles.blockIcon} /> Недавній пошук</h3>
-                <p className={styles.emptyHint}>Історія пошуку порожня</p>
-              </div>
+            <div className={styles.emptyState}>
+              <p>Почніть вводити назву, щоб знайти тайтл або автора</p>
             </div>
           )}
         </div>

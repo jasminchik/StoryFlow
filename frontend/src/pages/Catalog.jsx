@@ -100,18 +100,34 @@ const Catalog = () => {
 
   // Фільтрація каталогу (клієнтська сторона для цього етапу)
   const filteredCatalog = catalog.filter(item => {
-    const matchesFormat = activeFormat === 'Всі' || item.type === activeFormat;
+    // Мапінг форматів, щоб забезпечити гнучкість, оскільки в базі тип може бути записаний в різному регістрі
+    let matchesFormat = true;
+    if (activeFormat !== 'Всі') {
+      if (activeFormat === 'Манґа') {
+        matchesFormat = item.type?.toLowerCase() === 'манга' || item.type?.toLowerCase() === 'манґа' || item.type?.toLowerCase() === 'manga';
+      } else if (activeFormat === 'Манхва') {
+        matchesFormat = item.type?.toLowerCase() === 'манхва' || item.type?.toLowerCase() === 'manhwa';
+      } else if (activeFormat === 'Література/Фанфік') {
+        matchesFormat = item.type?.toLowerCase() === 'література' || item.type?.toLowerCase() === 'фанфік';
+      } else {
+        matchesFormat = item.type?.toLowerCase() === activeFormat.toLowerCase();
+      }
+    }
     
     // Статуси в базі: 'Анонс', 'В процесі', 'Завершено', 'Призупинено'
     // Статуси в фільтрі: 'Онґоінґ' (== 'В процесі'), 'Завершено', 'Анонс'
     const statusMap = {
-      'Онґоінґ': 'В процесі',
-      'Завершено': 'Завершено',
-      'Анонс': 'Анонс'
+      'Онґоінґ': 'in_progress', // в бекенді статус це in_progress
+      'Завершено': 'completed',
+      'Анонс': 'announcement'
     };
-    const matchesStatus = activeStatuses.length === 0 || activeStatuses.some(s => item.status === statusMap[s]);
     
-    const matchesGenres = activeGenres.length === 0 || activeGenres.every(g => item.genres.includes(g));
+    const matchesStatus = activeStatuses.length === 0 || activeStatuses.some(s => {
+      // Звіряємо як з англійськими (in_progress), так і з кирилічними ("В процесі") статусами в базі
+      return item.status === statusMap[s] || item.status === s || item.status === (s === 'Онґоінґ' ? 'В процесі' : s);
+    });
+    
+    const matchesGenres = activeGenres.length === 0 || activeGenres.every(g => item.genres && item.genres.includes(g));
     
     return matchesFormat && matchesStatus && matchesGenres;
   });
@@ -153,12 +169,12 @@ const Catalog = () => {
               >
                 <div className={styles.imageWrapper}>
                   <img src={item.coverImage ? (item.coverImage.startsWith('http') ? item.coverImage : `http://localhost:5000${item.coverImage}`) : ''} alt={item.title} />
-                  <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}</div>
+                  <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.averageRating ? item.averageRating.toFixed(1) : '0.0'}</div>
                   <div className={styles.typeBadge}>{item.type}</div>
                 </div>
                 <div className={styles.cardInfo}>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
-                  <span className={styles.chapters}>{item.releaseYear} • {item.status}</span>
+                  <span className={styles.chapters}>{item.releaseYear || ''} {item.releaseYear && item.status ? '•' : ''} {item.status === 'in_progress' ? 'В процесі' : item.status === 'completed' ? 'Завершено' : item.status}</span>
                 </div>
               </div>
             ))}

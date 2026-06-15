@@ -131,7 +131,11 @@ router.get('/search', async (req, res) => {
     };
 
     if (type) {
-      query.type = type === 'manhwa' ? { $in: ['Манхва', 'Manhwa'] } : { $nin: ['Манхва', 'Manhwa'] }; // Проста логіка для поділу, можна вдосконалити
+      if (type === 'manhwa') {
+        query.type = { $regex: 'манхва|manhwa', $options: 'i' };
+      } else if (type === 'manga') {
+        query.type = { $regex: 'манґа|манга|manga', $options: 'i' };
+      }
     }
 
     const manga = await Manga.find(query)
