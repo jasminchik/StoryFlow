@@ -250,6 +250,72 @@ router.get('/latest', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/manga/catalog
+ * @desc    Отримати відфільтровані твори для каталогу
+ * @access  Public
+ */
+router.get('/catalog', async (req, res) => {
+  try {
+    const { format, genres, status } = req.query;
+    let query = { moderationStatus: { $ne: 'rejected' } };
+
+    // Фільтр по статусу
+    if (status) {
+      const statusArray = status.split(',');
+      const statusMapping = {
+        'Онґоінґ': 'В процесі',
+        'Завершено': 'Завершено',
+        'Анонс': 'Анонс'
+      };
+      const dbStatuses = statusArray.map(s => statusMapping[s] || s);
+      query.status = { $in: dbStatuses };
+    }
+
+    // Фільтр по жанрах
+    if (genres) {
+      const genresArray = genres.split(',');
+      query.genres = { $in: genresArray };
+    }
+
+    let results = [];
+
+    // Логіка формату
+    if (format === 'fanfic' || format === 'literature' || format === 'Література/Фанфік') {
+      results = await Literature.find(query).sort({ updatedAt: -1 });
+    } else if (format === 'Всі' || !format || format === 'all') {
+      const [mangas, literatures] = await Promise.all([
+        Manga.find(query).sort({ updatedAt: -1 }),
+        Literature.find(query).sort({ updatedAt: -1 })
+      ]);
+      // Об'єднуємо та сортуємо за часом оновлення
+      results = [...mangas, ...literatures].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    } else {
+      // Специфічні типи манґи
+      const typeMapping = {
+        'manga': 'Манґа',
+        'manhwa': 'Манхва',
+        'manhua': 'Маньхуа',
+        'comics': 'Комікс',
+        'Манґа': 'Манґа',
+        'Манхва': 'Манхва',
+        'Маньхуа': 'Маньхуа',
+        'Комікс': 'Комікс'
+      };
+      if (typeMapping[format]) {
+        query.type = typeMapping[format];
+      } else {
+        query.type = { $regex: new RegExp(format, 'i') };
+      }
+      results = await Manga.find(query).sort({ updatedAt: -1 });
+    }
+
+    res.status(200).json({ success: true, count: results.length, data: results });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * @route   GET /api/manga/:id
  * @desc    Отримати один тайтл за ID
  * @access  Public

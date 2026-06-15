@@ -36,7 +36,12 @@ const Catalog = () => {
     const fetchCatalog = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/manga');
+        const params = new URLSearchParams();
+        if (activeFormat !== 'Всі') params.append('format', activeFormat);
+        if (activeGenres.length > 0) params.append('genres', activeGenres.join(','));
+        if (activeStatuses.length > 0) params.append('status', activeStatuses.join(','));
+
+        const response = await fetch(`http://localhost:5000/api/manga/catalog?${params.toString()}`);
         const data = await response.json();
         if (data.success) {
           setCatalog(data.data);
@@ -49,26 +54,25 @@ const Catalog = () => {
     };
 
     fetchCatalog();
-  }, []);
+  }, [activeFormat, activeGenres, activeStatuses]);
 
   // Синхронізація стейту з URL-параметрами
   useEffect(() => {
     const typeParam = searchParams.get('type');
     if (typeParam && TYPE_MAP[typeParam]) {
       setActiveFormat(TYPE_MAP[typeParam]);
-    } else {
-      setActiveFormat('Всі');
     }
   }, [searchParams]);
 
   const handleFormatChange = (format) => {
     setActiveFormat(format);
+    const newParams = new URLSearchParams(searchParams);
     if (format === 'Всі') {
-      searchParams.delete('type');
+      newParams.delete('type');
     } else {
-      searchParams.set('type', REVERSE_TYPE_MAP[format]);
+      newParams.set('type', REVERSE_TYPE_MAP[format]);
     }
-    setSearchParams(searchParams);
+    setSearchParams(newParams);
   };
 
   const handleStatusChange = (status) => {
@@ -98,40 +102,6 @@ const Catalog = () => {
     setIsMobileFiltersOpen(false);
   };
 
-  // Фільтрація каталогу (клієнтська сторона для цього етапу)
-  const filteredCatalog = catalog.filter(item => {
-    // Мапінг форматів, щоб забезпечити гнучкість, оскільки в базі тип може бути записаний в різному регістрі
-    let matchesFormat = true;
-    if (activeFormat !== 'Всі') {
-      if (activeFormat === 'Манґа') {
-        matchesFormat = item.type?.toLowerCase() === 'манга' || item.type?.toLowerCase() === 'манґа' || item.type?.toLowerCase() === 'manga';
-      } else if (activeFormat === 'Манхва') {
-        matchesFormat = item.type?.toLowerCase() === 'манхва' || item.type?.toLowerCase() === 'manhwa';
-      } else if (activeFormat === 'Література/Фанфік') {
-        matchesFormat = item.type?.toLowerCase() === 'література' || item.type?.toLowerCase() === 'фанфік';
-      } else {
-        matchesFormat = item.type?.toLowerCase() === activeFormat.toLowerCase();
-      }
-    }
-    
-    // Статуси в базі: 'Анонс', 'В процесі', 'Завершено', 'Призупинено'
-    // Статуси в фільтрі: 'Онґоінґ' (== 'В процесі'), 'Завершено', 'Анонс'
-    const statusMap = {
-      'Онґоінґ': 'in_progress', // в бекенді статус це in_progress
-      'Завершено': 'completed',
-      'Анонс': 'announcement'
-    };
-    
-    const matchesStatus = activeStatuses.length === 0 || activeStatuses.some(s => {
-      // Звіряємо як з англійськими (in_progress), так і з кирилічними ("В процесі") статусами в базі
-      return item.status === statusMap[s] || item.status === s || item.status === (s === 'Онґоінґ' ? 'В процесі' : s);
-    });
-    
-    const matchesGenres = activeGenres.length === 0 || activeGenres.every(g => item.genres && item.genres.includes(g));
-    
-    return matchesFormat && matchesStatus && matchesGenres;
-  });
-  
   return (
     <div className={`${styles.catalogWrapper} ${isMobileFiltersOpen ? styles.noScroll : ''}`}>
       <Header />
@@ -156,12 +126,12 @@ const Catalog = () => {
           <div className={styles.catalogHeader}>
             <h1 className={`${styles.pageTitle} ${styles.desktopOnly}`}>Каталог творів</h1>
             <span className={styles.resultsCount}>
-              {isLoading ? 'Завантаження...' : `Знайдено: ${filteredCatalog.length}`}
+              {isLoading ? 'Завантаження...' : `Знайдено: ${catalog.length}`}
             </span>
           </div>
 
           <div className={styles.catalogGrid}>
-            {filteredCatalog.map((item) => (
+            {!isLoading && catalog.map((item) => (
               <div 
                 key={item._id} 
                 className={styles.mangaCard}
@@ -170,7 +140,7 @@ const Catalog = () => {
                 <div className={styles.imageWrapper}>
                   <img src={item.coverImage ? (item.coverImage.startsWith('http') ? item.coverImage : `http://localhost:5000${item.coverImage}`) : ''} alt={item.title} />
                   <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.averageRating ? item.averageRating.toFixed(1) : '0.0'}</div>
-                  <div className={styles.typeBadge}>{item.type}</div>
+                  <div className={styles.typeBadge}>{item.type || 'Література'}</div>
                 </div>
                 <div className={styles.cardInfo}>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
@@ -180,7 +150,7 @@ const Catalog = () => {
             ))}
           </div>
 
-          {!isLoading && filteredCatalog.length === 0 && (
+          {!isLoading && catalog.length === 0 && (
             <div className={styles.emptyState}>
               <p>За вашим запитом нічого не знайдено.</p>
               <button onClick={resetFilters} className={styles.resetBtn}>Скинути фільтри</button>

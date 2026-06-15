@@ -17,6 +17,7 @@ import ReadFanfic from './pages/Fanfic/ReadFanfic';
 import AuthSuccess from './pages/AuthSuccess';
 import AdminPanel from './pages/Admin/AdminPanel';
 import BottomNav from './components/BottomNav';
+import Footer from './components/Footer';
 import styles from './App.module.scss';
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/admin" element={<AdminPanel />} />
       </Routes>
+      <Footer />
       <BottomNav />
     </div>
   );
