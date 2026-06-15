@@ -65,6 +65,10 @@ const MangaSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  ratingStats: {
+    type: Object,
+    default: {}
+  },
   likes: [
     {
       type: mongoose.Schema.ObjectId,

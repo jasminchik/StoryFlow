@@ -24,9 +24,9 @@ const RatingSchema = new mongoose.Schema({
 // Забороняємо дублікати оцінок від одного юзера для одного тайтлу
 RatingSchema.index({ manga: 1, user: 1 }, { unique: true });
 
-// Статичний метод для розрахунку середнього рейтингу
+// Статичний метод для розрахунку середнього рейтингу та статистики
 RatingSchema.statics.getAverageRating = async function(mangaId) {
-  const obj = await this.aggregate([
+  const stats = await this.aggregate([
     {
       $match: { manga: mangaId }
     },
@@ -34,25 +34,42 @@ RatingSchema.statics.getAverageRating = async function(mangaId) {
       $group: {
         _id: '$manga',
         averageRating: { $avg: '$score' },
-        ratingCount: { $count: {} }
+        ratingCount: { $count: {} },
+        // Групуємо за оцінками для детальної статистики
+        scores: { $push: '$score' }
       }
     }
   ]);
 
   try {
-    if (obj.length > 0) {
+    if (stats.length > 0) {
+      const { scores, averageRating, ratingCount } = stats[0];
+      
+      // Ініціалізуємо об'єкт статистики оцінок (1-10)
+      const ratingStats = {};
+      for (let i = 1; i <= 10; i++) {
+        const count = scores.filter(s => s === i).length;
+        const percentage = ratingCount > 0 ? (count / ratingCount) * 100 : 0;
+        ratingStats[i] = {
+          count,
+          percentage: parseFloat(percentage.toFixed(1))
+        };
+      }
+
       await mongoose.model('Manga').findByIdAndUpdate(mangaId, {
-        averageRating: parseFloat(obj[0].averageRating.toFixed(1)),
-        ratingCount: obj[0].ratingCount
+        averageRating: parseFloat(averageRating.toFixed(1)),
+        ratingCount,
+        ratingStats // Додаємо статистику в модель Манґи
       });
     } else {
       await mongoose.model('Manga').findByIdAndUpdate(mangaId, {
         averageRating: 0,
-        ratingCount: 0
+        ratingCount: 0,
+        ratingStats: {}
       });
     }
   } catch (err) {
-    console.error(err);
+    console.error('Помилка оновлення рейтингу манґи:', err);
   }
 };
 

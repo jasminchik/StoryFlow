@@ -125,7 +125,7 @@ router.post('/:id/rate', protect, async (req, res) => {
       });
     }
 
-    // Отримуємо оновлений тайтл із середнім рейтингом
+    // Отримуємо оновлений тайтл із середнім рейтингом та статистикою
     const updatedManga = await Manga.findById(req.params.id);
 
     res.status(200).json({
@@ -133,7 +133,8 @@ router.post('/:id/rate', protect, async (req, res) => {
       data: {
         score: rating.score,
         averageRating: updatedManga.averageRating,
-        ratingCount: updatedManga.ratingCount
+        ratingCount: updatedManga.ratingCount,
+        ratingStats: updatedManga.ratingStats // Повертаємо детальну статистику
       }
     });
   } catch (error) {

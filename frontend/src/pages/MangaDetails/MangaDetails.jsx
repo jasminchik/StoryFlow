@@ -146,7 +146,8 @@ const MangaDetails = () => {
         setManga(prev => ({
           ...prev,
           averageRating: result.data.averageRating,
-          ratingCount: result.data.ratingCount
+          ratingCount: result.data.ratingCount,
+          ratingStats: result.data.ratingStats
         }));
         setIsRatingOpen(false);
       }
@@ -291,15 +292,18 @@ const MangaDetails = () => {
             <div className={styles.statsBlock}>
               <h3 className={styles.statsTitle}>Оцінки користувачів</h3>
               <div className={styles.histogram}>
-                {[10,9,8,7,6,5,4,3,2,1].map((rate) => (
-                  <div key={rate} className={styles.histoRow}>
-                    <span className={styles.rateLabel}>{rate} <FiStar size={12} fill="currentColor" /></span>
-                    <div className={styles.barContainer}>
-                      <div className={styles.barFill} style={{ width: `0%`, backgroundColor: getBarColor(rate) }} />
+                {[10,9,8,7,6,5,4,3,2,1].map((rate) => {
+                  const stat = manga.ratingStats?.[rate] || { count: 0, percentage: 0 };
+                  return (
+                    <div key={rate} className={styles.histoRow}>
+                      <span className={styles.rateLabel}>{rate} <FiStar size={12} fill="currentColor" /></span>
+                      <div className={styles.barContainer}>
+                        <div className={styles.barFill} style={{ width: `${stat.percentage}%`, backgroundColor: getBarColor(rate) }} />
+                      </div>
+                      <span className={styles.rateStats}>{stat.percentage}% <span className={styles.rateCount}>({stat.count})</span></span>
                     </div>
-                    <span className={styles.rateStats}>0% <span className={styles.rateCount}>(0)</span></span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </aside>
