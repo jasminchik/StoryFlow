@@ -18,6 +18,10 @@ const MangaSchema = new mongoose.Schema({
     type: String,
     default: 'no-photo.jpg'
   },
+  bannerImage: {
+    type: String,
+    default: null
+  },
   type: {
     type: String,
     required: [true, 'Будь ласка, оберіть тип твору'],
@@ -34,6 +38,10 @@ const MangaSchema = new mongoose.Schema({
       message: '{VALUE} не є підтримуваним статусом'
     },
     default: 'Анонс'
+  },
+  releaseYear: {
+    type: Number,
+    required: [true, 'Будь ласка, додайте рік випуску']
   },
   genres: {
     type: [String],

@@ -12,7 +12,8 @@ import {
   FiSun,
   FiX,
   FiChevronRight,
-  FiEdit3
+  FiEdit3,
+  FiPlusSquare
 } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
 import styles from './ProfileDropdown.module.scss';
@@ -64,6 +65,13 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
         </div>
 
         <nav className={styles.menuLinks}>
+          {user?.role === 'author' && (
+            <Link to="/create-manga" className={`${styles.menuItem} ${styles.createBtn}`} onClick={onClose}>
+              <FiPlusSquare className={styles.icon} size={20} /> 
+              <span className={styles.createBtnText}>Додати тайтл</span>
+            </Link>
+          )}
+          
           <Link to="/notifications" className={styles.menuItem} onClick={onClose}>
             <FiBell className={styles.icon} size={20} /> Повідомлення
           </Link>

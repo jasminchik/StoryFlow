@@ -1,50 +1,59 @@
-import React, { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../../components/Header';
 import styles from './Updates.module.scss';
 
-// Mock data with timestamps
-const MOCK_UPDATES = [
-  { id: 1, title: 'Ван Піс', chapter: '1110', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 30 },
-  { id: 2, title: 'Підняття рівня поодинці', chapter: '200', type: 'Манхва', updatedAt: Date.now() - 1000 * 60 * 60 * 2 },
-  { id: 3, title: 'Тінь Хокаґе', chapter: '15', type: 'Література', updatedAt: Date.now() - 1000 * 60 * 60 * 24 },
-  { id: 4, title: 'Наруто: Наступне покоління', chapter: '80', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 15 },
-  { id: 5, title: 'Світ без магії', chapter: '3', type: 'Література', updatedAt: Date.now() - 1000 * 60 * 60 * 5 },
-  { id: 6, title: 'Людина-бензопила', chapter: '160', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 60 * 12 },
-  { id: 7, title: 'Легенда про меча', chapter: '42', type: 'Література', updatedAt: Date.now() - 1000 * 60 * 60 * 24 * 2 },
-  { id: 8, title: 'Зоряне дитя', chapter: '145', type: 'Манґа', updatedAt: Date.now() - 1000 * 60 * 5 },
-  { id: 9, title: 'Вежа Бога', chapter: '550', type: 'Манхва', updatedAt: Date.now() - 1000 * 60 * 60 * 8 },
-  { id: 10, title: 'Магічна битва', chapter: '250', type: 'Манхва', updatedAt: Date.now() - 1000 * 60 * 60 * 3 },
-];
-
 const Updates = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const typeFilter = searchParams.get('type'); // 'manga', 'manhwa', 'fanfics'
+  const [updates, setUpdates] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Map internal type names to display labels used in data
   const typeMap = {
     'manga': 'Манґа',
     'manhwa': 'Манхва',
-    'fanfics': 'Література'
+    'fanfics': 'Комікс'
   };
 
+  useEffect(() => {
+    const fetchUpdates = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/api/manga');
+        const data = await response.json();
+        if (data.success) {
+          setUpdates(data.data);
+        }
+      } catch (error) {
+        console.error('Помилка завантаження оновлень:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUpdates();
+  }, []);
+
   const filteredUpdates = useMemo(() => {
-    let data = [...MOCK_UPDATES];
+    let data = [...updates];
     
     if (typeFilter && typeMap[typeFilter]) {
       data = data.filter(item => item.type === typeMap[typeFilter]);
     }
     
-    return data.sort((a, b) => b.updatedAt - a.updatedAt);
-  }, [typeFilter]);
+    return data; // Бекенд вже сортує за createdAt: -1
+  }, [typeFilter, updates]);
 
   // Simple relative time formatter
-  const formatRelativeTime = (timestamp) => {
-    const diff = Date.now() - timestamp;
+  const formatRelativeTime = (dateString) => {
+    const diff = Date.now() - new Date(dateString).getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
+    if (minutes < 1) return 'Щойно';
     if (minutes < 60) return `Оновлено ${minutes} хв. тому`;
     if (hours < 24) return `Оновлено ${hours} год. тому`;
     return `Оновлено ${days} дн. тому`;
@@ -63,31 +72,39 @@ const Updates = () => {
         </header>
 
         <div className={styles.updatesList}>
-          {filteredUpdates.length > 0 ? (
-            filteredUpdates.map((update) => (
-              <div key={update.id} className={styles.updateCard}>
-                <div className={styles.cardMain}>
-                  <div className={styles.info}>
-                    <h3 className={styles.mangaTitle}>{update.title}</h3>
-                    <div className={styles.meta}>
-                      <span className={styles.badge}>{update.type}</span>
-                      <span className={styles.chapter}>Розділ {update.chapter}</span>
+          {!isLoading ? (
+            filteredUpdates.length > 0 ? (
+              filteredUpdates.map((update) => (
+                <div 
+                  key={update._id} 
+                  className={styles.updateCard}
+                  onClick={() => navigate(`/manga/${update._id}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={styles.cardMain}>
+                    <div className={styles.info}>
+                      <h3 className={styles.mangaTitle}>{update.title}</h3>
+                      <div className={styles.meta}>
+                        <span className={styles.badge}>{update.type}</span>
+                        <span className={styles.chapter}>{update.status}</span>
+                      </div>
+                    </div>
+                    <div className={styles.timeInfo}>
+                      <span className={styles.time}>{formatRelativeTime(update.createdAt)}</span>
                     </div>
                   </div>
-                  <div className={styles.timeInfo}>
-                    <span className={styles.time}>{formatRelativeTime(update.updatedAt)}</span>
-                  </div>
                 </div>
-              </div>
-            ))
+              ))
+            ) : (
+              <div className={styles.empty}>Оновлень не знайдено</div>
+            )
           ) : (
-            <div className={styles.empty}>Оновлень не знайдено</div>
+            <div className={styles.loading}>Завантаження...</div>
           )}
         </div>
       </main>
     </div>
   );
 };
-
 
 export default Updates;

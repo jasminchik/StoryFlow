@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck } from 'react-icons/fi';
+import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck, FiArrowLeft } from 'react-icons/fi';
 import Header from '../../components/Header';
 import styles from './MangaDetails.module.scss';
 
@@ -9,12 +9,25 @@ const MangaDetails = () => {
   const navigate = useNavigate();
   
   // States
+  const [manga, setManga] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('about');
   const [isListsOpen, setIsListsOpen] = useState(false);
   const [userList, setUserList] = useState(null);
   const [isRatingOpen, setIsRatingOpen] = useState(false);
   const [hoverRating, setHoverRating] = useState(0);
   const [userRating, setUserRating] = useState(0);
+
+  const API_BASE = 'http://localhost:5000';
+
+  const getFullUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${API_BASE}${path}`;
+  };
+
+  const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const isAuthor = manga && loggedInUser && (manga.author?._id === loggedInUser.id || manga.author === loggedInUser.id || manga.author?._id === loggedInUser._id || manga.author === loggedInUser._id);
 
   // Constants & Static Data
   const listLabels = useMemo(() => ({
@@ -25,20 +38,32 @@ const MangaDetails = () => {
     favorites: 'В Обраному'
   }), []);
 
-  const initialRatingStats = useMemo(() => ({
-    10: 1576,
-    9: 261,
-    8: 187,
-    7: 45,
-    6: 26,
-    5: 17,
-    4: 6,
-    3: 4,
-    2: 2,
-    1: 2,
-  }), []);
+  const [stats, setStats] = useState({
+    10: 0, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, 3: 0, 2: 0, 1: 0,
+  });
 
-  const [stats, setStats] = useState(initialRatingStats);
+  useEffect(() => {
+    const fetchMangaDetails = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`http://localhost:5000/api/manga/${id}`);
+        const result = await response.json();
+        if (result.success) {
+          setManga(result.data);
+        } else {
+          console.error('Помилка:', result.error);
+        }
+      } catch (err) {
+        console.error('Помилка завантаження тайтлу:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchMangaDetails();
+    }
+  }, [id]);
 
   // Derived stats for rendering
   const processedStats = useMemo(() => {
@@ -53,22 +78,6 @@ const MangaDetails = () => {
     return result;
   }, [stats]);
 
-  const manga = useMemo(() => ({
-    id: id,
-    title: 'Блю Лок',
-    originalTitle: 'ブルーロック',
-    rating: 9.32,
-    type: 'Манґа',
-    year: 2018,
-    status: 'Онґоінґ',
-    authors: 'Мунеюкі Канешіро, Юсуке Номура',
-    genres: ['Спорт', 'Драма', 'Сьонен'],
-    description: 'Після нищівної поразки збірної Японії на Чемпіонаті світу 2018 року, Японська футбольна асоціація вирішує піти на радикальні заходи. Щоб нарешті здобути кубок, вони наймають ексцентричного та загадкового тренера Еґо Джінпачі. Його план шокує: він створює "Блю Лок" — спеціальну в\'язницю-тренувальний табір, де 300 найкращих нападників середніх шкіл змагатимуться за право стати єдиним, "найбільш егоїстичним" форвардом країни. Той, хто програє, назавжди втратить шанс грати за збірну. Головний герой, Йоічі Ісаґі, вирішує кинути виклик системі та власним страхам, щоб стане найкращим у світі.',
-    image: '/uploads/blue_lock.jpg',
-    bannerImage: null,
-    chapters: 245
-  }), [id]);
-
   const tabs = [
     { id: 'about', label: 'Про тайтл' },
     { id: 'chapters', label: 'Розділи' },
@@ -81,22 +90,12 @@ const MangaDetails = () => {
     }
   ];
 
-  const chapters = [
-    { id: 1, title: 'Том 1. Розділ 3 — Вибір', date: '18.05.2024', views: '12.4K' },
-    { id: 2, title: 'Том 1. Розділ 2 — Зустріч', date: '15.05.2024', views: '14.1K' },
-    { id: 3, title: 'Том 1. Розділ 1 — Початок', date: '12.05.2024', views: '18.2K' },
-  ];
+  // Placeholder chapters until backend is ready
+  const chapters = [];
 
-  const similarManga = [
-    { id: 'haikyuu', title: 'Волейбол!!', image: '/uploads/novel.jpg' },
-    { id: 'ao_ashi', title: 'Ао Аші', image: '/uploads/blue_lock.jpg' },
-    { id: 'kuroko', title: 'Баскетбол Куроко', image: '/uploads/naruto.jpg' },
-  ];
+  const similarManga = [];
 
-  const fanfics = [
-    { id: 1, title: 'Епізод Наґі: Шлях до геніальності', isOfficial: true, author: 'Кота Саномія' },
-    { id: 2, title: 'Ісаґі: Тінь егоїзму', isOfficial: false, author: 'FanWriter99' },
-  ];
+  const fanfics = [];
 
   // Helper Functions
   const updateStatsDynamically = (newScore, oldScore) => {
@@ -179,49 +178,63 @@ const MangaDetails = () => {
         return (
           <div className={styles.aboutTab}>
             <div className={styles.description}>
-              <p>{manga.description}</p>
+              <p>{manga?.description}</p>
             </div>
-            <div className={styles.similarSection}>
-              <h3 className={styles.sectionTitle}>Схоже</h3>
-              <div className={styles.similarGrid}>
-                {similarManga.map(item => (
-                  <div key={item.id} className={styles.similarCard}>
-                    <img src={item.image} alt={item.title} />
-                    <span className={styles.similarTitle}>{item.title}</span>
-                  </div>
-                ))}
+            {similarManga.length > 0 && (
+              <div className={styles.similarSection}>
+                <h3 className={styles.sectionTitle}>Схоже</h3>
+                <div className={styles.similarGrid}>
+                  {similarManga.map(item => (
+                    <div key={item.id} className={styles.similarCard}>
+                      <img src={item.image} alt={item.title} />
+                      <span className={styles.similarTitle}>{item.title}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       case 'chapters':
         return (
           <div className={styles.chaptersList}>
-            {chapters.map(chapter => (
-              <div key={chapter.id} className={styles.chapterItem}>
-                <div className={styles.chapterMain}>
-                  <span className={styles.chapterTitle}>{chapter.title}</span>
-                  <div className={styles.chapterMeta}>
-                    <span className={styles.views}><FiEye size={14} className={styles.eyeIcon} /> {chapter.views}</span>
-                    <span className={styles.date}>{chapter.date}</span>
+            {chapters.length > 0 ? (
+              chapters.map(chapter => (
+                <div key={chapter.id} className={styles.chapterItem}>
+                  <div className={styles.chapterMain}>
+                    <span className={styles.chapterTitle}>{chapter.title}</span>
+                    <div className={styles.chapterMeta}>
+                      <span className={styles.views}><FiEye size={14} className={styles.eyeIcon} /> {chapter.views}</span>
+                      <span className={styles.date}>{chapter.date}</span>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className={styles.placeholderTab}>
+                <p>Розділів ще немає.</p>
               </div>
-            ))}
+            )}
           </div>
         );
       case 'fanfics':
         return (
           <div className={styles.fanficsList}>
-            {fanfics.map(fic => (
-              <div key={fic.id} className={styles.fanficItem}>
-                <div className={styles.fanficHeader}>
-                  <span className={styles.fanficTitle}>{fic.title}</span>
-                  {fic.isOfficial && <span className={styles.officialBadge}>Офіційний Література/Фанфік</span>}
+            {fanfics.length > 0 ? (
+              fanfics.map(fic => (
+                <div key={fic.id} className={styles.fanficItem}>
+                  <div className={styles.fanficHeader}>
+                    <span className={styles.fanficTitle}>{fic.title}</span>
+                    {fic.isOfficial && <span className={styles.officialBadge}>Офіційний Література/Фанфік</span>}
+                  </div>
+                  <span className={styles.fanficAuthor}>Автор: {fic.author}</span>
                 </div>
-                <span className={styles.fanficAuthor}>Автор: {fic.author}</span>
+              ))
+            ) : (
+              <div className={styles.placeholderTab}>
+                <p>Літератури/Фанфіків ще немає.</p>
               </div>
-            ))}
+            )}
           </div>
         );
       default:
@@ -235,6 +248,14 @@ const MangaDetails = () => {
     }
   };
 
+  if (isLoading) return <div className={styles.loading}>Завантаження...</div>;
+  if (!manga) return (
+    <div className={styles.errorContainer}>
+      <h2>Тайтл не знайдено</h2>
+      <button onClick={() => navigate('/catalog')}><FiArrowLeft /> До каталогу</button>
+    </div>
+  );
+
   return (
     <div className={styles.detailsWrapper}>
       <Header />
@@ -242,7 +263,7 @@ const MangaDetails = () => {
       <section className={styles.heroSection}>
         <div className={styles.bannerContainer}>
           {manga.bannerImage ? (
-            <img src={manga.bannerImage} className={styles.banner} alt="Banner" />
+            <img src={getFullUrl(manga.bannerImage)} className={styles.banner} alt="Banner" />
           ) : (
             <div className={styles.bannerPlaceholder} />
           )}
@@ -252,19 +273,19 @@ const MangaDetails = () => {
       <div className={styles.mainContainer}>
         <div className={styles.mangaHeader}>
           <div className={styles.posterWrapper}>
-            <img src={manga.image} alt={manga.title} className={styles.poster} />
+            <img src={getFullUrl(manga.coverImage)} alt={manga.title} className={styles.poster} />
           </div>
           
           <div className={styles.headerContent}>
             <div className={styles.titleSection}>
               <h1 className={styles.title}>{manga.title}</h1>
-              <p className={styles.originalTitle}>{manga.originalTitle}</p>
+              {manga.alternativeTitle && <p className={styles.originalTitle}>{manga.alternativeTitle}</p>}
             </div>
 
             <div className={styles.mainStats}>
               <div className={styles.ratingBox}>
                 <FiStar size={18} className={styles.star} fill="currentColor" />
-                <span className={styles.ratingValue}>{manga.rating}</span>
+                <span className={styles.ratingValue}>{manga.rating || '0.0'}</span>
               </div>
               <div className={styles.mobileMeta}>
                 <span className={styles.type}>{manga.type}</span>
@@ -276,6 +297,14 @@ const MangaDetails = () => {
 
           <div className={styles.actionButtons}>
             <button className={styles.readBtn}>Читати</button>
+            {isAuthor && (
+              <button 
+                className={styles.editBtn} 
+                onClick={() => navigate(`/edit-manga/${manga._id}`)}
+              >
+                Редагувати
+              </button>
+            )}
             <div className={styles.listsContainer}>
               <button 
                 className={`${styles.listsBtn} ${userList ? styles.active : ''}`}
@@ -362,15 +391,15 @@ const MangaDetails = () => {
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.label}>Рік</span>
-                <span className={styles.value}>{manga.year}</span>
+                <span className={styles.value}>{manga.releaseYear}</span>
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.label}>Статус</span>
                 <span className={styles.value}>{manga.status}</span>
               </div>
               <div className={styles.infoItem}>
-                <span className={styles.label}>Автори</span>
-                <span className={styles.value}>{manga.authors}</span>
+                <span className={styles.label}>Автор</span>
+                <span className={styles.value}>{manga.author?.username || 'Невідомо'}</span>
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.label}>Жанри / Теги</span>

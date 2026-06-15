@@ -7,116 +7,119 @@ import PopularAuthors from '../components/PopularAuthors';
 import TagCategories from '../components/TagCategories';
 import Header from '../components/Header';
 
-// Mock data (для основної стрічки)
-const MOCK_POPULAR = [
-  { id: 1, title: 'Наруто', rating: 9.6, image: '/uploads/naruto.jpg' },
-  { id: 2, title: 'Бліч', rating: 9.0, image: '/uploads/bleach.jpg' },
-  { id: 3, title: 'Ван Піс', rating: 9.8, image: '/uploads/one_piece.jpg' },
-  { id: 4, title: 'Підняття рівня поодинці', rating: 9.4, image: '/uploads/solo_leveling.jpg' },
-  { id: 41, title: 'Людина-бензопила', rating: 9.6, image: '/uploads/chainsaw_man.jpg' },
-  { id: 42, title: 'Магічна битва', rating: 9.8, image: '/uploads/jujutsu_kaisen.jpg' },
-  { id: 43, title: 'Чорна конюшина', rating: 8.8, image: '/uploads/black_clover.jpg' },
-  { id: 44, title: 'Блю Лок', rating: 9.2, image: '/uploads/blue_lock.jpg' },
-];
-
-const MOCK_READING = [
-  { id: 101, title: 'Блю Лок', rating: 9.4, image: '/uploads/blue_lock.jpg' },
-  { id: 102, title: 'Берсерк', rating: 10.0, image: '/uploads/berserk.jpg' },
-  { id: 103, title: 'Токійський ґуль', rating: 9.2, image: '/uploads/tokyo_ghoul.jpg' },
-  { id: 104, title: 'Сага про Вінланд', rating: 9.8, image: '/uploads/vinland_saga.jpg' },
-];
-
-const MOCK_NEW = [
-  { id: 5, title: 'Моя геройська академія', image: '/uploads/my_hero_academia.jpg' },
-  { id: 6, title: 'Чорна конюшина', image: '/uploads/black_clover.jpg' },
-  { id: 7, title: 'Магічна битва', image: '/uploads/jujutsu_kaisen.jpg' },
-  { id: 8, title: 'Людина-бензопила', image: '/uploads/chainsaw_man.jpg' },
-  { id: 51, title: 'Клинок, що знищує демонів', image: '/uploads/demon_slayer.jpg' },
-  { id: 52, title: 'Пекельний рай', image: '/uploads/hells_paradise.jpg' },
-  { id: 53, title: 'Сім\'я шпигуна', image: '/uploads/spy_x_family.jpg' },
-  { id: 54, title: 'Зоряне дитя', image: '/uploads/oshi_no_ko.jpg' },
-];
-
 const Home = () => {
   const [popular, setPopular] = useState([]);
   const [readingNow, setReadingNow] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setPopular(MOCK_POPULAR);
-    setReadingNow(MOCK_READING);
-    setNewArrivals(MOCK_NEW);
+    const fetchMangaData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/api/manga');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Для новинок беремо перші 8 тайтлів (вони вже відсортовані за датою створення на бекенді)
+          const latest = data.data.slice(0, 8).map(m => ({
+            id: m._id,
+            title: m.title,
+            image: m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`,
+            rating: m.rating || 0
+          }));
+          setNewArrivals(latest);
+
+          // Для популярних поки що теж візьмемо зі списку (можна буде додати логіку сортування за рейтингом)
+          setPopular(latest.slice(0, 4));
+          
+          // Читають зараз - можна буде реалізувати через історію переглядів, поки пустий масив або заглушка
+          setReadingNow([]);
+        }
+      } catch (err) {
+        console.error('Помилка завантаження даних:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMangaData();
   }, []);
 
   return (
     <div className={styles.homeWrapper}>
       <Header />
 
-      {/* 2. ОСНОВНИЙ МАКЕТ */}
       <div className={styles.homeContainer}>
         <main className={styles.mainContent}>
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Найпопулярніші</h2>
-            <div className={styles.popularGrid}>
-              {popular.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={styles.mangaCard}
-                  onClick={() => navigate(`/manga/${item.id}`)}
-                >
-                  <div className={styles.imageWrapper}>
-                    <img src={item.image} alt={item.title} />
-                    <div className={styles.rating}>
-                      <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+          {newArrivals.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Найпопулярніші</h2>
+              <div className={styles.popularGrid}>
+                {popular.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className={styles.mangaCard}
+                    onClick={() => navigate(`/manga/${item.id}`)}
+                  >
+                    <div className={styles.imageWrapper}>
+                      <img src={item.image} alt={item.title} />
+                      <div className={styles.rating}>
+                        <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+                      </div>
                     </div>
+                    <h3 className={styles.cardTitle}>{item.title}</h3>
                   </div>
-                  <h3 className={styles.cardTitle}>{item.title}</h3>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          )}
 
-          <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Читають зараз</h2>
-            <div className={styles.popularGrid}>
-              {readingNow.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={styles.mangaCard}
-                  onClick={() => navigate(`/manga/${item.id}`)}
-                >
-                  <div className={styles.imageWrapper}>
-                    <img src={item.image} alt={item.title} />
-                    <div className={styles.rating}>
-                      <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+          {readingNow.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Читають зараз</h2>
+              <div className={styles.popularGrid}>
+                {readingNow.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className={styles.mangaCard}
+                    onClick={() => navigate(`/manga/${item.id}`)}
+                  >
+                    <div className={styles.imageWrapper}>
+                      <img src={item.image} alt={item.title} />
+                      <div className={styles.rating}>
+                        <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+                      </div>
                     </div>
+                    <h3 className={styles.cardTitle}>{item.title}</h3>
                   </div>
-                  <h3 className={styles.cardTitle}>{item.title}</h3>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          )}
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Новинки</h2>
-            <div className={styles.newGrid}>
-              {newArrivals.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={styles.compactCard}
-                  onClick={() => navigate(`/manga/${item.id}`)}
-                >
-                  <img src={item.image} alt={item.title} />
-                  <h4 className={styles.compactTitle}>{item.title}</h4>
-                </div>
-              ))}
-            </div>
+            {newArrivals.length > 0 ? (
+              <div className={styles.newGrid}>
+                {newArrivals.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className={styles.compactCard}
+                    onClick={() => navigate(`/manga/${item.id}`)}
+                  >
+                    <img src={item.image} alt={item.title} />
+                    <h4 className={styles.compactTitle}>{item.title}</h4>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              !isLoading && <p className={styles.emptyText}>Тайтлів ще не додано.</p>
+            )}
           </section>
         </main>
 
-
-        {/* ПРАВА ПАНЕЛЬ */}
         <aside className={styles.sidebar}>
           <SidebarUpdates />
           <PopularAuthors />

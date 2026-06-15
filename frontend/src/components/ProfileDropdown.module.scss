@@ -114,6 +114,30 @@
   gap: 4px;
 }
 
+.createBtn {
+  background: rgba(255, 71, 87, 0.05) !important;
+  border: 1px dashed var(--primary-color) !important;
+  margin-bottom: 8px !important;
+  color: var(--primary-color) !important;
+
+  &:hover {
+    background: var(--primary-color) !important;
+    color: #fff !important;
+    border-style: solid !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 71, 87, 0.2);
+
+    .icon {
+      opacity: 1;
+      color: #fff;
+    }
+  }
+
+  .createBtnText {
+    font-weight: 700;
+  }
+}
+
 .menuItem {
   display: flex;
   align-items: center;

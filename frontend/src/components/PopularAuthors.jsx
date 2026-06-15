@@ -1,59 +1,63 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { FiUsers, FiBookOpen } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './PopularAuthors.module.scss';
 
-const MOCK_AUTHORS = [
-  { id: 1, nickname: 'Майстер_Манґи', worksCount: 12, color: '#FF4757' },
-  { id: 2, nickname: 'Кіт_Письменник', worksCount: 5, color: '#2ED573' },
-  { id: 3, nickname: 'Легенда_UA', worksCount: 24, color: '#1E90FF' },
-  { id: 4, nickname: 'Анімешник_З_Львова', worksCount: 8, color: '#FFA502' },
-];
-
 const PopularAuthors = () => {
-  // Функція для правильного відмінювання слова "твір"
-  const getWorksText = (count) => {
-    const lastDigit = count % 10;
-    const lastTwoDigits = count % 100;
+  const navigate = useNavigate();
+  const [authors, setAuthors] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
-      return 'творів';
-    }
-    if (lastDigit === 1) {
-      return 'твір';
-    }
-    if (lastDigit >= 2 && lastDigit <= 4) {
-      return 'твори';
-    }
-    return 'творів';
-  };
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/users/profile/admin'); // Тимчасово через адміна або окремий роут
+        const data = await response.json();
+        // В ідеалі тут має бути роут GET /api/users/authors
+        // Поки що поставимо пустий список або заглушку, яка каже "Авторів не знайдено"
+        setAuthors([]);
+      } catch (err) {
+        console.error('Помилка завантаження авторів:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAuthors();
+  }, []);
 
   return (
-    <div className={styles.authorsCard}>
-      <h2 className={styles.cardTitle}>
-        <FiUsers size={20} className={styles.titleIcon} /> Популярні автори
-      </h2>
-      
+    <div className={styles.popularAuthorsCard}>
+      <h2 className={styles.sidebarTitle}>Популярні автори</h2>
       <div className={styles.authorsList}>
-        {MOCK_AUTHORS.map((author) => (
-          <div key={author.id} className={styles.authorItem}>
-            <div 
-              className={styles.avatar} 
-              style={{ backgroundColor: author.color }}
-            >
-              {author.nickname.charAt(0).toUpperCase()}
-            </div>
-            <div className={styles.authorInfo}>
-              <span className={styles.nickname}>{author.nickname}</span>
-              <span className={styles.worksCount}>
-                <FiBookOpen size={14} className={styles.countIcon} /> {author.worksCount} {getWorksText(author.worksCount)}
-              </span>
-            </div>
-          </div>
-        ))}
+        {!isLoading ? (
+          authors.length > 0 ? (
+            authors.map((author) => (
+              <div 
+                key={author.id} 
+                className={styles.authorItem}
+                onClick={() => navigate(`/profile/${author.username}`)}
+              >
+                <div className={styles.authorAvatar}>
+                  {author.avatar ? (
+                    <img src={author.avatar} alt={author.username} />
+                  ) : (
+                    <div className={styles.avatarPlaceholder}>{author.username.charAt(0)}</div>
+                  )}
+                </div>
+                <div className={styles.authorInfo}>
+                  <span className={styles.authorName}>{author.username}</span>
+                  <span className={styles.authorStats}>{author.titlesCount} тайтлів</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className={styles.emptyText}>Авторів поки немає</p>
+          )
+        ) : (
+          <p className={styles.loadingText}>Завантаження...</p>
+        )}
       </div>
-
-      <Link to="/authors" className={styles.moreBtn}>ДИВИТИСЬ ВСІ</Link>
+      <button className={styles.moreBtn} onClick={() => navigate('/authors')}>ВСІ АВТОРИ</button>
     </div>
   );
 };

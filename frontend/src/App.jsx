@@ -9,6 +9,8 @@ import Favorites from './pages/Favorites/Favorites';
 import Authors from './pages/Authors/Authors';
 import ReadingNow from './pages/ReadingNow/ReadingNow';
 import Notifications from './pages/Notifications/Notifications';
+import CreateManga from './pages/CreateManga/CreateManga';
+import EditManga from './pages/CreateManga/EditManga';
 import AuthSuccess from './pages/AuthSuccess';
 import BottomNav from './components/BottomNav';
 import styles from './App.module.scss';
@@ -26,6 +28,8 @@ function App() {
         <Route path="/authors" element={<Authors />} />
         <Route path="/reading-now" element={<ReadingNow />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/create-manga" element={<CreateManga />} />
+        <Route path="/edit-manga/:id" element={<EditManga />} />
         <Route path="/auth-success" element={<AuthSuccess />} />
       </Routes>
       <BottomNav />

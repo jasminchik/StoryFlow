@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   FiBook, 
   FiMessageSquare, 
@@ -21,6 +21,7 @@ import styles from './Profile.module.scss';
 const Profile = () => {
   const { username: urlUsername } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
@@ -80,28 +81,40 @@ const Profile = () => {
     }, 3000);
   };
 
+  const [myTitles, setMyTitles] = useState([]);
+  const [isMyTitlesLoading, setIsMyTitlesLoading] = useState(false);
+
+  useEffect(() => {
+    if (profileTab === 'my-creations' && user?.role === 'author') {
+      const fetchMyTitles = async () => {
+        setIsMyTitlesLoading(true);
+        try {
+          const response = await fetch('http://localhost:5000/api/manga/my-titles', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          const data = await response.json();
+          if (data.success) {
+            setMyTitles(data.data);
+          }
+        } catch (err) {
+          console.error('Помилка завантаження моїх творів:', err);
+        } finally {
+          setIsMyTitlesLoading(false);
+        }
+      };
+      fetchMyTitles();
+    }
+  }, [profileTab, user]);
+
   const PROFILE_TABS = [
     { id: 'titles', label: 'Тайтли' },
+    ...(user?.role === 'author' ? [{ id: 'my-creations', label: 'Мої твори' }] : []),
     { id: 'comments', label: 'Коментарі' },
     { id: 'reviews', label: 'Відгуки' },
     { id: 'friends', label: 'Друзі' },
     { id: 'history', label: 'Історія' }
-  ];
-
-  const MOCK_COMMENTS = [
-    { id: 1, title: 'Наруто', text: 'Крутий поворот сюжету, чекаю продовження!', date: '2 дні тому' },
-    { id: 2, title: 'Блю Лок', text: 'Ісагі просто неймовірний у цьому розділі!', date: 'Тиждень тому' }
-  ];
-
-  const MOCK_REVIEWS = [
-    { id: 1, title: 'Бліч', rating: 9, text: 'Дуже цікаво, але філлерів багато. Загалом манґа топ, особливо остання арка.', date: 'Тиждень тому' },
-    { id: 2, title: 'Ван Піс', rating: 10, text: 'Легендарна історія, яка ніколи не набридне.', date: 'Місяць тому' }
-  ];
-
-  const MOCK_HISTORY = [
-    { id: 1, title: 'Бліч', details: 'Том 1, Розділ 5, стор. 12', time: '3 години тому' },
-    { id: 2, title: 'Блю Лок', details: 'Том 3, Розділ 24, стор. 1', time: 'Вчора' },
-    { id: 3, title: 'Магічна Битва', details: 'Том 10, Розділ 89, стор. 15', time: '2 дні тому' }
   ];
 
   const MOCK_FRIENDS = [
@@ -113,25 +126,22 @@ const Profile = () => {
     { id: 6, name: 'Luffy_Pirate', status: 'Офлайн', isOnline: false }
   ];
 
-  const readingNowData = [
-    { id: 1, title: 'Блю Лок', cover: '/uploads/blue_lock.jpg', currentChapter: 42, totalChapters: 250 },
-    { id: 2, title: 'Ван Піс', cover: '/uploads/one_piece.jpg', currentChapter: 1050, totalChapters: 1110 }
-  ];
+  const readingNowData = [];
 
   const activityStats = [
     { date: '05.06', count: 0 },
-    { date: '06.06', count: 2 },
-    { date: '07.06', count: 5 },
-    { date: '08.06', count: 1 },
-    { date: '09.06', count: 12 },
-    { date: '10.06', count: 8 },
-    { date: '11.06', count: 15 }
+    { date: '06.06', count: 0 },
+    { date: '07.06', count: 0 },
+    { date: '08.06', count: 0 },
+    { date: '09.06', count: 0 },
+    { date: '10.06', count: 0 },
+    { date: '11.06', count: 0 }
   ];
 
   const totalStats = { 
-    mangaChapters: 142, 
-    fanficChapters: 12, 
-    totalTime: '48 годин' 
+    mangaChapters: 0, 
+    fanficChapters: 0, 
+    totalTime: '0 годин' 
   };
 
   useEffect(() => {
@@ -187,57 +197,90 @@ const Profile = () => {
     { label: 'Прочитано', value: user.stats?.readCount || 0, icon: <FiBookOpen size={18} /> }
   ];
 
+  const API_BASE = 'http://localhost:5000';
+
   const renderProfileTabContent = () => {
     switch(profileTab) {
+      case 'my-creations':
+        return (
+          <div className={styles.myTitlesGrid}>
+            {isMyTitlesLoading ? (
+              <div className={styles.loading}>Завантаження ваших творів...</div>
+            ) : myTitles.length > 0 ? (
+              myTitles.map(manga => (
+                <div 
+                  key={manga._id} 
+                  className={styles.mangaCard}
+                >
+                  <div className={styles.imageWrapper} onClick={() => navigate(`/manga/${manga._id}`)}>
+                    <img src={`${API_BASE}${manga.coverImage}`} alt={manga.title} />
+                    <div className={styles.statusBadge}>
+                      {manga.moderationStatus === 'pending' ? 'На модерації' : 
+                       manga.moderationStatus === 'approved' ? 'Схвалено' : 'Відхилено'}
+                    </div>
+                  </div>
+                  <h3 className={styles.cardTitle} onClick={() => navigate(`/manga/${manga._id}`)}>{manga.title}</h3>
+                  <div className={styles.cardMeta}>
+                    <span>{manga.type}</span>
+                    <span>•</span>
+                    <span>{manga.releaseYear}</span>
+                  </div>
+                  {isOwnProfile && (
+                    <button 
+                      className={styles.editCreationBtn}
+                      onClick={() => navigate(`/edit-manga/${manga._id}`)}
+                    >
+                      Редагувати
+                    </button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyState}>
+                <p>У вас ще немає створених творів.</p>
+                <button onClick={() => navigate('/create-manga')} className={styles.createBtn}>
+                  Створити перший тайтл
+                </button>
+              </div>
+            )}
+          </div>
+        );
       case 'titles':
         return (
           <div className={styles.progressGrid}>
-            {readingNowData.map(item => (
-              <div key={item.id} className={styles.progressCard}>
-                <img src={item.cover} alt={item.title} className={styles.cardCover} />
-                <div className={styles.cardInfo}>
-                  <h3 className={styles.cardTitle}>{item.title}</h3>
-                  <div className={styles.progressTrack}>
-                    <div 
-                      className={styles.progressFill} 
-                      style={{ width: `${(item.currentChapter / item.totalChapters) * 100}%` }}
-                    />
+            {readingNowData.length > 0 ? (
+              readingNowData.map(item => (
+                <div key={item.id} className={styles.progressCard}>
+                  <img src={item.cover} alt={item.title} className={styles.cardCover} />
+                  <div className={styles.cardInfo}>
+                    <h3 className={styles.cardTitle}>{item.title}</h3>
+                    <div className={styles.progressTrack}>
+                      <div 
+                        className={styles.progressFill} 
+                        style={{ width: `${(item.currentChapter / item.totalChapters) * 100}%` }}
+                      />
+                    </div>
+                    <span className={styles.progressText}>
+                      Прочитано {item.currentChapter} / {item.totalChapters} розділів
+                    </span>
                   </div>
-                  <span className={styles.progressText}>
-                    Прочитано {item.currentChapter} / {item.totalChapters} розділів
-                  </span>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className={styles.emptyState}>Список порожній.</div>
+            )}
           </div>
         );
       case 'comments':
         return (
           <div className={styles.listContainer}>
-            {MOCK_COMMENTS.map(comment => (
-              <div key={comment.id} className={styles.listItem}>
-                <div className={styles.listHeader}>
-                  <span className={styles.listTitle}>{comment.title}</span>
-                  <span className={styles.listDate}>{comment.date}</span>
-                </div>
-                <p className={styles.listText}>"{comment.text}"</p>
-              </div>
-            ))}
+            <div className={styles.emptyState}>Коментарів ще немає.</div>
           </div>
         );
       case 'reviews':
         return (
           <div className={styles.listContainer}>
-            {MOCK_REVIEWS.map(review => (
-              <div key={review.id} className={styles.listItem}>
-                <div className={styles.listHeader}>
-                  <span className={styles.listTitle}>{review.title}</span>
-                  <span className={styles.reviewRating}><FiStar size={14} fill="currentColor" /> {review.rating}/10</span>
-                </div>
-                <p className={styles.listText}>{review.text}</p>
-                <span className={styles.listDate}>{review.date}</span>
-              </div>
-            ))}
+            <div className={styles.emptyState}>Відгуків ще немає.</div>
           </div>
         );
       case 'friends':
@@ -265,13 +308,7 @@ const Profile = () => {
       case 'history':
         return (
           <div className={styles.listContainer}>
-            {MOCK_HISTORY.map(history => (
-              <div key={history.id} className={styles.historyItem}>
-                <span className={styles.historyTitle}>{history.title}</span>
-                <span className={styles.historyDetails}>{history.details}</span>
-                <span className={styles.historyTime}>• {history.time}</span>
-              </div>
-            ))}
+            <div className={styles.emptyState}>Історія порожня.</div>
           </div>
         );
       default:

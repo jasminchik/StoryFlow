@@ -4,15 +4,6 @@ import { FiX, FiChevronDown, FiStar, FiArrowLeft, FiSliders } from 'react-icons/
 import Header from '../components/Header';
 import styles from './Catalog.module.scss';
 
-const MOCK_CATALOG = [
-  { id: 1, title: 'Берсерк', type: 'Манґа', rating: 9.8, chapters: 375, status: 'Завершено', image: '/uploads/berserk.jpg' },
-  { id: 2, title: 'Атака Титанів', type: 'Манґа', rating: 9.6, chapters: 139, status: 'Завершено', image: '/uploads/attack_on_titan.jpg' },
-  { id: 3, title: 'Легенда про меч', type: 'Література/Фанфік', rating: 8.4, chapters: 42, status: 'Онґоінґ', image: '/uploads/novel.jpg' },
-  { id: 4, title: 'Токійський ґуль', type: 'Манґа', rating: 9.0, chapters: 143, status: 'Завершено', image: '/uploads/tokyo_ghoul.jpg' },
-  { id: 5, title: 'Вежа Бога', type: 'Манхва', rating: 9.6, chapters: 550, status: 'Онґоінґ', image: '/uploads/tower_of_god.jpg' },
-  { id: 6, title: 'Світ без магії', type: 'Література/Фанфік', rating: 7.8, chapters: 15, status: 'Анонс', image: '/uploads/novel.jpg' },
-];
-
 const TYPE_MAP = {
   'manga': 'Манґа',
   'manhwa': 'Манхва',
@@ -29,15 +20,36 @@ const REVERSE_TYPE_MAP = {
   'Література/Фанфік': 'fanfic'
 };
 
-const GENRES = ['Екшн', 'Комедія', 'Драма', 'Романтика', 'Фентезі', 'Психологія', 'Жахи', 'Пригоди', 'Спорт'];
+const GENRES = ['Бойовик', 'Пригоди', 'Комедія', 'Драма', 'Фентезі', 'Жахи', 'Містика', 'Романтика', 'Психологія', 'Наукова фантастика', 'Повсякденність', 'Трагедія', 'Надприродне', 'Екшн', 'Військове'];
 
 const Catalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [catalog, setCatalog] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeFormat, setActiveFormat] = useState('Всі');
   const [activeStatuses, setActiveStatuses] = useState([]);
   const [activeGenres, setActiveGenres] = useState([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/api/manga');
+        const data = await response.json();
+        if (data.success) {
+          setCatalog(data.data);
+        }
+      } catch (error) {
+        console.error('Помилка завантаження каталогу:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCatalog();
+  }, []);
 
   // Синхронізація стейту з URL-параметрами
   useEffect(() => {
@@ -86,11 +98,22 @@ const Catalog = () => {
     setIsMobileFiltersOpen(false);
   };
 
-  // Фільтрація каталогу
-  const filteredCatalog = MOCK_CATALOG.filter(item => {
+  // Фільтрація каталогу (клієнтська сторона для цього етапу)
+  const filteredCatalog = catalog.filter(item => {
     const matchesFormat = activeFormat === 'Всі' || item.type === activeFormat;
-    const matchesStatus = activeStatuses.length === 0 || activeStatuses.includes(item.status);
-    return matchesFormat && matchesStatus;
+    
+    // Статуси в базі: 'Анонс', 'В процесі', 'Завершено', 'Призупинено'
+    // Статуси в фільтрі: 'Онґоінґ' (== 'В процесі'), 'Завершено', 'Анонс'
+    const statusMap = {
+      'Онґоінґ': 'В процесі',
+      'Завершено': 'Завершено',
+      'Анонс': 'Анонс'
+    };
+    const matchesStatus = activeStatuses.length === 0 || activeStatuses.some(s => item.status === statusMap[s]);
+    
+    const matchesGenres = activeGenres.length === 0 || activeGenres.every(g => item.genres.includes(g));
+    
+    return matchesFormat && matchesStatus && matchesGenres;
   });
   
   return (
@@ -116,42 +139,44 @@ const Catalog = () => {
         <main className={styles.mainContent}>
           <div className={styles.catalogHeader}>
             <h1 className={`${styles.pageTitle} ${styles.desktopOnly}`}>Каталог творів</h1>
-            <span className={styles.resultsCount}>Знайдено: {filteredCatalog.length}</span>
+            <span className={styles.resultsCount}>
+              {isLoading ? 'Завантаження...' : `Знайдено: ${filteredCatalog.length}`}
+            </span>
           </div>
 
           <div className={styles.catalogGrid}>
             {filteredCatalog.map((item) => (
               <div 
-                key={item.id} 
+                key={item._id} 
                 className={styles.mangaCard}
-                onClick={() => navigate(`/manga/${item.id}`)}
+                onClick={() => navigate(`/manga/${item._id}`)}
               >
                 <div className={styles.imageWrapper}>
-                  {item.type !== 'Література/Фанфік' ? (
-                    <img src={item.image} alt={item.title} />
-                  ) : (
-                    <div className={styles.textCover}>{item.title}</div>
-                  )}
+                  <img src={item.coverImage.startsWith('http') ? item.coverImage : `http://localhost:5000${item.coverImage}`} alt={item.title} />
                   <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}</div>
                   <div className={styles.typeBadge}>{item.type}</div>
                 </div>
                 <div className={styles.cardInfo}>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
-                  <span className={styles.chapters}>{item.chapters} розділів</span>
+                  <span className={styles.chapters}>{item.releaseYear} • {item.status}</span>
                 </div>
               </div>
             ))}
           </div>
+
+          {!isLoading && filteredCatalog.length === 0 && (
+            <div className={styles.emptyState}>
+              <p>За вашим запитом нічого не знайдено.</p>
+              <button onClick={resetFilters} className={styles.resetBtn}>Скинути фільтри</button>
+            </div>
+          )}
         </main>
 
-
-        {/* ПРАВА ЧАСТИНА: Фільтри (Off-canvas на мобільних) */}
+        {/* ПРАВА ЧАСТИНА: Фільтри */}
         <aside className={`${styles.sidebar} ${isMobileFiltersOpen ? styles.mobileOpen : ''}`}>
-          {/* Overlay для мобілок */}
           <div className={styles.overlay} onClick={() => setIsMobileFiltersOpen(false)}></div>
           
           <div className={styles.filterPanel}>
-            {/* Header для мобільної панелі */}
             <div className={styles.panelHeader}>
               <h2 className={styles.panelTitle}>Фільтри</h2>
               <button className={styles.closeBtn} onClick={() => setIsMobileFiltersOpen(false)}>
@@ -162,7 +187,6 @@ const Catalog = () => {
             <div className={styles.panelContent}>
               <h2 className={`${styles.filterTitle} ${styles.desktopOnly}`}>Фільтри</h2>
               
-              {/* Фільтр: Формат */}
               <div className={styles.filterGroup}>
                 <h3 className={styles.groupTitle}>Формат</h3>
                 <div className={styles.btnGroup}>
@@ -178,7 +202,6 @@ const Catalog = () => {
                 </div>
               </div>
 
-              {/* Фільтр: Жанри */}
               <div className={styles.filterGroup}>
                 <h3 className={styles.groupTitle}>Жанри</h3>
                 <div className={styles.genreGrid}>
@@ -194,7 +217,6 @@ const Catalog = () => {
                 </div>
               </div>
 
-              {/* Фільтр: Статус */}
               <div className={styles.filterGroup}>
                 <h3 className={styles.groupTitle}>Статус</h3>
                 <div className={styles.checkboxGroup}>
@@ -211,7 +233,6 @@ const Catalog = () => {
               </div>
             </div>
 
-            {/* Footer для мобільної панелі (Sticky/Fixed) */}
             <div className={styles.panelFooter}>
               <button className={styles.resetBtn} onClick={resetFilters}>Скинути</button>
               <button className={styles.applyBtn} onClick={applyMobileFilters}>Застосувати</button>
