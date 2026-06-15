@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FiPlus } from 'react-icons/fi';
 import Header from '../../components/Header';
 import styles from './Notifications.module.scss';
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'updates'; // 'news' | 'updates'
   const [siteNews, setSiteNews] = useState([]);
@@ -12,12 +13,25 @@ const Notifications = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
-  const canCreateNews = loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.role === 'author');
+  const canCreateNews = loggedInUser && loggedInUser.role === 'admin';
+
+  const API_BASE = 'http://localhost:5000';
 
   useEffect(() => {
-    // В майбутньому тут будуть запити до API для отримання новин та оновлень тайтлів
-    // Promise.all([fetchNews(), fetchUpdates()])
-    setIsLoading(false);
+    const fetchNews = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/news`);
+        const data = await response.json();
+        if (data.success) {
+          setSiteNews(data.data);
+        }
+      } catch (err) {
+        console.error('Помилка завантаження новин:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchNews();
   }, []);
 
   const handleTabChange = (tab) => {
@@ -30,9 +44,6 @@ const Notifications = () => {
       <div className={styles.container}>
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Повідомлення</h1>
-          {activeTab === 'news' && canCreateNews && (
-            <button className={styles.createNewsBtn}><FiPlus size={18} /> Створити новину</button>
-          )}
         </div>
         
         <div className={styles.tabs}>
@@ -74,17 +85,21 @@ const Notifications = () => {
             <div className={styles.newsList}>
               {siteNews.length > 0 ? (
                 siteNews.map(news => (
-                  <div key={news.id} className={styles.newsCard}>
+                  <div key={news._id || news.id} className={styles.newsCard}>
                     <div className={styles.newsHeader}>
-                      <span className={`${styles.categoryBadge} ${styles[news.categoryType]}`}>
-                        {news.category}
+                      <span className={`${styles.categoryBadge} ${
+                        news.category === 'Важливе' ? styles.important : 
+                        news.category === 'Системні' ? styles.system : 
+                        news.category === 'Оновлення' ? styles.update : styles.other
+                      }`}>
+                        {news.category || 'Інше'}
                       </span>
-                      <span className={styles.newsDate}>{news.date}</span>
+                      <span className={styles.newsDate}>{new Date(news.createdAt).toLocaleDateString()}</span>
                     </div>
                     <h3 className={styles.newsTitle}>{news.title}</h3>
-                    <p className={styles.newsText}>{news.text}</p>
+                    <p className={styles.newsText}>{news.content}</p>
                     <div className={styles.newsFooter}>
-                      <span className={styles.newsAuthor}>Опублікував: <strong>{news.author}</strong></span>
+                      <span className={styles.newsAuthor}>Опублікував: <strong>Адміністрація</strong></span>
                     </div>
                   </div>
                 ))

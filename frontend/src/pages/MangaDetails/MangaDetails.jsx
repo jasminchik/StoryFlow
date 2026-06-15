@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck, FiArrowLeft, FiEdit2, FiHeart } from 'react-icons/fi';
+import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck, FiArrowLeft, FiEdit2, FiHeart, FiTrash2 } from 'react-icons/fi';
 import Header from '../../components/Header';
 import InteractionSection from '../../components/InteractionSection';
 import styles from './MangaDetails.module.scss';
@@ -56,6 +56,30 @@ const MangaDetails = () => {
     const userId = loggedInUser.id || loggedInUser._id;
     return String(authorId) === String(userId);
   }, [manga, loggedInUser]);
+
+  const isAdmin = loggedInUser && loggedInUser.role === 'admin';
+  const canDelete = isAuthor || isAdmin;
+
+  const handleDeleteManga = async () => {
+    if (!window.confirm('Ви впевнені, що хочете видалити цей тайтл?')) return;
+    try {
+      const response = await fetch(`${API_BASE}/api/manga/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        alert('Тайтл успішно видалено');
+        navigate('/catalog');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Помилка при видаленні');
+      }
+    } catch (err) {
+      console.error('Помилка видалення:', err);
+    }
+  };
 
   const fetchMangaDetails = async () => {
     setIsLoading(true);
@@ -311,6 +335,11 @@ const MangaDetails = () => {
           <div className={styles.actionButtons}>
             <button className={styles.readBtn}>Читати</button>
             {isAuthor && <button className={styles.editBtn} onClick={() => navigate(`/edit-manga/${manga._id}`)}>Редагувати</button>}
+            {canDelete && (
+              <button className={styles.deleteAction} onClick={handleDeleteManga} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FiTrash2 size={18} /> Видалити твір
+              </button>
+            )}
             <div className={styles.listsContainer}>
               <button className={`${styles.listsBtn} ${userList ? styles.active : ''}`} onClick={() => setIsListsOpen(!isListsOpen)}>
                 {userList ? LIST_LABELS[userList] : 'Додати в плани'}

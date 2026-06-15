@@ -97,4 +97,25 @@ router.delete('/:mangaId', protect, async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/user-list/favorites
+ * @desc    Отримати список "Обране" (favorites) поточного користувача
+ * @access  Private
+ */
+router.get('/favorites', protect, async (req, res) => {
+  try {
+    const favorites = await UserList.find({ 
+      user: req.user.id, 
+      status: 'favorites' 
+    }).populate('manga');
+
+    res.status(200).json({ 
+      success: true, 
+      data: favorites.map(item => item.manga).filter(m => m !== null)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

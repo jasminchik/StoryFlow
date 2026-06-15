@@ -210,22 +210,28 @@
   color: var(--primary-color);
   border: 1px solid var(--primary-light);
 
-  &.system {
+  &.system, &.system_badge {
     background-color: rgba(0, 123, 255, 0.1);
     color: #007bff;
     border-color: rgba(0, 123, 255, 0.2);
   }
 
-  &.schedule {
+  &.important {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  &.update {
     background-color: rgba(46, 213, 115, 0.1);
     color: #2ed573;
     border-color: rgba(46, 213, 115, 0.2);
   }
 
-  &.announcement {
-    background-color: var(--primary-light);
-    color: var(--primary-color);
-    border-color: var(--primary-light);
+  &.other {
+    background-color: rgba(160, 160, 160, 0.1);
+    color: #a0a0a0;
+    border-color: rgba(160, 160, 160, 0.2);
   }
 }
 

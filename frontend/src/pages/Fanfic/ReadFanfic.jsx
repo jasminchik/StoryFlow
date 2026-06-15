@@ -53,9 +53,9 @@ const ReadFanfic = () => {
       <div className={styles.readerContainer}>
         {/* Top Navigation Bar */}
         <nav className={styles.topNav}>
-          <Link to={`/fanfic/${id}`} replace className={styles.backLink}>
-            <FiArrowLeft /> <span>До опису твору</span>
-          </Link>
+          <button onClick={() => navigate(-1)} className={styles.backLink} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', fontWeight: '600' }}>
+            <FiArrowLeft /> <span>Повернутись назад</span>
+          </button>
           <div className={styles.titles}>
             <h2 className={styles.workTitle}>{chapter.literature?.title}</h2>
             <h1 className={styles.chapterTitle}>Розділ {chapter.chapterNumber}. {chapter.title}</h1>

@@ -78,6 +78,12 @@ const CreateFanfic = () => {
 
     setIsLoading(true);
 
+    // Підготовка даних: якщо manga порожня строка, ставимо null
+    const payload = {
+      ...formData,
+      manga: formData.manga === '' ? null : formData.manga
+    };
+
     try {
       const response = await fetch(`${API_BASE}/api/literature`, {
         method: 'POST',
@@ -85,7 +91,7 @@ const CreateFanfic = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       const result = await response.json();
@@ -215,33 +221,33 @@ const CreateFanfic = () => {
               <FiTag />
               <span>Жанри та мітки *</span>
             </h3>
-            <div className={styles.genresGrid}>
+            <div className={styles.checkboxGrid}>
               {availableGenres.map(genre => (
-                <div
-                  key={genre}
-                  className={`${styles.genreBadge} ${formData.genres.includes(genre) ? styles.activeGenre : ''}`}
-                  onClick={() => handleGenreToggle(genre)}
-                >
-                  {formData.genres.includes(genre) && <FiCheck size={14} />}
+                <label key={genre} className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={formData.genres.includes(genre)}
+                    onChange={() => handleGenreToggle(genre)}
+                  />
                   <span>{genre}</span>
-                </div>
+                </label>
               ))}
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className={styles.actions}>
-            <button 
-              type="button" 
-              className={styles.cancelBtn} 
+          <div className={styles.formActions}>
+            <button
+              type="button"
+              className={styles.cancelBtn}
               onClick={() => navigate(-1)}
               disabled={isLoading}
             >
               Скасувати
             </button>
-            <button 
-              type="submit" 
-              className={styles.submitBtn} 
+            <button
+              type="submit"
+              className={styles.submitBtn}
               disabled={isLoading}
             >
               <FiPlus />

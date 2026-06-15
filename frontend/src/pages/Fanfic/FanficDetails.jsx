@@ -172,11 +172,7 @@ const FanficDetails = () => {
   const isAdmin = loggedInUser && loggedInUser.role === 'admin';
 
   const handleBack = () => {
-    if (fanfic?.manga?._id) {
-      navigate(`/manga/${fanfic.manga._id}`);
-    } else {
-      navigate(-1);
-    }
+    navigate(-1);
   };
 
   return (

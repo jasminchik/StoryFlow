@@ -5,6 +5,7 @@ const Chapter = require('../models/Chapter');
 const Literature = require('../models/Literature');
 const LiteratureChapter = require('../models/LiteratureChapter');
 const MainSection = require('../models/MainSection');
+const News = require('../models/News');
 const { protect, authorize } = require('../middleware/auth');
 
 // Middleware для жорсткої перевірки адміна
@@ -15,6 +16,20 @@ const isAdmin = (req, res, next) => {
     res.status(403).json({ success: false, error: 'Доступ заборонено. Тільки для адміністраторів.' });
   }
 };
+
+/**
+ * @route   POST /api/admin/news
+ * @desc    Створити новину сайту
+ * @access  Private (Admin)
+ */
+router.post('/news', protect, isAdmin, async (req, res) => {
+  try {
+    const news = await News.create(req.body);
+    res.status(201).json({ success: true, data: news });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
 
 /**
  * @route   GET /api/admin/sections
@@ -107,6 +122,33 @@ router.delete('/manga/:id', protect, isAdmin, async (req, res) => {
     await manga.deleteOne();
 
     res.status(200).json({ success: true, data: {} });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/admin/all-titles
+ * @desc    Отримати всі тайтли (Манґа + Фанфіки) для адмін-панелі
+ * @access  Private (Admin)
+ */
+router.get('/all-titles', protect, isAdmin, async (req, res) => {
+  try {
+    const [mangas, fanfics] = await Promise.all([
+      Manga.find().select('title type coverImage createdAt'),
+      Literature.find().select('title type direction coverImage createdAt')
+    ]);
+
+    // Додаємо мітку типу для фанфіків, якщо її немає
+    const formattedFanfics = fanfics.map(f => ({
+      ...f.toObject(),
+      type: f.type || 'Фанфік'
+    }));
+
+    res.status(200).json({ 
+      success: true, 
+      data: [...mangas, ...formattedFanfics].sort((a, b) => b.createdAt - a.createdAt)
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

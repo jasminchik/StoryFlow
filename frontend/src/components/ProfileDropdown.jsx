@@ -13,8 +13,10 @@ import {
   FiX,
   FiChevronRight,
   FiEdit3,
-  FiPlusSquare
+  FiPlusSquare,
+  FiShield
 } from 'react-icons/fi';
+import { LuShieldCheck } from 'react-icons/lu';
 import { useTheme } from '../context/ThemeContext';
 import styles from './ProfileDropdown.module.scss';
 
@@ -51,6 +53,12 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
             </Link>
             <div className={styles.nameWithBadge}>
               <h3 className={styles.username}>{user?.username}</h3>
+              {user?.role === 'admin' && (
+                <div className={`${styles.authorBadge} ${styles.adminBadge}`}>
+                  <LuShieldCheck size={12} strokeWidth={2.5} />
+                  <span>Адміністратор</span>
+                </div>
+              )}
               {user?.role === 'author' && (
                 <div className={styles.authorBadge}>
                   <FiEdit3 size={10} />
@@ -105,3 +113,6 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
 };
 
 export default ProfileDropdown;
+
+
+

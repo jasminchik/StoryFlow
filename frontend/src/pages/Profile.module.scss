@@ -44,28 +44,56 @@
     opacity: 0.8;
   }
 
-  .settingsBtn {
+  .bannerActions {
     position: absolute;
     top: 20px;
     right: 20px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--bg-overlay);
-    border: 1px solid var(--border-color);
-    color: white;
-    font-size: 1.2rem;
     display: flex;
-    justify-content: center;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .settingsBtn, .adminPanelBtn {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    width: auto;
+    height: 40px;
+    padding: 0 15px;
+    border-radius: 10px;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    backdrop-filter: blur(4px);
-    z-index: 10;
+    font-weight: 600;
+    font-size: 0.9rem;
 
     &:hover {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
+      background: rgba(0, 0, 0, 0.6);
+      transform: translateY(-2px);
+    }
+  }
+
+  .adminPanelBtn {
+    color: #ff4757;
+    border-color: rgba(255, 71, 87, 0.3);
+    
+    &:hover {
+      background: #ff4757;
+      color: white;
+      border-color: #ff4757;
+    }
+  }
+
+  .settingsBtn {
+    width: 40px;
+    padding: 0;
+    border-radius: 50%;
+    
+    &:hover {
       transform: rotate(45deg);
     }
   }
@@ -175,6 +203,13 @@
   .authorIcon {
     flex-shrink: 0;
   }
+}
+
+.adminBadge {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  box-shadow: none;
 }
 
 .genderBadge {

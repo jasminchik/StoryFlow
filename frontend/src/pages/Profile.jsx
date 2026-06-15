@@ -11,9 +11,11 @@ import {
   FiCheckCircle,
   FiEdit3,
   FiPlus,
-  FiHeart
+  FiHeart,
+  FiShield
 } from 'react-icons/fi';
 import { FaMars, FaVenus } from 'react-icons/fa';
+import { LuShieldCheck } from 'react-icons/lu';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import Header from '../components/Header';
 import ProfileSidebar from '../components/ProfileSidebar';
@@ -445,9 +447,17 @@ const Profile = () => {
           <div className={styles.banner}>
             <div className={styles.bannerImage} style={{ backgroundImage: user.banner ? `url("${user.banner}")` : 'none' }} />
             {isOwnProfile && (
-              <button className={styles.settingsBtn} onClick={() => handleTabChange('settings')} title="Налаштування">
-                <FiSettings size={20} />
-              </button>
+              <div className={styles.bannerActions}>
+                {user.role === 'admin' && (
+                  <button className={styles.adminPanelBtn} onClick={() => navigate('/admin')} title="Панель адміністратора">
+                    <FiShield size={20} />
+                    <span>Адмін-панель</span>
+                  </button>
+                )}
+                <button className={styles.settingsBtn} onClick={() => handleTabChange('settings')} title="Налаштування">
+                  <FiSettings size={20} />
+                </button>
+              </div>
             )}
           </div>
           <div className={styles.userInfoBar}>
@@ -457,6 +467,12 @@ const Profile = () => {
             <div className={styles.userDetails}>
               <div className={styles.nameRow}>
                 <h1 className={styles.nickname}>{user.username}</h1>
+                {user.role === 'admin' && (
+                  <div className={`${styles.authorBadge} ${styles.adminBadge}`}>
+                    <LuShieldCheck size={14} strokeWidth={2.5} /> 
+                    <span>Адміністратор</span>
+                  </div>
+                )}
                 {user.role === 'author' && <div className={styles.authorBadge}><FiEdit3 size={12} /> <span>Автор</span></div>}
               </div>
               {user.aboutMe && <p className={styles.aboutText}>{user.aboutMe}</p>}
