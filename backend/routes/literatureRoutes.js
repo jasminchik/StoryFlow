@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Literature = require('../models/Literature');
 const Manga = require('../models/Manga');
+const LiteratureChapter = require('../models/LiteratureChapter');
 const { protect, authorize, isOwnerOrAdmin } = require('../middleware/auth');
 const upload = require('../config/upload');
 
@@ -153,7 +154,17 @@ router.put('/:id', protect, isOwnerOrAdmin('Literature'), upload.single('coverIm
 router.delete('/:id', protect, isOwnerOrAdmin('Literature'), async (req, res) => {
   try {
     const literature = await Literature.findById(req.params.id);
+    
+    if (!literature) {
+      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+    }
+
+    // Видаляємо всі розділи цього твору
+    await LiteratureChapter.deleteMany({ literature: req.params.id });
+    
+    // Видаляємо сам твір
     await literature.deleteOne();
+    
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

@@ -68,7 +68,7 @@ router.delete('/:id', protect, async (req, res) => {
 
     // Тільки автор або адмін
     if (comment.author.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(401).json({ success: false, error: 'Немає прав для видалення' });
+      return res.status(403).json({ success: false, error: 'Немає прав для видалення цього коментаря' });
     }
 
     await comment.deleteOne();

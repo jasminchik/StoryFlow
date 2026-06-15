@@ -123,8 +123,17 @@ const CommentSection = ({ resourceId, resourceType }) => {
                 <div className={styles.commentHeader}>
                   <span className={styles.username}>{comment.author?.username || 'Невідомий'}</span>
                   <span className={styles.date}>{new Date(comment.createdAt).toLocaleDateString()}</span>
-                  {(loggedInUser && (comment.author?._id === (loggedInUser.id || loggedInUser._id) || loggedInUser.role === 'admin')) && (
-                    <button className={styles.deleteBtn} onClick={() => handleDelete(comment._id)}>
+                  
+                  {/* Перевірка прав на видалення: автор або адмін */}
+                  {loggedInUser && (
+                    (comment.author?._id === (loggedInUser.id || loggedInUser._id)) || 
+                    loggedInUser.role === 'admin'
+                  ) && (
+                    <button 
+                      className={styles.deleteBtn} 
+                      onClick={() => handleDelete(comment._id)}
+                      title="Видалити коментар"
+                    >
                       <FiTrash2 size={14} />
                     </button>
                   )}

@@ -11,22 +11,32 @@ import {
   FiSend, 
   FiX,
   FiFileText,
-  FiInfo
+  FiInfo,
+  FiTrash2
 } from 'react-icons/fi';
 import Header from '../../components/Header';
-import CommentSection from '../../components/CommentSection';
+import InteractionSection from '../../components/InteractionSection';
 import styles from './Fanfic.module.scss';
+
+const TABS = [
+  { id: 'chapters', label: 'Зміст' },
+  { id: 'comments', label: 'Коментарі' },
+  { id: 'reviews', label: 'Рецензії' },
+  { id: 'discussions', label: 'Обговорення' }
+];
 
 const FanficDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [fanfic, setFanfic] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isChapterModalOpen, setIsChapterModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+  const [activeTab, setActiveTab] = useState('chapters');
+
   const [newChapter, setNewChapter] = useState({
     title: '',
     content: '',
@@ -38,6 +48,8 @@ const FanficDetails = () => {
 
   const API_BASE = 'http://localhost:5000';
   const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+  console.log("Дані фанфіка:", fanfic);
 
   useEffect(() => {
     fetchFanficDetails();
@@ -70,6 +82,29 @@ const FanficDetails = () => {
       console.error('Помилка завантаження фанфіка:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteFanfic = async () => {
+    if (!window.confirm('Ви впевнені, що хочете видалити цей фанфік?')) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/literature/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.ok) {
+        alert('Твір успішно видалено');
+        navigate('/catalog');
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Помилка при видаленні');
+      }
+    } catch (err) {
+      console.error('Помилка видалення фанфіка:', err);
     }
   };
 
@@ -134,6 +169,7 @@ const FanficDetails = () => {
   if (!fanfic) return <div className={styles.errorWrapper}><h2>Твір не знайдено</h2><button onClick={() => navigate(-1)} className={styles.backButton}><FiArrowLeft size={18}/> Повернутись</button></div>;
 
   const isOwner = loggedInUser && (String(fanfic.author?._id || fanfic.author) === String(loggedInUser.id || loggedInUser._id));
+  const isAdmin = loggedInUser && loggedInUser.role === 'admin';
 
   const handleBack = () => {
     if (fanfic?.manga?._id) {
@@ -146,10 +182,10 @@ const FanficDetails = () => {
   return (
     <div className={styles.fanficPage}>
       <Header />
-      
+
       <main className={styles.mainContent}>
         <div className={styles.container}>
-          
+
           {/* NAVIGATION */}
           <div className={styles.breadcrumb}>
             <button className={styles.backButton} onClick={handleBack}>
@@ -160,20 +196,26 @@ const FanficDetails = () => {
 
           {/* FANFIC HEADER */}
           <div className={styles.fanficHeaderCard}>
-            
+
             {/* AUTHOR ACTIONS */}
-            {isOwner && (
+            {(isOwner || isAdmin) && (
               <div className={styles.authorActions}>
-                <button className={styles.actionBtnPrimary} onClick={() => setIsChapterModalOpen(true)}>
-                  <FiPlus size={18} />
-                  <span>Додати розділ</span>
+                {isOwner && (
+                  <button className={styles.actionBtnPrimary} onClick={() => setIsChapterModalOpen(true)}>
+                    <FiPlus size={18} />
+                    <span>Додати розділ</span>
+                  </button>
+                )}
+                <button className={`${styles.actionBtnSecondary} ${styles.deleteAction}`} onClick={handleDeleteFanfic}>
+                  <FiTrash2 size={18} />
+                  <span>Видалити твір</span>
                 </button>
               </div>
             )}
 
             <div className={styles.headerInfo}>
               <h1 className={styles.fanficTitle}>{fanfic.title}</h1>
-              
+
               <div className={styles.primaryMeta}>
                 <div className={styles.authorRow}>
                   <FiUser size={18} className={styles.metaIcon} />
@@ -187,8 +229,8 @@ const FanficDetails = () => {
                   <div className={styles.fandomRow}>
                     <FiInfo size={18} className={styles.metaIcon} />
                     <span className={styles.fandomLabel}>Фендом:</span>
-                    <Link to={`/manga/${fanfic.manga._id}`} className={styles.fandomName}>
-                      {fanfic.manga.title}
+                    <Link to={`/manga/${fanfic.manga?._id}`} className={styles.fandomName}>
+                      {fanfic.manga?.title}
                     </Link>
                   </div>
                 )}
@@ -213,11 +255,11 @@ const FanficDetails = () => {
               </div>
               <div className={styles.specItem}>
                 <span className={styles.specLabel}>Розділів</span>
-                <span className={styles.specValue}>{chapters.length}</span>
+                <span className={styles.specValue}>{chapters?.length || 0}</span>
               </div>
               <div className={styles.specItem}>
                 <span className={styles.specLabel}>Оновлено</span>
-                <span className={styles.specValue}>{new Date(fanfic.updatedAt).toLocaleDateString()}</span>
+                <span className={styles.specValue}>{fanfic.updatedAt ? new Date(fanfic.updatedAt).toLocaleDateString() : '—'}</span>
               </div>
               <div 
                 className={`${styles.specItem} ${styles.likeItem} ${isLiked ? styles.liked : ''}`}
@@ -278,11 +320,11 @@ const FanficDetails = () => {
                   <div className={styles.chaptersHeader}>
                     <FiBookOpen size={22} className={styles.primaryIcon} />
                     <h2>Зміст твору</h2>
-                    <span className={styles.chaptersCount}>{chapters.length} розділів</span>
+                    <span className={styles.chaptersCount}>{chapters?.length || 0} розділів</span>
                   </div>
 
                   <div className={styles.chaptersList}>
-                    {chapters.length > 0 ? (
+                    {chapters?.length > 0 ? (
                       chapters.map((chapter) => (
                         <div 
                           key={chapter._id} 
