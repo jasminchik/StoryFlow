@@ -34,6 +34,12 @@ const Profile = () => {
   const [myWorks, setMyWorks] = useState({ manga: [], literature: [] });
   const [isMyWorksLoading, setIsMyWorksLoading] = useState(false);
 
+  const [userTitles, setUserTitles] = useState([]);
+  const [activeCategory, setActiveCategory] = useState('reading');
+  const [isTitlesLoading, setIsTitlesLoading] = useState(false);
+
+  const [analytics, setAnalytics] = useState({ totalChaptersRead: 0, totalHoursRead: 0, chartData: [] });
+
   const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
   const analyticsRef = useRef(null);
   const tabsRef = useRef(null);
@@ -41,6 +47,68 @@ const Profile = () => {
   const API_BASE = 'http://localhost:5000';
   const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
   const isOwnProfile = user?.username && (loggedInUser?.username === user.username);
+
+  const TITLE_CATEGORIES = [
+    { id: 'all', label: 'Усі' },
+    { id: 'reading', label: 'Читаю' },
+    { id: 'planned', label: 'В планах' },
+    { id: 'read', label: 'Прочитано' },
+    { id: 'dropped', label: 'Кинуто' },
+    { id: 'favorites', label: 'В Обраному' }
+  ];
+
+  // Завантаження аналітики
+  useEffect(() => {
+    if (profileTab === 'stats' && urlUsername) {
+      const fetchAnalytics = async () => {
+        try {
+          const response = await fetch(`${API_BASE}/api/users/profile/${urlUsername}/analytics`);
+          const data = await response.json();
+          if (data.success) {
+            setAnalytics(data.data);
+          }
+        } catch (err) {
+          console.error('Помилка завантаження аналітики:', err);
+        }
+      };
+      fetchAnalytics();
+    }
+  }, [profileTab, urlUsername]);
+
+  useEffect(() => {
+    if (profileTab === 'titles' && urlUsername) {
+      const fetchTitles = async () => {
+        setIsTitlesLoading(true);
+        try {
+          // Отримуємо списки через бекенд для профілю (навіть чужого)
+          const response = await fetch(`${API_BASE}/api/user-list/user/${urlUsername}`);
+          const data = await response.json();
+          
+          if (data.success) {
+            const lists = data.data; // Масив { manga: { _id, title, ... }, status, ... }
+            if (lists.length === 0) {
+              setUserTitles([]);
+              return;
+            }
+
+            const userMangaDetails = lists
+              .filter(item => item.manga) // Відсікаємо якщо манґу видалили з бази
+              .map(item => ({
+                ...item.manga,
+                statusInList: item.status
+              }));
+              
+            setUserTitles(userMangaDetails);
+          }
+        } catch (err) {
+          console.error('Помилка завантаження тайтлів:', err);
+        } finally {
+          setIsTitlesLoading(false);
+        }
+      };
+      fetchTitles();
+    }
+  }, [profileTab, urlUsername]);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -125,6 +193,7 @@ const Profile = () => {
 
   const PROFILE_TABS = useMemo(() => [
     { id: 'titles', label: 'Тайтли' },
+    { id: 'stats', label: 'Аналітика' },
     ...(isOwnProfile || user?.role === 'author' || user?.role === 'admin' ? [{ id: 'my-creations', label: 'Творчість' }] : []),
     { id: 'comments', label: 'Коментарі' },
     { id: 'reviews', label: 'Відгуки' },
@@ -270,7 +339,82 @@ const Profile = () => {
           </div>
         );
       case 'titles':
-        return <div className={styles.progressGrid}><div className={styles.emptyState}>Список порожній.</div></div>;
+        const filteredTitles = userTitles.filter(item => {
+          if (activeCategory === 'all') return true;
+          return item.statusInList === activeCategory;
+        });
+
+        return (
+          <div className={styles.titlesWrapper}>
+            <div className={styles.filterMenu}>
+              {TITLE_CATEGORIES.map(cat => (
+                <button 
+                  key={cat.id}
+                  className={`${styles.filterBtn} ${activeCategory === cat.id ? styles.activeFilter : ''}`}
+                  onClick={() => setActiveCategory(cat.id)}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {isTitlesLoading ? (
+              <div className={styles.loading}>Завантаження списку...</div>
+            ) : filteredTitles.length > 0 ? (
+              <div className={styles.progressGrid}>
+                {filteredTitles.map(manga => (
+                  <div key={manga._id} className={styles.progressCard} onClick={() => navigate(`/manga/${manga._id}`)} style={{ cursor: 'pointer' }}>
+                    <img src={manga.coverImage ? (manga.coverImage.startsWith('http') ? manga.coverImage : `${API_BASE}${manga.coverImage}`) : ''} alt={manga.title} className={styles.cardCover} />
+                    <div className={styles.cardInfo}>
+                      <h3 className={styles.cardTitle}>{manga.title}</h3>
+                      <div className={styles.progressText}>
+                        Статус: {TITLE_CATEGORIES.find(c => c.id === manga.statusInList)?.label || 'Невідомо'}
+                      </div>
+                      <div className={styles.progressTrack}>
+                         <div className={styles.progressFill} style={{ width: '100%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <p>У цій категорії ще немає тайтлів.</p>
+              </div>
+            )}
+          </div>
+        );
+      case 'stats':
+        return (
+          <div className={styles.analyticsSection} ref={analyticsRef}>
+            <div className={styles.statsGrid}>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Прочитано розділів</span>
+                <span className={styles.statNumber}>{analytics.totalChaptersRead}</span>
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Годин читання (приблизно)</span>
+                <span className={styles.statNumber}>{analytics.totalHoursRead} год.</span>
+              </div>
+            </div>
+            <div className={styles.chartContainer}>
+              <h3 className={styles.chartTitle}>Активність читання (Останні 7 днів)</h3>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer>
+                  <LineChart data={analytics.chartData}>
+                    <XAxis dataKey="name" stroke="var(--text-muted)" />
+                    <YAxis stroke="var(--text-muted)" allowDecimals={false} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
+                      itemStyle={{ color: 'var(--primary-color)' }}
+                    />
+                    <Line type="monotone" dataKey="rozdivly" name="Розділи" stroke="var(--primary-color)" strokeWidth={3} dot={{ r: 5, fill: 'var(--primary-color)' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        );
       case 'comments':
       case 'reviews':
       case 'history':

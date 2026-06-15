@@ -7,11 +7,56 @@ const SearchOverlay = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('manga'); // 'manga', 'manhwa', 'authors'
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (!searchQuery.trim()) {
+        setResults([]);
+        return;
+      }
+      
+      setIsLoading(true);
+      try {
+        let url = `http://localhost:5000/api/manga/search?q=${encodeURIComponent(searchQuery)}`;
+        
+        if (activeTab === 'manhwa') {
+          url += '&type=manhwa';
+        } else if (activeTab === 'manga') {
+          url += '&type=manga';
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+          // Форматуємо результати під інтерфейс
+          const formattedResults = data.data.map(item => ({
+            id: item._id,
+            title: item.title,
+            type: item.type,
+            image: item.coverImage
+          }));
+          setResults(formattedResults);
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Простий debounce
+    const timeoutId = setTimeout(() => {
+      fetchSearchResults();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, activeTab]);
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
-    // В майбутньому тут буде логіка пошуку через API
   };
 
   const handleResultClick = (id, type) => {

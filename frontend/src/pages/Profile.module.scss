@@ -347,6 +347,51 @@
 }
 
 /* Titles Tab (Reading Now) */
+.titlesWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.filterMenu {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+  }
+}
+
+.filterBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--text-main);
+    border-color: var(--text-muted);
+  }
+
+  &.activeFilter {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
+}
+
 .progressGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

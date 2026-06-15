@@ -52,10 +52,10 @@
   padding-left: 12px;
 }
 
-/* Гріди з використанням auto-fit для заповнення простору */
+/* Гріди з використанням auto-fill для запобігання розтягування одиночних елементів */
 .popularGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 24px;
   width: 100%;
 
@@ -113,7 +113,7 @@
 
 .newGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 16px;
   width: 100%;
 

@@ -156,17 +156,42 @@ const MangaDetails = () => {
     }
   };
 
-  const handleSelectList = (listName) => {
-    const lists = JSON.parse(localStorage.getItem('user_manga_lists') || '{}');
-    if (userList === listName) {
-      delete lists[id];
-      setUserList(null);
-    } else {
-      lists[id] = listName;
-      setUserList(listName);
+  const handleSelectList = async (listName) => {
+    if (!loggedInUser) {
+      alert('Будь ласка, увійдіть, щоб додавати в списки');
+      return;
     }
-    localStorage.setItem('user_manga_lists', JSON.stringify(lists));
-    setIsListsOpen(false);
+
+    try {
+      if (userList === listName) {
+        // Якщо клік по тому ж статусу - видаляємо зі списку
+        const response = await fetch(`${API_BASE}/api/user-list/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        if (response.ok) {
+          setUserList(null);
+        }
+      } else {
+        // Додаємо або оновлюємо статус
+        const response = await fetch(`${API_BASE}/api/user-list/status`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ mangaId: id, status: listName })
+        });
+        const result = await response.json();
+        if (result.success) {
+          setUserList(listName);
+        }
+      }
+    } catch (err) {
+      console.error('Помилка оновлення списку:', err);
+    } finally {
+      setIsListsOpen(false);
+    }
   };
 
   const getBarColor = (rating) => {
@@ -177,9 +202,26 @@ const MangaDetails = () => {
   };
 
   useEffect(() => {
-    const lists = JSON.parse(localStorage.getItem('user_manga_lists') || '{}');
-    if (lists[id]) setUserList(lists[id]);
-  }, [id]);
+    // Отримуємо поточний статус тайтлу для юзера
+    const fetchUserListStatus = async () => {
+      if (!loggedInUser || !id) return;
+      try {
+        const response = await fetch(`${API_BASE}/api/user-list`, {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+        const result = await response.json();
+        if (result.success) {
+          const listItem = result.data.find(item => String(item.manga?._id || item.manga) === String(id));
+          if (listItem) {
+            setUserList(listItem.status);
+          }
+        }
+      } catch (err) {
+        console.error('Помилка завантаження списку юзера:', err);
+      }
+    };
+    fetchUserListStatus();
+  }, [id, loggedInUser?.id]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -316,10 +358,19 @@ const MangaDetails = () => {
                 </button>
                 {isRatingOpen && (
                   <div className={styles.ratingPopup}>
-                    {[1,2,3,4,5,6,7,8,9,10].map((star) => (
-                      <span key={star} className={`${styles.popupStar} ${(hoverRating || userRating) >= star ? styles.hovered : ''}`}
-                        onMouseEnter={() => setHoverRating(star)} onMouseLeave={() => setHoverRating(0)} onClick={() => handleRate(star)}>
-                        <FiStar size={20} fill={(hoverRating || userRating) >= star ? "currentColor" : "none"} />
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((starValue) => (
+                      <span 
+                        key={starValue} 
+                        className={`${styles.popupStar} ${(hoverRating || userRating) >= starValue ? styles.hovered : ''}`}
+                        onMouseEnter={() => setHoverRating(starValue)} 
+                        onMouseLeave={() => setHoverRating(0)} 
+                        onClick={() => {
+                          console.log(`Виставлення оцінки: ${starValue}`);
+                          handleRate(starValue);
+                        }}
+                        title={`${starValue} з 10`}
+                      >
+                        <FiStar size={22} fill={(hoverRating || userRating) >= starValue ? "currentColor" : "none"} />
                       </span>
                     ))}
                   </div>

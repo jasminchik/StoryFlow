@@ -18,24 +18,21 @@ const Home = () => {
     const fetchMangaData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('http://localhost:5000/api/manga');
+        const response = await fetch('http://localhost:5000/api/manga/home');
         const data = await response.json();
         
         if (data.success) {
-          // Для новинок беремо перші 8 тайтлів (вони вже відсортовані за датою створення на бекенді)
-          const latest = data.data.slice(0, 8).map(m => ({
+          // Форматуємо дані для відображення
+          const formatManga = (m) => ({
             id: m._id,
             title: m.title,
             image: m.coverImage ? (m.coverImage.startsWith('http') ? m.coverImage : `http://localhost:5000${m.coverImage}`) : '',
-            rating: m.rating || 0
-          }));
-          setNewArrivals(latest);
+            rating: m.averageRating || 0
+          });
 
-          // Для популярних поки що теж візьмемо зі списку (можна буде додати логіку сортування за рейтингом)
-          setPopular(latest.slice(0, 4));
-          
-          // Читають зараз - можна буде реалізувати через історію переглядів, поки пустий масив або заглушка
-          setReadingNow([]);
+          setNewArrivals(data.data.newArrivals.map(formatManga));
+          setPopular(data.data.topRated.map(formatManga));
+          setReadingNow([]); // Можна додати логіку пізніше
         }
       } catch (err) {
         console.error('Помилка завантаження даних:', err);

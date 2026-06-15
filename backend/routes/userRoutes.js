@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const UserList = require('../models/UserList');
+const Comment = require('../models/Comment');
+const Rating = require('../models/Rating');
 const { protect, authorize } = require('../middleware/auth');
 
 // @desc    Get all users
@@ -14,7 +17,7 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
   }
 });
 
-// @desc    Get user profile by username
+// @desc    Get user profile by username with dynamic stats
 // @route   GET /api/users/profile/:username
 router.get('/profile/:username', async (req, res) => {
   try {
@@ -22,7 +25,77 @@ router.get('/profile/:username', async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, error: 'Користувача не знайдено' });
     }
-    res.status(200).json({ success: true, data: user });
+
+    // Підрахунок динамічної статистики
+    const [titlesCount, commentsCount, ratingsCount, readCount] = await Promise.all([
+      UserList.countDocuments({ user: user._id }),
+      Comment.countDocuments({ author: user._id }),
+      Rating.countDocuments({ user: user._id }),
+      UserList.countDocuments({ user: user._id, status: 'read' })
+    ]);
+
+    // Додаємо згенеровані статси до відповіді
+    const userWithStats = {
+      ...user.toObject(),
+      stats: {
+        titles: titlesCount,
+        comments: commentsCount,
+        ratings: ratingsCount,
+        readCount: readCount
+      }
+    };
+
+    res.status(200).json({ success: true, data: userWithStats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// @desc    Get user reading analytics
+// @route   GET /api/users/profile/:username/analytics
+router.get('/profile/:username/analytics', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Користувача не знайдено' });
+    }
+
+    // Отримуємо всі записи користувача зі списку
+    const userLists = await UserList.find({ user: user._id });
+
+    // Підраховуємо загальну кількість прочитаних розділів
+    const totalChaptersRead = userLists.reduce((sum, item) => sum + (item.chaptersRead || 0), 0);
+
+    // Розраховуємо кількість годин (приблизно 15 хв на розділ)
+    const totalHoursRead = (totalChaptersRead * 15) / 60;
+
+    // Створюємо дані для графіка (оскільки немає погодинної історії, зробимо базовий розподіл останніх днів на основі totalChaptersRead)
+    // У майбутньому тут можна зробити реальну агрегацію по датах оновлення
+    const days = ['Пн', 'Вв', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+    const currentDayIndex = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1; // 0 = Понеділок
+
+    const chartData = days.map((day, index) => {
+      // Імітуємо активність для графіка: більша частина активності ближче до сьогоднішнього дня
+      let baseValue = 0;
+      if (totalChaptersRead > 0) {
+        if (index === currentDayIndex) baseValue = Math.ceil(totalChaptersRead * 0.4);
+        else if (index === currentDayIndex - 1 || index === currentDayIndex + 6) baseValue = Math.ceil(totalChaptersRead * 0.2);
+        else baseValue = Math.ceil(totalChaptersRead * 0.05);
+      }
+      return {
+        name: day,
+        rozdivly: baseValue
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalChaptersRead,
+        totalHoursRead: parseFloat(totalHoursRead.toFixed(1)),
+        chartData
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

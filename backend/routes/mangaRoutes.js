@@ -78,6 +78,73 @@ router.patch('/:id/moderation', protect, authorize('admin'), async (req, res) =>
 });
 
 /**
+ * @route   GET /api/manga/home
+ * @desc    Отримати тайтли для головної сторінки (Новинки та Популярні)
+ * @access  Public
+ */
+router.get('/home', async (req, res) => {
+  try {
+    const approvedQuery = { moderationStatus: 'approved' };
+
+    // 1. Новинки (сортування за датою створення) - дозволяємо бачити всі нові, щоб автори бачили свої твори
+    const newArrivals = await Manga.find()
+      .populate('author', 'username')
+      .sort({ createdAt: -1 })
+      .limit(8);
+
+    // 2. Популярні/Найкращі (сортування за рейтингом та кількістю оцінок)
+    const topRated = await Manga.find(approvedQuery)
+      .populate('author', 'username')
+      .sort({ averageRating: -1, ratingCount: -1 })
+      .limit(8);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        newArrivals,
+        topRated
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   GET /api/manga/search
+ * @desc    Пошук тайтлів
+ * @access  Public
+ */
+router.get('/search', async (req, res) => {
+  try {
+    const { q, type } = req.query;
+    
+    if (!q) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const query = {
+      $or: [
+        { title: { $regex: q, $options: 'i' } },
+        { alternativeTitle: { $regex: q, $options: 'i' } }
+      ]
+    };
+
+    if (type) {
+      query.type = type === 'manhwa' ? { $in: ['Манхва', 'Manhwa'] } : { $nin: ['Манхва', 'Manhwa'] }; // Проста логіка для поділу, можна вдосконалити
+    }
+
+    const manga = await Manga.find(query)
+      .populate('author', 'username')
+      .limit(10);
+
+    res.status(200).json({ success: true, data: manga });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * @route   GET /api/manga/:id
  * @desc    Отримати один тайтл за ID
  * @access  Public
@@ -124,6 +191,9 @@ router.post('/:id/rate', protect, async (req, res) => {
         score
       });
     }
+
+    // Явно викликаємо перерахунок і чекаємо на його завершення, щоб у відповіді були свіжі дані
+    await Rating.getAverageRating(req.params.id);
 
     // Отримуємо оновлений тайтл із середнім рейтингом та статистикою
     const updatedManga = await Manga.findById(req.params.id);
