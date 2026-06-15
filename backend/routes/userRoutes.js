@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Manga = require('../models/Manga');
 const UserList = require('../models/UserList');
 const Comment = require('../models/Comment');
 const Rating = require('../models/Rating');
@@ -12,6 +13,34 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
   try {
     const users = await User.find();
     res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// @desc    Get authors list
+// @route   GET /api/users/authors
+router.get('/authors', async (req, res) => {
+  try {
+    const { limit } = req.query;
+    let query = User.find({ role: 'author' }).select('username avatar createdAt aboutMe');
+    
+    if (limit) {
+      query = query.limit(parseInt(limit));
+    }
+
+    const authors = await query;
+    
+    // Отримуємо кількість тайтлів для кожного автора
+    const authorsWithStats = await Promise.all(authors.map(async (author) => {
+      const titlesCount = await Manga.countDocuments({ author: author._id });
+      return {
+        ...author.toObject(),
+        titlesCount
+      };
+    }));
+
+    res.status(200).json({ success: true, data: authorsWithStats });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

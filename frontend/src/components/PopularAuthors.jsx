@@ -10,11 +10,11 @@ const PopularAuthors = () => {
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/users/profile/admin'); // Тимчасово через адміна або окремий роут
+        const response = await fetch('http://localhost:5000/api/users/authors');
         const data = await response.json();
-        // В ідеалі тут має бути роут GET /api/users/authors
-        // Поки що поставимо пустий список або заглушку, яка каже "Авторів не знайдено"
-        setAuthors([]);
+        if (data.success) {
+          setAuthors(data.data);
+        }
       } catch (err) {
         console.error('Помилка завантаження авторів:', err);
       } finally {
@@ -27,13 +27,13 @@ const PopularAuthors = () => {
 
   return (
     <div className={styles.popularAuthorsCard}>
-      <h2 className={styles.sidebarTitle}>Популярні автори</h2>
+      <h2 className={styles.sidebarTitle}>Наші автори</h2>
       <div className={styles.authorsList}>
         {!isLoading ? (
           authors.length > 0 ? (
             authors.map((author) => (
               <div 
-                key={author.id} 
+                key={author._id} 
                 className={styles.authorItem}
                 onClick={() => navigate(`/profile/${author.username}`)}
               >
@@ -46,7 +46,7 @@ const PopularAuthors = () => {
                 </div>
                 <div className={styles.authorInfo}>
                   <span className={styles.authorName}>{author.username}</span>
-                  <span className={styles.authorStats}>{author.titlesCount} тайтлів</span>
+                  <span className={styles.authorRole}>Автор проекту</span>
                 </div>
               </div>
             ))
