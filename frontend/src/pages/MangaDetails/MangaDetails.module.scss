@@ -345,8 +345,21 @@
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 25px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  @media (max-width: 768px) {
+    gap: 16px;
+    padding-bottom: 8px;
+  }
   
   .tabBtn {
+    flex-shrink: 0;
     background: none;
     border: none;
     color: var(--text-muted);

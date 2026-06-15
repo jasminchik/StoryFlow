@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck, FiArrowLeft, FiEdit2, FiHeart, FiTrash2 } from 'react-icons/fi';
 import Header from '../../components/Header';
 import InteractionSection from '../../components/InteractionSection';
+import NotificationModal from '../../components/NotificationModal';
 import styles from './MangaDetails.module.scss';
 
 // Статичні дані виносимо за межі компонента для стабільності
@@ -43,9 +44,18 @@ const MangaDetails = () => {
   const [isChaptersLoading, setIsChaptersLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState('');
 
   const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
-  
+
+  const handleCloseModal = () => {
+    setIsNotifyOpen(false);
+    if (notifyMessage.includes('успішно видалено')) {
+      navigate('/catalog');
+    }
+  };
+
   const getFullUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
@@ -72,14 +82,16 @@ const MangaDetails = () => {
         }
       });
       if (response.ok) {
-        alert('Тайтл успішно видалено');
-        navigate('/catalog');
+        setNotifyMessage('Тайтл успішно видалено');
+        setIsNotifyOpen(true);
       } else {
         const errorData = await response.json();
-        alert(errorData.error || 'Помилка при видаленні');
+        setNotifyMessage(errorData.error || 'Помилка при видаленні');
+        setIsNotifyOpen(true);
       }
     } catch (err) {
-      console.error('Помилка видалення:', err);
+      setNotifyMessage('Помилка при видаленні');
+      setIsNotifyOpen(true);
     }
   };
 
@@ -153,7 +165,8 @@ const MangaDetails = () => {
 
   const handleLike = async () => {
     if (!loggedInUser) {
-      alert('Будь ласка, увійдіть, щоб ставити лайки');
+      setNotifyMessage('Будь ласка, увійдіть, щоб ставити лайки');
+      setIsNotifyOpen(true);
       return;
     }
     try {
@@ -173,7 +186,8 @@ const MangaDetails = () => {
 
   const handleRate = async (score) => {
     if (!loggedInUser) {
-      alert('Будь ласка, увійдіть, щоб ставити оцінки');
+      setNotifyMessage('Будь ласка, увійдіть, щоб ставити оцінки');
+      setIsNotifyOpen(true);
       return;
     }
     if (score === userRating) return;
@@ -204,7 +218,8 @@ const MangaDetails = () => {
 
   const handleSelectList = async (listName) => {
     if (!loggedInUser) {
-      alert('Будь ласка, увійдіть, щоб додавати в списки');
+      setNotifyMessage('Будь ласка, увійдіть, щоб додавати в списки');
+      setIsNotifyOpen(true);
       return;
     }
 
@@ -482,6 +497,11 @@ const MangaDetails = () => {
           </main>
         </div>
       </div>
+      <NotificationModal 
+        isOpen={isNotifyOpen} 
+        message={notifyMessage} 
+        onClose={handleCloseModal} 
+      />
     </div>
   );
 };
