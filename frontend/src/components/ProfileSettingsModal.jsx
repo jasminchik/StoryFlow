@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
-import { FiX, FiUploadCloud, FiZap, FiUser as GenderIcon } from 'react-icons/fi';
+import { FiX, FiUploadCloud, FiZap, FiUser as GenderIcon, FiCheckCircle } from 'react-icons/fi';
 import { FaMars, FaVenus } from 'react-icons/fa';
 import styles from './ProfileSettingsModal.module.scss';
 
-const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
+const ProfileSettingsModal = ({ isOpen, onClose, user, onSaveSuccess }) => {
   const [nickname, setNickname] = useState('');
   const [avatar, setAvatar] = useState('');
   const [banner, setBanner] = useState('');
@@ -45,6 +45,11 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
     }
   }, [isOpen, user]);
 
+  const handleInputChange = (setter, value) => {
+    setter(value);
+    setIsSaved(false); // Скидаємо стейт збереження при будь-якій зміні
+  };
+
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -75,6 +80,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
         window.dispatchEvent(new Event('profileUpdate'));
         
         setIsSaved(true);
+        if (onSaveSuccess) onSaveSuccess();
 
         // Якщо нікнейм змінився, треба змінити URL через деякий час
         if (nickname !== currentUser.username) {
@@ -179,6 +185,8 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
         setBanner(croppedImage);
       }
       
+      setIsSaved(false);
+      
       // Закриваємо кроппер
       setImageSrc(null);
       setCropType(null);
@@ -273,7 +281,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
                     type="text" 
                     className={styles.textInput}
                     value={nickname} 
-                    onChange={(e) => setNickname(e.target.value)}
+                    onChange={(e) => handleInputChange(setNickname, e.target.value)}
                     placeholder="Ваш нікнейм"
                   />
                 </div>
@@ -284,7 +292,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
                     <button 
                       type="button"
                       className={`${styles.genderOption} ${gender === 'male' ? styles.active : ''}`}
-                      onClick={() => setGender('male')}
+                      onClick={() => handleInputChange(setGender, 'male')}
                     >
                       <FaMars size={18} className={styles.icon} />
                       <span>Чоловіча</span>
@@ -292,7 +300,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
                     <button 
                       type="button"
                       className={`${styles.genderOption} ${gender === 'female' ? styles.active : ''}`}
-                      onClick={() => setGender('female')}
+                      onClick={() => handleInputChange(setGender, 'female')}
                     >
                       <FaVenus size={18} className={styles.icon} />
                       <span>Жіноча</span>
@@ -300,7 +308,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
                     <button 
                       type="button"
                       className={`${styles.genderOption} ${gender === 'secret' ? styles.active : ''}`}
-                      onClick={() => setGender('secret')}
+                      onClick={() => handleInputChange(setGender, 'secret')}
                     >
                       <GenderIcon size={18} className={styles.icon} />
                       <span>Секрет</span>
@@ -314,7 +322,7 @@ const ProfileSettingsModal = ({ isOpen, onClose, user }) => {
                 <textarea 
                   className={styles.textArea}
                   value={aboutMe} 
-                  onChange={(e) => setAboutMe(e.target.value)}
+                  onChange={(e) => handleInputChange(setAboutMe, e.target.value)}
                   placeholder="Розкажіть трохи про себе..."
                   rows="4"
                 />

@@ -159,6 +159,24 @@
   }
 }
 
+.authorBadge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  color: white;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+  margin-left: 5px;
+
+  .authorIcon {
+    flex-shrink: 0;
+  }
+}
+
 .genderBadge {
   font-size: 0.9rem;
   background: var(--bg-secondary);
@@ -557,7 +575,48 @@
 }
 
 .friendName {
-  font-weight: 600;
-  color: var(--text-main);
-  text-align: center;
+font-weight: 600;
+color: var(--text-main);
+text-align: center;
 }
+
+/* ТОСТ (ПОВІДОМЛЕННЯ) */
+.toast {
+position: fixed;
+bottom: 30px;
+right: 30px;
+background: #2ecc71;
+color: white;
+padding: 12px 24px;
+border-radius: 50px;
+display: flex;
+align-items: center;
+gap: 12px;
+box-shadow: 0 10px 25px rgba(46, 204, 113, 0.3);
+z-index: 9999;
+transform: translateY(100px);
+opacity: 0;
+transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+pointer-events: none;
+font-weight: 600;
+
+&.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.toastIcon {
+  font-size: 1.4rem;
+}
+}
+
+@media (max-width: 600px) {
+.toast {
+  bottom: 20px;
+  right: 20px;
+  left: 20px;
+  justify-content: center;
+}
+}
+

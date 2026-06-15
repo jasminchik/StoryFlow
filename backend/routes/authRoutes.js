@@ -114,7 +114,7 @@ router.post('/register', async (req, res) => {
 // @desc    Initialize Google OAuth login
 // @route   GET /api/auth/google
 router.get('/google', (req, res) => {
-  const { intent } = req.query; // 'login' or 'register'
+  const { intent, role } = req.query; // 'login' or 'register'
   const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
   const options = {
     redirect_uri: process.env.GOOGLE_CALLBACK_URL,
@@ -126,7 +126,7 @@ router.get('/google', (req, res) => {
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/userinfo.email',
     ].join(' '),
-    state: intent || 'login' // Use state to pass intent
+    state: `${intent || 'login'}:${role || 'user'}` // Pass intent and role in state
   };
   const queryString = new URLSearchParams(options).toString();
   return res.redirect(`${rootUrl}?${queryString}`);
@@ -135,8 +135,11 @@ router.get('/google', (req, res) => {
 // @desc    Google OAuth callback
 // @route   GET /api/auth/google/callback
 router.get('/google/callback', async (req, res) => {
-  const { code, state: intent } = req.query;
+  const { code, state } = req.query;
   if (!code) return res.redirect(`${process.env.FRONTEND_URL}/?auth_error=no_code`);
+
+  // Parse state: "intent:role"
+  const [intent, role] = (state || 'login:user').split(':');
 
   try {
     const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', {
@@ -165,7 +168,7 @@ router.get('/google/callback', async (req, res) => {
         username: name.replace(/\s+/g, '_').toLowerCase() + Math.floor(Math.random() * 1000),
         email,
         password: Math.random().toString(36).slice(-10),
-        role: 'user'
+        role: role === 'author' ? 'author' : 'user'
       });
     } else {
       // intent is login
@@ -185,14 +188,14 @@ router.get('/google/callback', async (req, res) => {
 // @desc    Initialize Twitch OAuth login
 // @route   GET /api/auth/twitch
 router.get('/twitch', (req, res) => {
-  const { intent } = req.query;
+  const { intent, role } = req.query;
   const rootUrl = 'https://id.twitch.tv/oauth2/authorize';
   const options = {
     client_id: process.env.TWITCH_CLIENT_ID,
     redirect_uri: process.env.TWITCH_CALLBACK_URL,
     response_type: 'code',
     scope: 'user:read:email',
-    state: intent || 'login'
+    state: `${intent || 'login'}:${role || 'user'}`
   };
 
   const queryString = new URLSearchParams(options).toString();
@@ -202,8 +205,10 @@ router.get('/twitch', (req, res) => {
 // @desc    Twitch OAuth callback
 // @route   GET /api/auth/twitch/callback
 router.get('/twitch/callback', async (req, res) => {
-  const { code, state: intent } = req.query;
+  const { code, state } = req.query;
   if (!code) return res.redirect(`${process.env.FRONTEND_URL}/?auth_error=no_code`);
+
+  const [intent, role] = (state || 'login:user').split(':');
 
   try {
     const tokenResponse = await axios.post('https://id.twitch.tv/oauth2/token', {
@@ -239,7 +244,7 @@ router.get('/twitch/callback', async (req, res) => {
         username: username.toLowerCase().replace(/\s+/g, '_') + Math.floor(Math.random() * 1000),
         email,
         password: Math.random().toString(36).slice(-10),
-        role: 'user'
+        role: role === 'author' ? 'author' : 'user'
       });
     } else {
       if (!user) {

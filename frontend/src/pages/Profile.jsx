@@ -7,7 +7,9 @@ import {
   FiBookOpen, 
   FiSettings, 
   FiUser, 
-  FiChevronRight
+  FiChevronRight,
+  FiCheckCircle,
+  FiEdit3
 } from 'react-icons/fi';
 import { FaMars, FaVenus } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -22,6 +24,7 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
+  const [showToast, setShowToast] = useState(false);
 
   const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
   const analyticsRef = useRef(null);
@@ -68,6 +71,13 @@ const Profile = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('tab');
     setSearchParams(newParams);
+  };
+
+  const handleSaveSuccess = () => {
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   const PROFILE_TABS = [
@@ -305,6 +315,12 @@ const Profile = () => {
             <div className={styles.userDetails}>
               <div className={styles.nameRow}>
                 <h1 className={styles.nickname}>{displayName}</h1>
+                {user.role === 'author' && (
+                  <div className={styles.authorBadge}>
+                    <FiEdit3 size={12} className={styles.authorIcon} />
+                    <span>Автор</span>
+                  </div>
+                )}
                 {user.gender && user.gender !== 'secret' && (
                   <span 
                     className={`${styles.genderBadge} ${user.gender === 'male' ? styles.male : styles.female}`} 
@@ -389,7 +405,14 @@ const Profile = () => {
         isOpen={isSettingsOpen} 
         onClose={handleCloseSettings} 
         user={user}
+        onSaveSuccess={handleSaveSuccess}
       />
+
+      {/* УСПІШНЕ ПОВІДОМЛЕННЯ (TOAST) */}
+      <div className={`${styles.toast} ${showToast ? styles.show : ''}`}>
+        <FiCheckCircle className={styles.toastIcon} />
+        <span>Зміни збережено!</span>
+      </div>
     </div>
   );
 };

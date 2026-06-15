@@ -8,7 +8,7 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [userRole, setUserRole] = useState('reader'); // 'reader' | 'author'
+  const [userRole, setUserRole] = useState(null); // null | 'user' | 'author'
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,16 +37,30 @@ const AuthModal = ({ isOpen, onClose }) => {
   const API_BASE_URL = 'http://localhost:5000/api/auth';
 
   const handleGoogleSignIn = () => {
-    window.location.href = `${API_BASE_URL}/google?intent=${authMode}`;
+    if (authMode === 'register' && !userRole) {
+      setError('Будь ласка, спочатку оберіть, хто ви (Читач чи Автор)');
+      return;
+    }
+    window.location.href = `${API_BASE_URL}/google?intent=${authMode}${userRole ? `&role=${userRole}` : ''}`;
   };
 
   const handleTwitchSignIn = () => {
-    window.location.href = `${API_BASE_URL}/twitch?intent=${authMode}`;
+    if (authMode === 'register' && !userRole) {
+      setError('Будь ласка, спочатку оберіть, хто ви (Читач чи Автор)');
+      return;
+    }
+    window.location.href = `${API_BASE_URL}/twitch?intent=${authMode}${userRole ? `&role=${userRole}` : ''}`;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (authMode === 'register' && !userRole) {
+      setError('Будь ласка, оберіть роль (Читач чи Автор)');
+      return;
+    }
+
     setIsLoading(true);
 
     const endpoint = authMode === 'login' ? '/login' : '/register';
@@ -92,13 +106,19 @@ const AuthModal = ({ isOpen, onClose }) => {
         <div className={styles.tabs}>
           <button 
             className={`${styles.tab} ${authMode === 'login' ? styles.activeTab : ''}`}
-            onClick={() => setAuthMode('login')}
+            onClick={() => {
+              setAuthMode('login');
+              setError('');
+            }}
           >
             Вхід
           </button>
           <button 
             className={`${styles.tab} ${authMode === 'register' ? styles.activeTab : ''}`}
-            onClick={() => setAuthMode('register')}
+            onClick={() => {
+              setAuthMode('register');
+              setError('');
+            }}
           >
             Реєстрація
           </button>
@@ -114,8 +134,8 @@ const AuthModal = ({ isOpen, onClose }) => {
                 <div className={styles.roleSelector}>
                   <button 
                     type="button"
-                    className={`${styles.roleOption} ${userRole === 'reader' ? styles.activeRole : ''}`}
-                    onClick={() => setUserRole('reader')}
+                    className={`${styles.roleOption} ${userRole === 'user' ? styles.activeRole : ''}`}
+                    onClick={() => setUserRole('user')}
                   >
                     Читач
                   </button>

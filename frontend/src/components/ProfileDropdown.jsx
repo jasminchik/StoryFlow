@@ -11,7 +11,8 @@ import {
   FiMoon, 
   FiSun,
   FiX,
-  FiChevronRight
+  FiChevronRight,
+  FiEdit3
 } from 'react-icons/fi';
 import { useTheme } from '../context/ThemeContext';
 import styles from './ProfileDropdown.module.scss';
@@ -47,7 +48,15 @@ const ProfileDropdown = ({ isOpen, onClose, user, onLogout }) => {
             <Link to={`/profile/${user?.username}`} className={styles.profileLink} onClick={onClose}>
               Мій профіль <FiChevronRight size={16} />
             </Link>
-            <h3 className={styles.username}>{user?.username}</h3>
+            <div className={styles.nameWithBadge}>
+              <h3 className={styles.username}>{user?.username}</h3>
+              {user?.role === 'author' && (
+                <div className={styles.authorBadge}>
+                  <FiEdit3 size={10} />
+                  <span>Автор</span>
+                </div>
+              )}
+            </div>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
             <FiX size={24} />
