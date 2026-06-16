@@ -4,7 +4,7 @@ import styles from './SidebarUpdates.module.scss';
 
 const SidebarUpdates = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('manga'); // 'manga', 'manhwa' або 'fanfic'
+  const [activeTab, setActiveTab] = useState('manga'); // 'manga', 'manhwa' або 'book'
   const [updates, setUpdates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,16 +34,12 @@ const SidebarUpdates = () => {
   const getTypeLabel = (type) => {
     if (type === 'manga') return 'Манґа';
     if (type === 'manhwa') return 'Манхва';
-    if (type === 'fanfic') return 'Література';
+    if (type === 'book') return 'Книги';
     return type;
   };
 
   const handleItemClick = (item) => {
-    if (activeTab === 'fanfic') {
-      navigate(`/fanfic/${item._id}`);
-    } else {
-      navigate(`/manga/${item._id}`);
-    }
+    navigate(`/manga/${item._id}`);
   };
 
   const formatTime = (date) => {
@@ -61,7 +57,7 @@ const SidebarUpdates = () => {
       <h2 className={styles.sidebarTitle}>Останні оновлення</h2>
 
       <div className={styles.tabs}>
-        {['manga', 'manhwa', 'fanfic'].map(tab => (
+        {['manga', 'manhwa', 'book'].map(tab => (
           <button 
             key={tab}
             className={`${styles.tabBtn} ${activeTab === tab ? styles.active : ''}`}
@@ -91,7 +87,7 @@ const SidebarUpdates = () => {
                   <span className={styles.updateName}>{item.title}</span>
                   <div className={styles.updateMeta}>
                     <span className={styles.updateType}>
-                      {activeTab === 'fanfic' ? 'Фанфік' : item.type}
+                      {item.type}
                     </span>
                     <span className={styles.updateTime}>
                       {formatTime(item.updatedAt || item.createdAt)}

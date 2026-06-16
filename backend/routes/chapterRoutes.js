@@ -6,7 +6,8 @@ const { protect, authorize } = require('../middleware/auth');
 const upload = require('../config/upload');
 const path = require('path');
 const fs = require('fs');
-const pdf = require('pdf-poppler');
+const { Poppler } = require('node-poppler');
+const poppler = new Poppler();
 
 /**
  * @route   GET /api/chapters/manga/:mangaId
@@ -70,8 +71,12 @@ router.get('/:id', async (req, res) => {
  * @desc    Створити нову главу
  * @access  Private (Admin, Author)
  */
-router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 100), async (req, res) => {
+router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 1000), async (req, res) => {
+  // Збільшуємо таймаут запиту для великих PDF
+  req.setTimeout(600000); // 10 хвилин
+
   try {
+    console.log('--- Початок створення розділу ---');
     const manga = await Manga.findById(req.body.mangaId);
     if (!manga) {
       return res.status(404).json({ success: false, error: 'Твір не знайдено' });
@@ -97,28 +102,34 @@ router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 10
     // Якщо завантажено файли
     if (req.files && req.files.length > 0) {
       const firstFile = req.files[0];
+      console.log(`Завантажено файл: ${firstFile.originalname}, тип: ${firstFile.mimetype}`);
       
       // ПЕРЕВІРКА НА PDF
       if (firstFile.mimetype === 'application/pdf') {
         const pdfPath = firstFile.path;
         const outputDir = path.join(path.dirname(pdfPath), `pages-${Date.now()}`);
         
+        console.log(`Початок конвертації PDF: ${pdfPath}`);
+        console.log(`Папка виводу: ${outputDir}`);
+
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
         }
 
-        const opts = {
-          format: 'jpeg',
-          out_dir: outputDir,
-          out_prefix: 'page',
-          page: null
-        };
+        const outputPrefix = path.join(outputDir, 'page');
 
         try {
-          await pdf.convert(pdfPath, opts);
+          console.log('Запуск poppler.pdfToCairo...');
+          await poppler.pdfToCairo(pdfPath, outputPrefix, { 
+            jpegFile: true, 
+            resolutionXAxis: 150, 
+            resolutionYAxis: 150 
+          });
           
-          // Зчитуємо сконвертовані сторінки
+          console.log('Конвертація завершена. Зчитування файлів...');
           const files = fs.readdirSync(outputDir);
+          console.log(`Знайдено сконвертованих сторінок: ${files.length}`);
+
           const sortedFiles = files.sort((a, b) => 
             a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
           );
@@ -126,22 +137,22 @@ router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 10
           const relativeDir = path.basename(outputDir);
           req.body.pages = sortedFiles.map(file => `/uploads/${relativeDir}/${file}`);
           
-          // Видаляємо оригінальний PDF
+          console.log('Сторінки підготовлені. Видалення PDF...');
           fs.unlinkSync(pdfPath);
+          console.log('PDF видалено успішно.');
         } catch (pdfError) {
-          console.error('PDF Conversion Error:', pdfError);
+          console.error('ПОМИЛКА PDF КОНВЕРТАЦІЇ:', pdfError);
           return res.status(500).json({ success: false, error: 'Помилка конвертації PDF: ' + pdfError.message });
         }
       } else {
-        // Звичайна логіка для картинок
-        if (req.files.length > 100) {
-          return res.status(400).json({ success: false, error: 'Максимальна кількість сторінок у розділі - 100' });
-        }
+        console.log(`Звичайна логіка для картинок (${req.files.length} шт.)`);
         req.body.pages = req.files.map(file => `/uploads/${file.filename}`);
       }
     }
 
+    console.log('Створення запису Chapter в БД...');
     const chapter = await Chapter.create(req.body);
+    console.log(`Розділ №${chapter.number} створено успішно!`);
 
     res.status(201).json({ success: true, data: chapter });
   } catch (error) {

@@ -13,8 +13,9 @@ const Updates = () => {
   const typeMap = {
     'manga': 'Манґа',
     'manhwa': 'Манхва',
-    'fanfic': 'Література',
-    'literature': 'Література'
+    'book': 'Книги',
+    'fanfic': 'Книги',
+    'literature': 'Книги'
   };
 
   useEffect(() => {
@@ -103,10 +104,10 @@ const Updates = () => {
                       
                       <div className={styles.meta}>
                         <span className={styles.badge}>
-                          {typeFilter === 'fanfic' || typeFilter === 'literature' ? 'Література' : update.type}
+                          {update.type}
                         </span>
                         <span className={styles.chapter}>
-                          {update.moderationStatus === 'pending' ? 'Очікує модерації' : formatStatus(update.status) || 'Додано'}
+                          {formatStatus(update.status) || 'Додано'}
                         </span>
                       </div>
                     </div>

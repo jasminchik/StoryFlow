@@ -5,7 +5,9 @@ const ProfileSidebar = ({
   activeTab, 
   listFilter, setListFilter,
   commentType, setCommentType,
-  commentLocation, setCommentLocation
+  commentLocation, setCommentLocation,
+  historyType, setHistoryType,
+  historyPlacement, setHistoryPlacement
 }) => {
   // Стани для фільтрів вкладки "Тайтли"
   const [viewFilter, setViewFilter] = useState('grid');
@@ -60,6 +62,28 @@ const ProfileSidebar = ({
               <RadioOption name="location" value="all" checkedValue={commentLocation} onChange={setCommentLocation} label="Всі" />
               <RadioOption name="location" value="under_title" checkedValue={commentLocation} onChange={setCommentLocation} label="Під тайтлом" />
               <RadioOption name="location" value="under_chapters" checkedValue={commentLocation} onChange={setCommentLocation} label="Під розділами" />
+            </div>
+          </>
+        );
+      
+      case 'history':
+        return (
+          <>
+            <div className={styles.filterBlock}>
+              <h4 className={styles.blockTitle}>Тип</h4>
+              <RadioOption name="historyType" value="all" checkedValue={historyType} onChange={setHistoryType} label="Всі" />
+              <RadioOption name="historyType" value="Манґа" checkedValue={historyType} onChange={setHistoryType} label="Манґа" />
+              <RadioOption name="historyType" value="Книга" checkedValue={historyType} onChange={setHistoryType} label="Книги" />
+              <RadioOption name="historyType" value="Манхва" checkedValue={historyType} onChange={setHistoryType} label="Манхва" />
+              <RadioOption name="historyType" value="Маньхуа" checkedValue={historyType} onChange={setHistoryType} label="Маньхуа" />
+              <RadioOption name="historyType" value="Комікс" checkedValue={historyType} onChange={setHistoryType} label="Комікси" />
+            </div>
+
+            <div className={styles.filterBlock}>
+              <h4 className={styles.blockTitle}>Розміщення</h4>
+              <RadioOption name="historyPlacement" value="all" checkedValue={historyPlacement} onChange={setHistoryPlacement} label="Всі" />
+              <RadioOption name="historyPlacement" value="title" checkedValue={historyPlacement} onChange={setHistoryPlacement} label="Тільки тайтли" />
+              <RadioOption name="historyPlacement" value="chapter" checkedValue={historyPlacement} onChange={setHistoryPlacement} label="Тільки розділи" />
             </div>
           </>
         );

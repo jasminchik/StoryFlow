@@ -41,7 +41,7 @@ router.get('/my', protect, async (req, res) => {
     const history = await History.find({ user: req.user._id })
       .populate({
         path: 'manga',
-        select: 'title coverImage alternativeTitle'
+        select: 'title coverImage alternativeTitle type'
       })
       .populate({
         path: 'chapter',
@@ -65,7 +65,7 @@ router.get('/user/:userId', async (req, res) => {
     const history = await History.find({ user: req.params.userId })
       .populate({
         path: 'manga',
-        select: 'title coverImage alternativeTitle'
+        select: 'title coverImage alternativeTitle type'
       })
       .populate({
         path: 'chapter',

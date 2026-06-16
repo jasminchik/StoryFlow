@@ -38,7 +38,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // Ліміт 50МБ для PDF
+  limits: { fileSize: 300 * 1024 * 1024 }, // Ліміт 300МБ для PDF
   fileFilter: fileFilter
 });
 

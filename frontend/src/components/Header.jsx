@@ -137,7 +137,7 @@ const Header = () => {
                 <div className={styles.catalogDropdown}>
                   <Link to="/catalog?type=manga" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манґа</Link>
                   <Link to="/catalog?type=manhwa" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Манхва</Link>
-                  <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Література/Фанфік</Link>
+                  <Link to="/catalog?type=fanfic" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Книги</Link>
                   <Link to="/authors" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Автори</Link>
                   <Link to="/catalog?status=reading" className={styles.catalogItem} onClick={() => setIsCatalogOpen(false)}>Читають зараз</Link>
                   

@@ -7,19 +7,14 @@ import styles from './Catalog.module.scss';
 const TYPE_MAP = {
   'manga': 'Манґа',
   'manhwa': 'Манхва',
-  'manhua': 'Маньхуа',
-  'comics': 'Комікс',
-  'fanfic': 'Література/Фанфік',
-  'book': 'Книга'
+  'fanfic': 'Книги',
+  'book': 'Книги'
 };
 
 const REVERSE_TYPE_MAP = {
   'Манґа': 'manga',
   'Манхва': 'manhwa',
-  'Маньхуа': 'manhua',
-  'Комікс': 'comics',
-  'Література/Фанфік': 'fanfic',
-  'Книга': 'book'
+  'Книги': 'book'
 };
 
 const GENRES = ['Бойовик', 'Пригоди', 'Комедія', 'Драма', 'Фентезі', 'Жахи', 'Містика', 'Романтика', 'Психологія', 'Наукова фантастика', 'Повсякденність', 'Трагедія', 'Надприродне', 'Екшн', 'Військове', 'Навчальна література', 'Програмування', 'Наукова література', 'Довідник'];
@@ -146,7 +141,7 @@ const Catalog = () => {
                 <div className={styles.imageWrapper}>
                   <img src={item.coverImage ? (item.coverImage.startsWith('http') ? item.coverImage : `http://localhost:5000${item.coverImage}`) : ''} alt={item.title} />
                   <div className={styles.rating}><FiStar size={12} fill="currentColor" /> {item.averageRating ? item.averageRating.toFixed(1) : '0.0'}</div>
-                  <div className={styles.typeBadge}>{item.type || 'Література'}</div>
+                  <div className={styles.typeBadge}>{item.type || 'Книга'}</div>
                 </div>
                 <div className={styles.cardInfo}>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
@@ -182,7 +177,7 @@ const Catalog = () => {
               <div className={styles.filterGroup}>
                 <h3 className={styles.groupTitle}>Формат</h3>
                 <div className={styles.btnGroup}>
-                  {['Всі', 'Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Книга', 'Література/Фанфік'].map(format => (
+                  {['Всі', 'Манґа', 'Манхва', 'Книги'].map(format => (
                     <button 
                       key={format}
                       className={`${styles.filterBtn} ${activeFormat === format ? styles.active : ''}`}

@@ -207,7 +207,6 @@ router.get('/sidebar-updates', async (req, res) => {
   try {
     const { type } = req.query;
     let updates = [];
-    // Більш лояльний фільтр: показуємо все, крім відхилених
     const query = { moderationStatus: { $ne: 'rejected' } };
 
     if (type === 'fanfic' || type === 'literature') {
@@ -216,10 +215,19 @@ router.get('/sidebar-updates', async (req, res) => {
         .sort({ updatedAt: -1 })
         .limit(5);
     } else {
-      if (type === 'manga') {
-        query.type = { $regex: /манґа|манга|manga/i };
-      } else if (type === 'manhwa') {
-        query.type = { $regex: /манхва|маньхуа|manhwa|manhua/i };
+      // Строга фільтрація по типах
+      const typeFilters = {
+        'manga': { $regex: /манґа|манга|manga/i },
+        'manhwa': { $regex: /манхва|маньхуа|manhwa|manhua/i },
+        'book': { $regex: /книга|book/i },
+        'comics': { $regex: /комікс|comics/i }
+      };
+
+      if (type && typeFilters[type]) {
+        query.type = typeFilters[type];
+      } else if (type) {
+        // Якщо передано тип, але він не в мапі - шукаємо точне співпадіння
+        query.type = type;
       }
       
       updates = await Manga.find(query)
@@ -251,14 +259,17 @@ router.get('/latest', async (req, res) => {
         .sort({ updatedAt: -1 })
         .limit(parseInt(limit));
     } else {
-      if (type === 'manhwa') {
-        query.type = { $regex: /манхва|маньхуа|manhwa|manhua/i };
-      } else if (type === 'manga') {
-        query.type = { $regex: /манґа|манга|manga/i };
-      } else if (type === 'book') {
-        query.type = { $regex: /книга|book/i };
-      } else if (type === 'comics') {
-        query.type = { $regex: /комікс|comics/i };
+      const typeFilters = {
+        'manga': { $regex: /манґа|манга|manga/i },
+        'manhwa': { $regex: /манхва|маньхуа|manhwa|manhua/i },
+        'book': { $regex: /книга|book/i },
+        'comics': { $regex: /комікс|comics/i }
+      };
+
+      if (type && typeFilters[type]) {
+        query.type = typeFilters[type];
+      } else if (type) {
+        query.type = type;
       }
 
       updates = await Manga.find(query)
@@ -338,27 +349,23 @@ router.get('/catalog', async (req, res) => {
         Manga.find(query).sort({ updatedAt: -1 }),
         Literature.find(query).sort({ updatedAt: -1 })
       ]);
-      // Об'єднуємо та сортуємо за часом оновлення
       results = [...mangas, ...literatures].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     } else {
-      // Специфічні типи манґи
       const typeMapping = {
         'manga': 'Манґа',
         'manhwa': 'Манхва',
-        'manhua': 'Маньхуа',
-        'comics': 'Комікс',
         'book': 'Книга',
-        'Манґа': 'Манґа',
-        'Манхва': 'Манхва',
-        'Маньхуа': 'Маньхуа',
-        'Комікс': 'Комікс',
-        'Книга': 'Книга'
+        'Книги': 'Книга'
       };
+
       if (typeMapping[format]) {
         query.type = typeMapping[format];
+      } else if (format === 'Книга' || format === 'Книги') {
+        query.type = 'Книга';
       } else {
-        query.type = { $regex: new RegExp(format, 'i') };
+        query.type = format;
       }
+      
       results = await Manga.find(query).sort({ updatedAt: -1 });
     }
 
@@ -563,10 +570,47 @@ router.put('/:id', protect, isOwnerOrAdmin('Manga'), upload.fields([
  */
 router.delete('/:id', protect, isOwnerOrAdmin('Manga'), async (req, res) => {
   try {
-    const manga = await Manga.findById(req.params.id);
+    const mangaId = req.params.id;
+    const manga = await Manga.findById(mangaId);
+    
+    if (!manga) {
+      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+    }
+
+    // КАСКАДНЕ ВИДАЛЕННЯ ВСІХ ПОВ'ЯЗАНИХ ДАНИХ
+    const Chapter = require('../models/Chapter');
+    const Comment = require('../models/Comment');
+    const Rating = require('../models/Rating');
+    const History = require('../models/History');
+    const Literature = require('../models/Literature');
+    const LiteratureChapter = require('../models/LiteratureChapter');
+    const UserList = require('../models/UserList');
+
+    console.log(`--- Початок повного каскадного видалення для тайтлу: ${mangaId} ---`);
+    
+    // 1. Знаходимо всі пов'язані фанфіки (Literature)
+    const relatedLit = await Literature.find({ manga: mangaId });
+    const litIds = relatedLit.map(l => l._id);
+
+    const results = await Promise.all([
+      Chapter.deleteMany({ mangaId }),
+      Comment.deleteMany({ resourceId: mangaId }),
+      Rating.deleteMany({ manga: mangaId }),
+      History.deleteMany({ manga: mangaId }),
+      UserList.deleteMany({ manga: mangaId }),
+      Literature.deleteMany({ manga: mangaId }),
+      LiteratureChapter.deleteMany({ literature: { $in: litIds } })
+    ]);
+
+    console.log(`Видалено: Розділів(${results[0].deletedCount}), Коментарів(${results[1].deletedCount}), Оцінок(${results[2].deletedCount}), Історії(${results[3].deletedCount}), Списків(${results[4].deletedCount}), Фанфіків(${results[5].deletedCount}), Розділів фанфіків(${results[6].deletedCount})`);
+
     await manga.deleteOne();
+    
+    console.log(`--- Тайтл ${mangaId} та всі його дані успішно видалено ---`);
+
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
+    console.error('Помилка при видаленні тайтлу:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

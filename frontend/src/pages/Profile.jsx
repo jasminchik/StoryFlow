@@ -49,6 +49,9 @@ const Profile = () => {
   
   const [commentTypeFilter, setCommentTypeFilter] = useState('all');
   const [commentLocationFilter, setCommentLocationFilter] = useState('all');
+  
+  const [historyTypeFilter, setHistoryTypeFilter] = useState('all');
+  const [historyPlacementFilter, setHistoryPlacementFilter] = useState('all');
 
   const [analytics, setAnalytics] = useState({ 
     totalChaptersRead: 42, 
@@ -515,17 +518,34 @@ const Profile = () => {
           </div>
         );
       case 'history':
+        const filteredHistory = userHistory.filter(item => {
+          // Фільтр за типом твору (береться з populated поля manga.type)
+          const matchType = historyTypeFilter === 'all' || item.manga?.type === historyTypeFilter;
+          
+          // Фільтр за розміщенням (якщо chapter існує — це читання в розділах, якщо немає — перегляд сторінки тайтлу)
+          const matchPlacement = historyPlacementFilter === 'all' || 
+            (historyPlacementFilter === 'chapter' ? item.chapter : !item.chapter);
+            
+          return matchType && matchPlacement;
+        });
+
         return (
           <div className={styles.historyWrapper}>
             {isHistoryLoading ? (
               <div className={styles.loading}>Завантаження історії...</div>
-            ) : userHistory.length > 0 ? (
+            ) : filteredHistory.length > 0 ? (
               <div className={styles.historyGrid}>
-                {userHistory.map(item => (
+                {filteredHistory.map(item => (
                   <div 
                     key={item._id} 
                     className={styles.historyCard}
-                    onClick={() => navigate(`/manga/${item.manga?._id}/read/${item.chapter?._id}`)}
+                    onClick={() => {
+                      if (item.chapter) {
+                        navigate(`/manga/${item.manga?._id}/read/${item.chapter?._id}`);
+                      } else {
+                        navigate(`/manga/${item.manga?._id}`);
+                      }
+                    }}
                   >
                     <div className={styles.historyCover}>
                       <img src={item.manga?.coverImage ? (item.manga.coverImage.startsWith('http') ? item.manga.coverImage : `${API_BASE}${item.manga.coverImage}`) : ''} alt={item.manga?.title} />
@@ -536,8 +556,14 @@ const Profile = () => {
                     <div className={styles.historyInfo}>
                       <h3 className={styles.historyMangaTitle}>{item.manga?.title || 'Видалений твір'}</h3>
                       <div className={styles.historyChapterDetails}>
-                        <span className={styles.historyChapterNumber}>Розділ {item.chapter?.number}</span>
-                        {item.chapter?.title && <span className={styles.historyChapterTitle}> - {item.chapter.title}</span>}
+                        {item.chapter ? (
+                          <>
+                            <span className={styles.historyChapterNumber}>Розділ {item.chapter?.number}</span>
+                            {item.chapter?.title && <span className={styles.historyChapterTitle}> - {item.chapter.title}</span>}
+                          </>
+                        ) : (
+                          <span className={styles.historyChapterNumber}>Перегляд тайтлу</span>
+                        )}
                       </div>
                       <span className={styles.historyDate}>Прочитано: {new Date(item.readAt).toLocaleDateString('uk-UA')}</span>
                     </div>
@@ -546,7 +572,7 @@ const Profile = () => {
               </div>
             ) : (
               <div className={styles.emptyState}>
-                <p>Тут поки що порожньо.</p>
+                <p>В історії немає записів, що відповідають обраним фільтрам.</p>
               </div>
             )}
           </div>
@@ -617,6 +643,10 @@ const Profile = () => {
             setCommentType={setCommentTypeFilter}
             commentLocation={commentLocationFilter}
             setCommentLocation={setCommentLocationFilter}
+            historyType={historyTypeFilter}
+            setHistoryType={setHistoryTypeFilter}
+            historyPlacement={historyPlacementFilter}
+            setHistoryPlacement={setHistoryPlacementFilter}
           />
         </div>
       </div>

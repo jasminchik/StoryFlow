@@ -61,6 +61,7 @@ const EditManga = () => {
   const [notifyMessage, setNotifyMessage] = useState('');
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Автоматичне встановлення номера наступного розділу
   useEffect(() => {
@@ -168,9 +169,10 @@ const EditManga = () => {
   const resetOrder = () => setOrderedIndices([]);
 
   const handleAddChapter = async (e) => {
-    e.preventDefault();
-    setError('');
+    if (e) e.preventDefault();
+    if (isLoading) return; // Захист від подвійного кліку
 
+    setError('');
     const chapterNum = Number(newChapter.number);
 
     if (!newChapter.number || isNaN(chapterNum)) {
@@ -194,6 +196,9 @@ const EditManga = () => {
     }
 
     setIsLoading(true);
+    if (localPages.length > 0 && (localPages[0].file.type === 'application/pdf' || localPages[0].file.name.toLowerCase().endsWith('.pdf'))) {
+      setIsProcessing(true);
+    }
 
     try {
       const data = new FormData();
@@ -218,22 +223,31 @@ const EditManga = () => {
       console.log('Додавання розділу результат:', result);
 
       if (result.success) {
+        // Очищуємо стани завантаження ВІДРАЗУ
+        setIsLoading(false);
+        setIsProcessing(false);
+        
         setNotifyMessage(`Розділ №${newChapter.number} успішно додано`);
         setIsNotifyOpen(true);
+        
         setNewChapter({ number: '', title: '' });
         setLocalPages([]);
         setOrderedIndices([]);
         setIsChapterFormOpen(false);
-        await fetchChapters();
+        
+        // Оновлюємо список асинхронно, не блокуючи сповіщення
+        fetchChapters();
       } else {
+        setIsLoading(false);
+        setIsProcessing(false);
         setError(result.error || 'Помилка при додаванні розділу');
         console.error('Помилка додавання розділу:', result.error);
       }
     } catch (err) {
+      setIsLoading(false);
+      setIsProcessing(false);
       setError('Помилка з\'єднання з сервером');
       console.error('Помилка fetch додавання розділу:', err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -738,6 +752,46 @@ const EditManga = () => {
           setChapterToDelete(null);
         }}
       />
+
+      {isProcessing && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          color: 'white',
+          textAlign: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #ff4757',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginBottom: '20px'
+          }}></div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <h2>Обробка PDF-файлу...</h2>
+          <p style={{ marginTop: '10px', opacity: 0.8 }}>
+            Ми конвертуємо ваш файл у зображення. Це може зайняти деякий час для великих документів (до 1-2 хвилин).<br />
+            Будь ласка, не закривайте сторінку.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
