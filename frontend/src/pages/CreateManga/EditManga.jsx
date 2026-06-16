@@ -606,7 +606,7 @@ const EditManga = () => {
                 <input 
                   type="file" 
                   multiple 
-                  accept="image/*" 
+                  accept="image/*,.pdf" 
                   onChange={handlePagesFileChange} 
                   id="pages-upload"
                   className={styles.hiddenInput}

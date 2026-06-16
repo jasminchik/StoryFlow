@@ -4,6 +4,9 @@ const Chapter = require('../models/Chapter');
 const Manga = require('../models/Manga');
 const { protect, authorize } = require('../middleware/auth');
 const upload = require('../config/upload');
+const path = require('path');
+const fs = require('fs');
+const pdf = require('pdf-poppler');
 
 /**
  * @route   GET /api/chapters/manga/:mangaId
@@ -91,12 +94,51 @@ router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 10
       });
     }
 
-    // Якщо завантажено файли, збираємо їхні шляхи
+    // Якщо завантажено файли
     if (req.files && req.files.length > 0) {
-      if (req.files.length > 100) {
-        return res.status(400).json({ success: false, error: 'Максимальна кількість сторінок у розділі - 100' });
+      const firstFile = req.files[0];
+      
+      // ПЕРЕВІРКА НА PDF
+      if (firstFile.mimetype === 'application/pdf') {
+        const pdfPath = firstFile.path;
+        const outputDir = path.join(path.dirname(pdfPath), `pages-${Date.now()}`);
+        
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+
+        const opts = {
+          format: 'jpeg',
+          out_dir: outputDir,
+          out_prefix: 'page',
+          page: null
+        };
+
+        try {
+          await pdf.convert(pdfPath, opts);
+          
+          // Зчитуємо сконвертовані сторінки
+          const files = fs.readdirSync(outputDir);
+          const sortedFiles = files.sort((a, b) => 
+            a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+          );
+          
+          const relativeDir = path.basename(outputDir);
+          req.body.pages = sortedFiles.map(file => `/uploads/${relativeDir}/${file}`);
+          
+          // Видаляємо оригінальний PDF
+          fs.unlinkSync(pdfPath);
+        } catch (pdfError) {
+          console.error('PDF Conversion Error:', pdfError);
+          return res.status(500).json({ success: false, error: 'Помилка конвертації PDF: ' + pdfError.message });
+        }
+      } else {
+        // Звичайна логіка для картинок
+        if (req.files.length > 100) {
+          return res.status(400).json({ success: false, error: 'Максимальна кількість сторінок у розділі - 100' });
+        }
+        req.body.pages = req.files.map(file => `/uploads/${file.filename}`);
       }
-      req.body.pages = req.files.map(file => `/uploads/${file.filename}`);
     }
 
     const chapter = await Chapter.create(req.body);

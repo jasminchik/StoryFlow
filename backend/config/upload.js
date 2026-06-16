@@ -25,20 +25,20 @@ const storage = multer.diskStorage({
 
 // Фільтр типів файлів
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|webp/;
+  const allowedTypes = /jpeg|jpg|png|webp|pdf/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
 
-  if (extname && mimetype) {
+  if (extname && (mimetype || file.mimetype === 'application/pdf')) {
     return cb(null, true);
   } else {
-    cb(new Error('Помилка: Дозволені лише зображення (jpeg, jpg, png, webp)!'));
+    cb(new Error('Помилка: Дозволені лише зображення (jpeg, jpg, png, webp) та PDF!'));
   }
 };
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Ліміт 5МБ
+  limits: { fileSize: 50 * 1024 * 1024 }, // Ліміт 50МБ для PDF
   fileFilter: fileFilter
 });
 
