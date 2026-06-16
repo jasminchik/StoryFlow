@@ -4,6 +4,7 @@ import { FiEye, FiStar, FiMessageSquare, FiChevronDown, FiCheck, FiArrowLeft, Fi
 import Header from '../../components/Header';
 import InteractionSection from '../../components/InteractionSection';
 import NotificationModal from '../../components/NotificationModal';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import styles from './MangaDetails.module.scss';
 
 // Статичні дані виносимо за межі компонента для стабільності
@@ -46,6 +47,7 @@ const MangaDetails = () => {
   const [likeCount, setLikeCount] = useState(0);
   const [isNotifyOpen, setIsNotifyOpen] = useState(false);
   const [notifyMessage, setNotifyMessage] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
 
@@ -56,24 +58,8 @@ const MangaDetails = () => {
     }
   };
 
-  const getFullUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `${API_BASE}${path}`;
-  };
-
-  const isAuthor = useMemo(() => {
-    if (!manga || !loggedInUser) return false;
-    const authorId = manga.author?._id || manga.author;
-    const userId = loggedInUser.id || loggedInUser._id;
-    return String(authorId) === String(userId);
-  }, [manga, loggedInUser]);
-
-  const isAdmin = loggedInUser && loggedInUser.role === 'admin';
-  const canDelete = isAuthor || isAdmin;
-
   const handleDeleteManga = async () => {
-    if (!window.confirm('Ви впевнені, що хочете видалити цей тайтл?')) return;
+    setIsConfirmOpen(false);
     try {
       const response = await fetch(`${API_BASE}/api/manga/${id}`, {
         method: 'DELETE',
@@ -94,6 +80,22 @@ const MangaDetails = () => {
       setIsNotifyOpen(true);
     }
   };
+
+  const getFullUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${API_BASE}${path}`;
+  };
+
+  const isAuthor = useMemo(() => {
+    if (!manga || !loggedInUser) return false;
+    const authorId = manga.author?._id || manga.author;
+    const userId = loggedInUser.id || loggedInUser._id;
+    return String(authorId) === String(userId);
+  }, [manga, loggedInUser]);
+
+  const isAdmin = loggedInUser && loggedInUser.role === 'admin';
+  const canDelete = isAuthor || isAdmin;
 
   const fetchMangaDetails = async () => {
     setIsLoading(true);
@@ -144,14 +146,14 @@ const MangaDetails = () => {
   }, [id]);
 
   useEffect(() => {
-    if (id && activeTab === 'chapters') {
+    if (id) {
       const fetchChapters = async () => {
         setIsChaptersLoading(true);
         try {
           const response = await fetch(`${API_BASE}/api/chapters/manga/${id}`);
           const result = await response.json();
           if (result.success) {
-            setChapters(result.data);
+            setChapters(result.data.sort((a, b) => a.number - b.number));
           }
         } catch (err) {
           console.error('Помилка завантаження розділів:', err);
@@ -161,7 +163,18 @@ const MangaDetails = () => {
       };
       fetchChapters();
     }
-  }, [id, activeTab]);
+  }, [id]);
+
+  const handleRead = () => {
+    if (chapters && chapters.length > 0) {
+      // chapters вже відсортовані за номером у useEffect
+      const firstChapter = chapters[0];
+      navigate(`/manga/${id}/read/${firstChapter._id}`);
+    } else {
+      setNotifyMessage('Для цього тайтлу ще немає розділів.');
+      setIsNotifyOpen(true);
+    }
+  };
 
   const handleLike = async () => {
     if (!loggedInUser) {
@@ -390,10 +403,16 @@ const MangaDetails = () => {
             </div>
           </div>
           <div className={styles.actionButtons}>
-            <button className={styles.readBtn}>Читати</button>
+            <button 
+              className={styles.readBtn} 
+              onClick={handleRead}
+              disabled={isChaptersLoading}
+            >
+              {isChaptersLoading ? 'Завантаження...' : 'Читати'}
+            </button>
             {isAuthor && <button className={styles.editBtn} onClick={() => navigate(`/edit-manga/${manga._id}`)}>Редагувати</button>}
             {canDelete && (
-              <button className={styles.deleteAction} onClick={handleDeleteManga} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button className={styles.deleteAction} onClick={() => setIsConfirmOpen(true)} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <FiTrash2 size={18} /> Видалити твір
               </button>
             )}
@@ -501,6 +520,14 @@ const MangaDetails = () => {
         isOpen={isNotifyOpen} 
         message={notifyMessage} 
         onClose={handleCloseModal} 
+      />
+
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        title="Видалити твір?"
+        message={`Ви впевнені, що хочете назавжди видалити "${manga?.title}"? Цю дію неможливо буде скасувати.`}
+        onConfirm={handleDeleteManga}
+        onCancel={() => setIsConfirmOpen(false)}
       />
     </div>
   );

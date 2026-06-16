@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Chapter = require('../models/Chapter');
+const Manga = require('../models/Manga');
 const { protect, authorize } = require('../middleware/auth');
 const upload = require('../config/upload');
 
@@ -12,7 +13,7 @@ const upload = require('../config/upload');
 router.get('/manga/:mangaId', async (req, res) => {
   try {
     const chapters = await Chapter.find({ mangaId: req.params.mangaId })
-      .select('number title volume createdAt')
+      .select('number title volume pages createdAt')
       .sort({ number: 1 });
 
     res.status(200).json({
@@ -33,7 +34,7 @@ router.get('/manga/:mangaId', async (req, res) => {
 router.get('/titles/:titleId/chapters', async (req, res) => {
   try {
     const chapters = await Chapter.find({ mangaId: req.params.titleId })
-      .select('number title volume createdAt')
+      .select('number title volume pages createdAt')
       .sort({ number: 1 });
 
     res.status(200).json({ success: true, data: chapters });
@@ -66,10 +67,35 @@ router.get('/:id', async (req, res) => {
  * @desc    Створити нову главу
  * @access  Private (Admin, Author)
  */
-router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 50), async (req, res) => {
+router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 100), async (req, res) => {
   try {
+    const manga = await Manga.findById(req.body.mangaId);
+    if (!manga) {
+      return res.status(404).json({ success: false, error: 'Твір не знайдено' });
+    }
+
+    // Перевірка ліміту розділів (5000)
+    const chapterCount = await Chapter.countDocuments({ mangaId: req.body.mangaId });
+    if (chapterCount >= 5000) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Досягнуто ліміту розділів для цього твору (макс. 5000)' 
+      });
+    }
+
+    // Перевірка прав (автор або адмін)
+    if (manga.author.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'У вас немає прав для додавання розділів до цього твору' 
+      });
+    }
+
     // Якщо завантажено файли, збираємо їхні шляхи
     if (req.files && req.files.length > 0) {
+      if (req.files.length > 100) {
+        return res.status(400).json({ success: false, error: 'Максимальна кількість сторінок у розділі - 100' });
+      }
       req.body.pages = req.files.map(file => `/uploads/${file.filename}`);
     }
 
@@ -77,6 +103,9 @@ router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 50
 
     res.status(201).json({ success: true, data: chapter });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, error: `Розділ №${req.body.number} вже існує` });
+    }
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -86,7 +115,7 @@ router.post('/', protect, authorize('admin', 'author'), upload.array('pages', 50
  * @desc    Редагувати главу
  * @access  Private (Admin, Author)
  */
-router.put('/:id', protect, authorize('admin', 'author'), upload.array('pages', 50), async (req, res) => {
+router.put('/:id', protect, authorize('admin', 'author'), upload.array('pages', 100), async (req, res) => {
   try {
     let chapter = await Chapter.findById(req.params.id);
 
@@ -96,6 +125,9 @@ router.put('/:id', protect, authorize('admin', 'author'), upload.array('pages', 
 
     // Якщо завантажено нові файли
     if (req.files && req.files.length > 0) {
+      if (req.files.length > 100) {
+        return res.status(400).json({ success: false, error: 'Максимальна кількість сторінок у розділі - 100' });
+      }
       req.body.pages = req.files.map(file => `/uploads/${file.filename}`);
     }
 

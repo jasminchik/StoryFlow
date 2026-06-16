@@ -26,7 +26,7 @@ const MangaSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Будь ласка, оберіть тип твору'],
     enum: {
-      values: ['Манґа', 'Манхва', 'Маньхуа', 'Комікс'],
+      values: ['Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Книга'],
       message: '{VALUE} не є підтримуваним типом твору'
     }
   },

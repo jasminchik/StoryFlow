@@ -30,6 +30,7 @@ const userListRoutes = require('./routes/userListRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const newsRoutes = require('./routes/newsRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const historyRoutes = require('./routes/historyRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
@@ -43,6 +44,7 @@ app.use('/api/user-list', userListRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/history', historyRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

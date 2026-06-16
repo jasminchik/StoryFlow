@@ -548,39 +548,113 @@
 }
 
 /* History Item */
-.historyItem {
+.historyWrapper {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background: var(--bg-card);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-color);
-  transition: transform 0.2s;
+  flex-direction: column;
+  gap: 20px;
+}
 
-  &:hover {
-    transform: translateX(5px);
-    background: var(--bg-secondary);
+.historyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
   }
 }
 
-.historyTitle {
-  font-weight: 600;
-  color: var(--text-main);
+.historyCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    background: var(--bg-secondary);
+
+    .historyOverlay {
+      opacity: 1;
+    }
+  }
+}
+
+.historyCover {
+  width: 70px;
+  height: 100px;
+  position: relative;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.historyOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.historyInfo {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
 }
 
-.historyDetails {
-  color: var(--text-secondary);
-  flex: 2;
-  font-size: 0.95rem;
+.historyMangaTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.historyTime {
+.historyChapterDetails {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.historyChapterTitle {
   color: var(--text-muted);
-  font-size: 0.85rem;
-  flex: 0.5;
-  text-align: right;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyDate {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 4px;
 }
 
 /* Friends Grid */

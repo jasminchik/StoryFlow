@@ -102,10 +102,12 @@ router.get('/home', async (req, res) => {
     let newArrivals = [];
     let topRated = [];
     let readingNow = [];
+    let books = [];
 
     const customNew = sections.find(s => s.key === 'new_releases');
     const customPopular = sections.find(s => s.key === 'popular');
     const customReadingNow = sections.find(s => s.key === 'reading_now');
+    const customBooks = sections.find(s => s.key === 'books');
 
     if (customNew && customNew.mangas.length > 0) {
       newArrivals = customNew.mangas;
@@ -132,12 +134,23 @@ router.get('/home', async (req, res) => {
       readingNow = customReadingNow.mangas;
     }
 
+    if (customBooks && customBooks.mangas.length > 0) {
+      books = customBooks.mangas;
+    } else {
+      // Fallback: автоматичне сортування для книг
+      books = await Manga.find({ type: 'Книга', moderationStatus: 'approved' })
+        .populate('author', 'username')
+        .sort({ createdAt: -1 })
+        .limit(8);
+    }
+
     res.status(200).json({
       success: true,
       data: {
         newArrivals,
         topRated,
-        readingNow
+        readingNow,
+        books
       }
     });
   } catch (error) {
@@ -170,6 +183,8 @@ router.get('/search', async (req, res) => {
         query.type = { $regex: 'манхва|manhwa', $options: 'i' };
       } else if (type === 'manga') {
         query.type = { $regex: 'манґа|манга|manga', $options: 'i' };
+      } else if (type === 'book') {
+        query.type = { $regex: 'книга|book', $options: 'i' };
       }
     }
 
@@ -240,6 +255,8 @@ router.get('/latest', async (req, res) => {
         query.type = { $regex: /манхва|маньхуа|manhwa|manhua/i };
       } else if (type === 'manga') {
         query.type = { $regex: /манґа|манга|manga/i };
+      } else if (type === 'book') {
+        query.type = { $regex: /книга|book/i };
       } else if (type === 'comics') {
         query.type = { $regex: /комікс|comics/i };
       }
@@ -330,10 +347,12 @@ router.get('/catalog', async (req, res) => {
         'manhwa': 'Манхва',
         'manhua': 'Маньхуа',
         'comics': 'Комікс',
+        'book': 'Книга',
         'Манґа': 'Манґа',
         'Манхва': 'Манхва',
         'Маньхуа': 'Маньхуа',
-        'Комікс': 'Комікс'
+        'Комікс': 'Комікс',
+        'Книга': 'Книга'
       };
       if (typeMapping[format]) {
         query.type = typeMapping[format];

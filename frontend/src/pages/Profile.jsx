@@ -43,7 +43,9 @@ const Profile = () => {
   // States для коментарів та відгуків
   const [userComments, setUserComments] = useState([]);
   const [userReviews, setUserReviews] = useState([]);
+  const [userHistory, setUserHistory] = useState([]);
   const [isActivityLoading, setIsActivityLoading] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   
   const [commentTypeFilter, setCommentTypeFilter] = useState('all');
   const [commentLocationFilter, setCommentLocationFilter] = useState('all');
@@ -157,6 +159,36 @@ const Profile = () => {
   }, [profileTab, user]);
 
   useEffect(() => {
+    if (profileTab === 'history' && user?._id) {
+      const fetchHistory = async () => {
+        setIsHistoryLoading(true);
+        try {
+          const response = await fetch(`${API_BASE}/api/history/user/${user._id}`);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const contentType = response.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            throw new TypeError("Oops, we haven't got JSON!");
+          }
+
+          const data = await response.json();
+          if (data.success) {
+            setUserHistory(data.data);
+          }
+        } catch (err) {
+          console.error('Помилка завантаження історії:', err);
+        } finally {
+          setIsHistoryLoading(false);
+        }
+      };
+      fetchHistory();
+    }
+  }, [profileTab, user]);
+
+  useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab === 'settings') {
       setIsSettingsOpen(true);
@@ -243,18 +275,8 @@ const Profile = () => {
     ...(isOwnProfile || user?.role === 'author' || user?.role === 'admin' ? [{ id: 'my-creations', label: 'Творчість' }] : []),
     { id: 'comments', label: 'Коментарі' },
     { id: 'reviews', label: 'Відгуки' },
-    { id: 'friends', label: 'Друзі' },
     { id: 'history', label: 'Історія' }
   ], [user, isOwnProfile]);
-
-  const MOCK_FRIENDS = [
-    { id: 1, name: 'Alex_Manga', status: 'В мережі', isOnline: true },
-    { id: 2, name: 'Sora_Reader', status: 'Офлайн', isOnline: false },
-    { id: 3, name: 'DarthVader', status: 'В мережі', isOnline: true },
-    { id: 4, name: 'NekoGirl', status: 'Офлайн', isOnline: false },
-    { id: 5, name: 'Zoro_Fan', status: 'В мережі', isOnline: true },
-    { id: 6, name: 'Luffy_Pirate', status: 'Офлайн', isOnline: false }
-  ];
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -493,19 +515,40 @@ const Profile = () => {
           </div>
         );
       case 'history':
-        return <div className={styles.listContainer}><div className={styles.emptyState}>Тут поки що порожньо.</div></div>;
-      case 'friends':
         return (
-          <div className={styles.friendsGrid}>
-            {MOCK_FRIENDS.map(f => (
-              <div key={f.id} className={styles.friendCard}>
-                <div className={styles.friendAvatarWrapper}>
-                  <div className={styles.friendAvatarPlaceholder}>{f.name.charAt(0)}</div>
-                  <div className={f.isOnline ? styles.onlineIndicator : styles.offlineIndicator}></div>
-                </div>
-                <span className={styles.friendName}>{f.name}</span>
+          <div className={styles.historyWrapper}>
+            {isHistoryLoading ? (
+              <div className={styles.loading}>Завантаження історії...</div>
+            ) : userHistory.length > 0 ? (
+              <div className={styles.historyGrid}>
+                {userHistory.map(item => (
+                  <div 
+                    key={item._id} 
+                    className={styles.historyCard}
+                    onClick={() => navigate(`/manga/${item.manga?._id}/read/${item.chapter?._id}`)}
+                  >
+                    <div className={styles.historyCover}>
+                      <img src={item.manga?.coverImage ? (item.manga.coverImage.startsWith('http') ? item.manga.coverImage : `${API_BASE}${item.manga.coverImage}`) : ''} alt={item.manga?.title} />
+                      <div className={styles.historyOverlay}>
+                        <FiBookOpen size={24} />
+                      </div>
+                    </div>
+                    <div className={styles.historyInfo}>
+                      <h3 className={styles.historyMangaTitle}>{item.manga?.title || 'Видалений твір'}</h3>
+                      <div className={styles.historyChapterDetails}>
+                        <span className={styles.historyChapterNumber}>Розділ {item.chapter?.number}</span>
+                        {item.chapter?.title && <span className={styles.historyChapterTitle}> - {item.chapter.title}</span>}
+                      </div>
+                      <span className={styles.historyDate}>Прочитано: {new Date(item.readAt).toLocaleDateString('uk-UA')}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className={styles.emptyState}>
+                <p>Тут поки що порожньо.</p>
+              </div>
+            )}
           </div>
         );
       default: return null;

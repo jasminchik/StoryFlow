@@ -192,6 +192,7 @@ const AdminPanel = () => {
                       <option value="new_releases">Новинки</option>
                       <option value="popular">Найпопулярніші</option>
                       <option value="reading_now">Читають зараз</option>
+                      <option value="books">Навчальні книги</option>
                       <option value="admin_choice">Вибір адміна</option>
                     </select>
                     <select value={addMangaId} onChange={(e) => setAddMangaId(e.target.value)} className={styles.addInput}>

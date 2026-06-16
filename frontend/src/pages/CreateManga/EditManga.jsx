@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import { FiUpload, FiX, FiCheck, FiArrowLeft, FiImage, FiPlus, FiBookOpen, FiTrash2 } from 'react-icons/fi';
+import NotificationModal from '../../components/NotificationModal';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import styles from './CreateManga.module.scss';
 
 const EditManga = () => {
@@ -36,12 +38,13 @@ const EditManga = () => {
     bannerImage: null
   });
 
-  const types = ['Манґа', 'Манхва', 'Маньхуа', 'Комікс'];
+  const types = ['Манґа', 'Манхва', 'Маньхуа', 'Комікс', 'Книга'];
   const statuses = ['Анонс', 'В процесі', 'Завершено', 'Призупинено'];
   const availableGenres = [
     'Бойовик', 'Пригоди', 'Комедія', 'Драма', 'Фентезі', 
     'Жахи', 'Містика', 'Романтика', 'Психологія', 'Наукова фантастика',
-    'Повсякденність', 'Трагедія', 'Надприродне', 'Екшн', 'Військове'
+    'Повсякденність', 'Трагедія', 'Надприродне', 'Екшн', 'Військове',
+    'Навчальна література', 'Програмування', 'Наукова література', 'Довідник'
   ];
 
   const [chapters, setChapters] = useState([]);
@@ -52,6 +55,24 @@ const EditManga = () => {
   });
   const [localPages, setLocalPages] = useState([]); // { file, preview }
   const [orderedIndices, setOrderedIndices] = useState([]); // indices of localPages in order
+
+  // Modal states
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
+  const [notifyMessage, setNotifyMessage] = useState('');
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [chapterToDelete, setChapterToDelete] = useState(null);
+
+  // Автоматичне встановлення номера наступного розділу
+  useEffect(() => {
+    if (isChapterFormOpen && !newChapter.number) {
+      if (chapters.length > 0) {
+        const lastNumber = Math.max(...chapters.map(ch => ch.number));
+        setNewChapter(prev => ({ ...prev, number: lastNumber + 1 }));
+      } else {
+        setNewChapter(prev => ({ ...prev, number: 1 }));
+      }
+    }
+  }, [isChapterFormOpen, chapters, newChapter.number]);
 
   const fetchChapters = useCallback(async () => {
     try {
@@ -112,13 +133,26 @@ const EditManga = () => {
 
   const handlePagesFileChange = (e) => {
     const files = Array.from(e.target.files);
-    const newPages = files.map(file => ({
+    
+    if (localPages.length + files.length > 100) {
+      setError('Максимальна кількість сторінок у розділі - 100');
+      return;
+    }
+
+    const sortedFiles = files.sort((a, b) => 
+      a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+    );
+    const newPages = sortedFiles.map(file => ({
       file,
       preview: URL.createObjectURL(file)
     }));
-    setLocalPages(prev => [...prev, ...newPages]);
-    // Reset order when new files are added
-    setOrderedIndices([]);
+    
+    setLocalPages(prev => {
+      const updated = [...prev, ...newPages];
+      // Автоматично вибираємо всі сторінки у порядку їх додавання/імен
+      setOrderedIndices(updated.map((_, i) => i));
+      return updated;
+    });
   };
 
   const togglePageSelection = (index) => {
@@ -137,8 +171,25 @@ const EditManga = () => {
     e.preventDefault();
     setError('');
 
-    if (orderedIndices.length === 0) {
-      setError('Будь ласка, оберіть порядок сторінок, клікаючи на них');
+    const chapterNum = Number(newChapter.number);
+
+    if (!newChapter.number || isNaN(chapterNum)) {
+      setError('Будь ласка, вкажіть коректний номер розділу');
+      return;
+    }
+
+    if (chapters.some(ch => ch.number === chapterNum)) {
+      setError(`Розділ №${chapterNum} вже існує у цьому тайтлі`);
+      return;
+    }
+
+    if (localPages.length === 0) {
+      setError('Будь ласка, завантажте сторінки розділу');
+      return;
+    }
+
+    if (orderedIndices.length !== localPages.length) {
+      setError(`Ви обрали лише ${orderedIndices.length} з ${localPages.length} сторінок. Будь ласка, оберіть усі сторінки у потрібному порядку або скиньте порядок.`);
       return;
     }
 
@@ -164,37 +215,57 @@ const EditManga = () => {
       });
 
       const result = await response.json();
+      console.log('Додавання розділу результат:', result);
+
       if (result.success) {
+        setNotifyMessage(`Розділ №${newChapter.number} успішно додано`);
+        setIsNotifyOpen(true);
         setNewChapter({ number: '', title: '' });
         setLocalPages([]);
         setOrderedIndices([]);
         setIsChapterFormOpen(false);
-        fetchChapters();
+        await fetchChapters();
       } else {
         setError(result.error || 'Помилка при додаванні розділу');
+        console.error('Помилка додавання розділу:', result.error);
       }
     } catch (err) {
       setError('Помилка з\'єднання з сервером');
+      console.error('Помилка fetch додавання розділу:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteChapter = async (chapterId) => {
-    if (!window.confirm('Ви впевнені, що хочете видалити цей розділ?')) return;
+  const handleDeleteChapter = async () => {
+    if (!chapterToDelete) return;
+    setIsConfirmOpen(false);
     try {
-      const response = await fetch(`${API_BASE}/api/chapters/${chapterId}`, {
+      const response = await fetch(`${API_BASE}/api/chapters/${chapterToDelete}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
       if (response.ok) {
+        setNotifyMessage('Розділ успішно видалено');
+        setIsNotifyOpen(true);
         fetchChapters();
+      } else {
+        setNotifyMessage('Помилка при видаленні розділу');
+        setIsNotifyOpen(true);
       }
     } catch (err) {
-      console.error('Error deleting chapter:', err);
+      setNotifyMessage('Помилка з\'єднання з сервером');
+      setIsNotifyOpen(true);
+    } finally {
+      setChapterToDelete(null);
     }
+  };
+
+  const openDeleteConfirm = (chapterId) => {
+    setChapterToDelete(chapterId);
+    setIsConfirmOpen(true);
   };
 
   const handleInputChange = (e) => {
@@ -511,7 +582,7 @@ const EditManga = () => {
             <h3>Новий розділ</h3>
             <div className={styles.chapterRow}>
               <div className={styles.formGroup}>
-                <label>Номер глави *</label>
+                <label>Номер розділу *</label>
                 <input 
                   type="number" 
                   value={newChapter.number} 
@@ -520,7 +591,7 @@ const EditManga = () => {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>Назва глави (опц.)</label>
+                <label>Назва розділу (опц.)</label>
                 <input 
                   type="text" 
                   value={newChapter.title} 
@@ -598,7 +669,7 @@ const EditManga = () => {
                   <button 
                     type="button"
                     className={styles.deleteBtn} 
-                    onClick={() => handleDeleteChapter(ch._id)}
+                    onClick={() => openDeleteConfirm(ch._id)}
                     title="Видалити розділ"
                   >
                     <FiTrash2 />
@@ -650,6 +721,23 @@ const EditManga = () => {
           </div>
         </div>
       )}
+
+      <NotificationModal 
+        isOpen={isNotifyOpen} 
+        message={notifyMessage} 
+        onClose={() => setIsNotifyOpen(false)} 
+      />
+
+      <ConfirmationModal
+        isOpen={isConfirmOpen}
+        title="Видалити розділ?"
+        message="Ви впевнені, що хочете видалити цей розділ? Всі сторінки будуть видалені назавжди."
+        onConfirm={handleDeleteChapter}
+        onCancel={() => {
+          setIsConfirmOpen(false);
+          setChapterToDelete(null);
+        }}
+      />
     </div>
   );
 };

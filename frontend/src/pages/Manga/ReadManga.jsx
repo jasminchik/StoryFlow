@@ -34,7 +34,11 @@ const ReadManga = () => {
         const mangaData = await mangaRes.json();
         const allChaptersData = await allChaptersRes.json();
 
-        if (chapterData.success) setChapter(chapterData.data);
+        if (chapterData.success) {
+          setChapter(chapterData.data);
+          // Записуємо в історію при завантаженні розділу
+          recordHistory(chapterData.data._id);
+        }
         if (mangaData.success) setManga(mangaData.data);
         if (allChaptersData.success) {
           // Сортуємо по номеру глави
@@ -44,6 +48,24 @@ const ReadManga = () => {
         console.error('Error fetching data:', err);
       } finally {
         setIsLoading(false);
+      }
+    };
+
+    const recordHistory = async (chId) => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        await fetch(`${API_BASE}/api/history`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ mangaId: titleId, chapterId: chId })
+        });
+      } catch (err) {
+        console.error('Error recording history:', err);
       }
     };
 

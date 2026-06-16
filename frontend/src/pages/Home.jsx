@@ -11,6 +11,7 @@ const Home = () => {
   const [popular, setPopular] = useState([]);
   const [readingNow, setReadingNow] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
+  const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
   const [activeGenre, setActiveGenre] = useState(null);
@@ -40,6 +41,7 @@ const Home = () => {
           setNewArrivals(data.data.newArrivals.map(formatManga));
           setPopular(data.data.topRated.map(formatManga));
           setReadingNow(data.data.readingNow ? data.data.readingNow.map(formatManga) : []); 
+          setBooks(data.data.books ? data.data.books.map(formatManga) : []);
         }
       } catch (err) {
         console.error('Помилка завантаження даних:', err);
@@ -74,6 +76,7 @@ const Home = () => {
   const filteredPopular = filterManga(popular);
   const filteredNew = filterManga(newArrivals);
   const filteredReadingNow = filterManga(readingNow);
+  const filteredBooks = filterManga(books);
 
   return (
     <div className={styles.homeWrapper}>
@@ -109,6 +112,29 @@ const Home = () => {
               <h2 className={styles.sectionTitle}>Читають зараз</h2>
               <div className={styles.popularGrid}>
                 {filteredReadingNow.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className={styles.mangaCard}
+                    onClick={() => navigate(`/manga/${item.id}`)}
+                  >
+                    <div className={styles.imageWrapper}>
+                      <img src={item.image} alt={item.title} />
+                      <div className={styles.rating}>
+                        <FiStar size={12} fill="currentColor" /> {item.rating ? item.rating.toFixed(1) : '0.0'}
+                      </div>
+                    </div>
+                    <h3 className={styles.cardTitle}>{item.title}</h3>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {filteredBooks.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.sectionTitle}>Навчальні книги</h2>
+              <div className={styles.popularGrid}>
+                {filteredBooks.map((item) => (
                   <div 
                     key={item.id} 
                     className={styles.mangaCard}
