@@ -573,6 +573,7 @@
   padding: 12px;
   cursor: pointer;
   transition: all 0.2s;
+  position: relative;
 
   &:hover {
     border-color: var(--primary-color);
@@ -582,6 +583,44 @@
     .historyOverlay {
       opacity: 1;
     }
+
+    .deleteHistoryBtn {
+      opacity: 1;
+    }
+  }
+
+  &.deletedCard {
+    opacity: 0.7;
+    cursor: default;
+
+    &:hover {
+      transform: none;
+      border-color: var(--border-color);
+    }
+  }
+}
+
+.deleteHistoryBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  z-index: 5;
+
+  &:hover {
+    background: #ef4444;
+    transform: scale(1.1);
   }
 }
 
@@ -709,6 +748,108 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
+}
+
+.announcementsSection {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border-color);
+
+  .groupTitle {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--text-main);
+  }
+}
+
+.announcementsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.announcementItem {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .annInfo {
+    flex: 1;
+  }
+
+  .annHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    .annManga {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--primary-color);
+      letter-spacing: 0.05em;
+    }
+
+    .annDate {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+  }
+
+  .annTitle {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+
+  .annSnippet {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .deleteAnnBtn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 20px;
+
+    &:hover {
+      background: #ef4444;
+      color: #fff;
+      transform: scale(1.05);
+    }
+  }
+}
+
+.emptyAnn {
+  text-align: center;
+  padding: 40px;
+  background: var(--bg-card);
+  border-radius: 16px;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-color);
 }
 
 .worksGroup {

@@ -32,6 +32,24 @@ router.post('/news', protect, isAdmin, async (req, res) => {
 });
 
 /**
+ * @route   DELETE /api/admin/news/:id
+ * @desc    Видалити новину сайту
+ * @access  Private (Admin)
+ */
+router.delete('/news/:id', protect, isAdmin, async (req, res) => {
+  try {
+    const news = await News.findById(req.params.id);
+    if (!news) {
+      return res.status(404).json({ success: false, error: 'Новину не знайдено' });
+    }
+    await news.deleteOne();
+    res.status(200).json({ success: true, data: {} });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * @route   GET /api/admin/sections
  * @desc    Отримати всі секції головної сторінки
  * @access  Private (Admin)
@@ -110,20 +128,41 @@ router.put('/sections/:key', protect, isAdmin, async (req, res) => {
  */
 router.delete('/manga/:id', protect, isAdmin, async (req, res) => {
   try {
-    const manga = await Manga.findById(req.params.id);
+    const mangaId = req.params.id;
+    const manga = await Manga.findById(mangaId);
     
     if (!manga) {
       return res.status(404).json({ success: false, error: 'Манґу не знайдено' });
     }
 
-    // Каскадне видалення розділів
-    await Chapter.deleteMany({ manga: req.params.id });
+    // Каскадне видалення всіх пов'язаних даних
+    const Comment = require('../models/Comment');
+    const Rating = require('../models/Rating');
+    const History = require('../models/History');
+    const UserList = require('../models/UserList');
+    const Literature = require('../models/Literature');
+    const LiteratureChapter = require('../models/LiteratureChapter');
+
+    // 1. Знаходимо всі пов'язані фанфіки (Literature)
+    const relatedLit = await Literature.find({ manga: mangaId });
+    const litIds = relatedLit.map(l => l._id);
+
+    await Promise.all([
+      Chapter.deleteMany({ mangaId: mangaId }),
+      Comment.deleteMany({ resourceId: mangaId, resourceType: 'Manga' }),
+      Rating.deleteMany({ manga: mangaId }),
+      History.deleteMany({ manga: mangaId }),
+      UserList.deleteMany({ manga: mangaId }),
+      Literature.deleteMany({ manga: mangaId }),
+      LiteratureChapter.deleteMany({ literature: { $in: litIds } })
+    ]);
 
     // Видалення самої манґи
     await manga.deleteOne();
 
     res.status(200).json({ success: true, data: {} });
   } catch (error) {
+    console.error('Admin Manga Delete Error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -140,15 +179,21 @@ router.get('/all-titles', protect, isAdmin, async (req, res) => {
       Literature.find().select('title type direction coverImage createdAt')
     ]);
 
-    // Додаємо мітку типу для фанфіків, якщо її немає
+    // Додаємо мітку ресурсу для фронтенду
+    const formattedMangas = mangas.map(m => ({
+      ...m.toObject(),
+      resourceType: 'manga'
+    }));
+
     const formattedFanfics = fanfics.map(f => ({
       ...f.toObject(),
+      resourceType: 'literature',
       type: f.type || 'Фанфік'
     }));
 
     res.status(200).json({ 
       success: true, 
-      data: [...mangas, ...formattedFanfics].sort((a, b) => b.createdAt - a.createdAt)
+      data: [...formattedMangas, ...formattedFanfics].sort((a, b) => b.createdAt - a.createdAt)
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

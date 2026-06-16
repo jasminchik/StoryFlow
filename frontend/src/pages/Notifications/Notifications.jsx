@@ -18,20 +18,37 @@ const Notifications = () => {
   const API_BASE = 'http://localhost:5000';
 
   useEffect(() => {
-    const fetchNews = async () => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch(`${API_BASE}/api/news`);
-        const data = await response.json();
-        if (data.success) {
-          setSiteNews(data.data);
+        // Завантаження новин сайту
+        const newsRes = await fetch(`${API_BASE}/api/news`);
+        const newsData = await newsRes.json();
+        if (newsData.success) {
+          setSiteNews(newsData.data);
+        }
+
+        // Завантаження оновлень тайтлів (Announcements)
+        const updatesRes = await fetch(`${API_BASE}/api/announcements`);
+        const updatesData = await updatesRes.json();
+        if (updatesData.success) {
+          const mappedUpdates = updatesData.data.map(ann => ({
+            id: ann._id,
+            image: ann.manga?.coverImage ? (ann.manga.coverImage.startsWith('http') ? ann.manga.coverImage : `${API_BASE}${ann.manga.coverImage}`) : '',
+            title: ann.title,
+            text: ann.content,
+            date: new Date(ann.createdAt).toLocaleDateString('uk-UA'),
+            mangaId: ann.manga?._id
+          }));
+          setTitleUpdates(mappedUpdates);
         }
       } catch (err) {
-        console.error('Помилка завантаження новин:', err);
+        console.error('Помилка завантаження повідомлень:', err);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchNews();
+    fetchData();
   }, []);
 
   const handleTabChange = (tab) => {

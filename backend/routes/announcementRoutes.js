@@ -48,6 +48,27 @@ router.get('/manga/:mangaId', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/announcements/author/:authorId
+ * @desc    Отримати новини конкретного автора
+ * @access  Public
+ */
+router.get('/author/:authorId', async (req, res) => {
+  try {
+    const announcements = await Announcement.find({ author: req.params.authorId })
+      .populate('manga', 'title coverImage type')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: announcements.length,
+      data: announcements
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * @route   POST /api/announcements
  * @desc    Створити нову новину
  * @access  Private (Author, Admin)

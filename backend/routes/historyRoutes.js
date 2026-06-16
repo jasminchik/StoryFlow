@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const History = require('../models/History');
-const Manga = require('../models/Manga'); // Додано
-const Chapter = require('../models/Chapter'); // Додано
+const Manga = require('../models/Manga');
+const Chapter = require('../models/Chapter');
 const { protect } = require('../middleware/auth');
 
 /**
@@ -47,9 +47,12 @@ router.get('/my', protect, async (req, res) => {
         path: 'chapter',
         select: 'number title'
       })
-      .sort({ readAt: -1 }); // Найновіші зверху
+      .sort({ readAt: -1 });
 
-    res.status(200).json({ success: true, data: history });
+    // Фільтруємо "осиротілі" записи
+    const validHistory = history.filter(item => item.manga !== null);
+
+    res.status(200).json({ success: true, data: validHistory });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -73,7 +76,36 @@ router.get('/user/:userId', async (req, res) => {
       })
       .sort({ readAt: -1 });
 
-    res.status(200).json({ success: true, data: history });
+    // Фільтруємо "осиротілі" записи перед відправкою на клієнт
+    const validHistory = history.filter(item => item.manga !== null);
+
+    res.status(200).json({ success: true, data: validHistory });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * @route   DELETE /api/history/:id
+ * @desc    Видалити запис з історії
+ * @access  Private
+ */
+router.delete('/:id', protect, async (req, res) => {
+  try {
+    // Видаляємо суто за ID запису історії, не перевіряючи чи існує ще сама манґа
+    const historyRecord = await History.findById(req.params.id);
+
+    if (!historyRecord) {
+      return res.status(404).json({ success: false, error: 'Запис не знайдено' });
+    }
+
+    // Перевіряємо чи це історія саме цього користувача
+    if (historyRecord.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, error: 'Ви не можете видалити чужу історію' });
+    }
+
+    await historyRecord.deleteOne();
+    res.status(200).json({ success: true, message: 'Запис видалено' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

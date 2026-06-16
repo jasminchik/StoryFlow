@@ -55,15 +55,20 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Connect to MongoDB
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('Successfully connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// Connect to MongoDB and Start Server
+const startServer = async () => {
+  try {
+    console.log('Connecting to MongoDB at:', MONGODB_URI);
+    await mongoose.connect(MONGODB_URI);
+    console.log('Successfully connected to MongoDB');
 
-app.get('/', (req, res) => {
-  res.send('StoryFlow API is running...');
-});
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+  }
+};
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+startServer();

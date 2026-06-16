@@ -12,7 +12,8 @@ import {
   FiEdit3,
   FiPlus,
   FiHeart,
-  FiShield
+  FiShield,
+  FiTrash2
 } from 'react-icons/fi';
 import { FaMars, FaVenus } from 'react-icons/fa';
 import { LuShieldCheck } from 'react-icons/lu';
@@ -21,12 +22,18 @@ import Header from '../components/Header';
 import ProfileSidebar from '../components/ProfileSidebar';
 import ProfileSettingsModal from '../components/ProfileSettingsModal';
 import CreateAnnouncementModal from '../components/CreateAnnouncementModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 import styles from './Profile.module.scss';
 
 const Profile = () => {
   const { username: urlUsername } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  
+  const API_BASE = 'http://localhost:5000';
+  const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
+
+  // States
   const [user, setUser] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAnnouncementOpen, setIsAnnouncementOpen] = useState(false);
@@ -34,13 +41,20 @@ const Profile = () => {
   const [toastMessage, setToastMessage] = useState('Зміни збережено!');
   
   const [myWorks, setMyWorks] = useState({ manga: [], literature: [] });
+  const [myAnnouncements, setMyAnnouncements] = useState([]);
   const [isMyWorksLoading, setIsMyWorksLoading] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null); // { id, type }
 
   const [userTitles, setUserTitles] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [isTitlesLoading, setIsTitlesLoading] = useState(false);
 
-  // States для коментарів та відгуків
+  const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
+  const analyticsRef = useRef(null);
+  const tabsRef = useRef(null);
+
   const [userComments, setUserComments] = useState([]);
   const [userReviews, setUserReviews] = useState([]);
   const [userHistory, setUserHistory] = useState([]);
@@ -67,12 +81,6 @@ const Profile = () => {
     ] 
   });
 
-  const [profileTab, setProfileTab] = useState(searchParams.get('tab') || 'titles');
-  const analyticsRef = useRef(null);
-  const tabsRef = useRef(null);
-
-  const API_BASE = 'http://localhost:5000';
-  const loggedInUser = JSON.parse(localStorage.getItem('user') || 'null');
   const isOwnProfile = user?.username && (loggedInUser?.username === user.username);
 
   const TITLE_CATEGORIES = [
@@ -84,44 +92,159 @@ const Profile = () => {
     { id: 'favorites', label: 'В Обраному' }
   ];
 
-  // Завантаження аналітики (Вимкнено для відображення фейкових даних)
-  /*
-  useEffect(() => {
-    if (profileTab === 'stats' && urlUsername) {
-      const fetchAnalytics = async () => {
-        try {
-          const response = await fetch(`${API_BASE}/api/users/profile/${urlUsername}/analytics`);
-          const data = await response.json();
-          if (data.success) {
-            setAnalytics(data.data);
-          }
-        } catch (err) {
-          console.error('Помилка завантаження аналітики:', err);
-        }
-      };
-      fetchAnalytics();
+  const PROFILE_TABS = useMemo(() => [
+    { id: 'titles', label: 'Тайтли' },
+    { id: 'stats', label: 'Аналітика' },
+    ...(isOwnProfile || user?.role === 'author' || user?.role === 'admin' ? [{ id: 'my-creations', label: 'Творчість' }] : []),
+    { id: 'comments', label: 'Коментарі' },
+    { id: 'reviews', label: 'Відгуки' },
+    { id: 'history', label: 'Історія' }
+  ], [user, isOwnProfile]);
+
+  // Functions
+  const fetchMyWorks = async () => {
+    if (!user?._id) return;
+    setIsMyWorksLoading(true);
+    try {
+      const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
+      const [mangaRes, litRes, announceRes] = await Promise.all([
+        fetch(`${API_BASE}/api/manga/my-titles`, { headers }),
+        fetch(`${API_BASE}/api/literature`),
+        fetch(`${API_BASE}/api/announcements/author/${user._id}`)
+      ]);
+      
+      const mangaData = await mangaRes.json();
+      const litData = await litRes.json();
+      const announceData = await announceRes.json();
+      
+      let myManga = [];
+      let myLit = [];
+
+      if (mangaData.success) myManga = mangaData.data;
+      if (litData.success) {
+        const profileUserId = user?._id || user?.id;
+        myLit = litData.data.filter(l => (l.author?._id || l.author) === profileUserId);
+      }
+      
+      setMyWorks({ manga: myManga, literature: myLit });
+      if (announceData.success) setMyAnnouncements(announceData.data);
+    } catch (err) {
+      console.error('Помилка завантаження робіт:', err);
+    } finally {
+      setIsMyWorksLoading(false);
     }
-  }, [profileTab, urlUsername]);
-  */
+  };
+
+  const handleDeleteClick = (id, type) => {
+    setItemToDelete({ id, type });
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const endpoint = itemToDelete.type === 'announcement' ? 'announcements' : 'manga';
+      const response = await fetch(`${API_BASE}/api/${endpoint}/${itemToDelete.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      if (response.ok) {
+        setToastMessage('Успішно видалено');
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+        if (itemToDelete.type === 'announcement') {
+          setMyAnnouncements(prev => prev.filter(a => a._id !== itemToDelete.id));
+        } else {
+          fetchMyWorks();
+        }
+      }
+    } catch (err) {
+      console.error('Помилка видалення:', err);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleTabChange = (tabId) => {
+    if (tabId === 'settings') {
+      setSearchParams({ tab: 'settings' });
+    } else {
+      setProfileTab(tabId);
+      setSearchParams({ tab: tabId });
+    }
+  };
+
+  const handleCloseSettings = () => {
+    setIsSettingsOpen(false);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('tab');
+    setSearchParams(newParams);
+  };
+
+  const handleSaveSuccess = () => {
+    setToastMessage('Зміни збережено!');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleAnnouncementSuccess = () => {
+    setToastMessage('Новину опубліковано!');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+    fetchMyWorks();
+  };
+
+  // Effects
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/api/users/profile/${urlUsername}`);
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.data);
+        } else {
+          setUser({ username: urlUsername, role: 'Гість', avatar: null, error: true });
+        }
+      } catch (err) {
+        console.error('Помилка завантаження профілю:', err);
+      }
+    };
+    if (urlUsername) fetchUserData();
+
+    const handleProfileUpdate = () => {
+      const loggedIn = JSON.parse(localStorage.getItem('user') || 'null');
+      if (loggedIn && (loggedIn.username === urlUsername || loggedIn.id === user?._id)) {
+        setUser(prev => ({ ...prev, ...loggedIn }));
+      }
+    };
+    window.addEventListener('profileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('profileUpdate', handleProfileUpdate);
+  }, [urlUsername]);
+
+  useEffect(() => {
+    if (profileTab === 'my-creations' && user?._id && (isOwnProfile || user?.role === 'author' || user?.role === 'admin')) {
+      fetchMyWorks();
+    }
+  }, [profileTab, user?._id, isOwnProfile]);
 
   useEffect(() => {
     if (profileTab === 'titles' && urlUsername) {
       const fetchTitles = async () => {
         setIsTitlesLoading(true);
         try {
-          // Отримуємо списки через бекенд для профілю (навіть чужого)
           const response = await fetch(`${API_BASE}/api/user-list/user/${urlUsername}`);
           const data = await response.json();
           
           if (data.success) {
-            const lists = data.data; // Масив { manga: { _id, title, ... }, status, ... }
+            const lists = data.data;
             if (lists.length === 0) {
               setUserTitles([]);
               return;
             }
 
             const userMangaDetails = lists
-              .filter(item => item.manga) // Відсікаємо якщо манґу видалили з бази
+              .filter(item => item.manga)
               .map(item => ({
                 ...item.manga,
                 statusInList: item.status
@@ -167,16 +290,6 @@ const Profile = () => {
         setIsHistoryLoading(true);
         try {
           const response = await fetch(`${API_BASE}/api/history/user/${user._id}`);
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          const contentType = response.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            throw new TypeError("Oops, we haven't got JSON!");
-          }
-
           const data = await response.json();
           if (data.success) {
             setUserHistory(data.data);
@@ -209,103 +322,6 @@ const Profile = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, [searchParams]);
-
-  const handleTabChange = (tabId) => {
-    if (tabId === 'settings') {
-      setSearchParams({ tab: 'settings' });
-    } else {
-      setProfileTab(tabId);
-      setSearchParams({ tab: tabId });
-    }
-  };
-
-  const handleCloseSettings = () => {
-    setIsSettingsOpen(false);
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete('tab');
-    setSearchParams(newParams);
-  };
-
-  const handleSaveSuccess = () => {
-    setToastMessage('Зміни збережено!');
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
-
-  const handleAnnouncementSuccess = () => {
-    setToastMessage('Новину опубліковано!');
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
-  };
-
-  useEffect(() => {
-    if (profileTab === 'my-creations' && (isOwnProfile || user?.role === 'author' || user?.role === 'admin')) {
-      const fetchMyWorks = async () => {
-        setIsMyWorksLoading(true);
-        try {
-          const headers = { 'Authorization': `Bearer ${localStorage.getItem('token')}` };
-          const [mangaRes, litRes] = await Promise.all([
-            fetch(`${API_BASE}/api/manga/my-titles`, { headers }),
-            fetch(`${API_BASE}/api/literature`)
-          ]);
-          
-          const mangaData = await mangaRes.json();
-          const litData = await litRes.json();
-          
-          let myManga = [];
-          let myLit = [];
-
-          if (mangaData.success) myManga = mangaData.data;
-          if (litData.success) {
-            const profileUserId = user?._id || user?.id;
-            myLit = litData.data.filter(l => (l.author?._id || l.author) === profileUserId);
-          }
-          
-          setMyWorks({ manga: myManga, literature: myLit });
-        } catch (err) {
-          console.error('Помилка завантаження робіт:', err);
-        } finally {
-          setIsMyWorksLoading(false);
-        }
-      };
-      fetchMyWorks();
-    }
-  }, [profileTab, user, isOwnProfile]);
-
-  const PROFILE_TABS = useMemo(() => [
-    { id: 'titles', label: 'Тайтли' },
-    { id: 'stats', label: 'Аналітика' },
-    ...(isOwnProfile || user?.role === 'author' || user?.role === 'admin' ? [{ id: 'my-creations', label: 'Творчість' }] : []),
-    { id: 'comments', label: 'Коментарі' },
-    { id: 'reviews', label: 'Відгуки' },
-    { id: 'history', label: 'Історія' }
-  ], [user, isOwnProfile]);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/api/users/profile/${urlUsername}`);
-        const data = await response.json();
-        if (data.success) {
-          setUser(data.data);
-        } else {
-          setUser({ username: urlUsername, role: 'Гість', avatar: null, error: true });
-        }
-      } catch (err) {
-        console.error('Помилка завантаження профілю:', err);
-      }
-    };
-    if (urlUsername) fetchUserData();
-
-    const handleProfileUpdate = () => {
-      const loggedIn = JSON.parse(localStorage.getItem('user') || 'null');
-      if (loggedIn && (loggedIn.username === urlUsername || loggedIn.id === user?._id)) {
-        setUser(prev => ({ ...prev, ...loggedIn }));
-      }
-    };
-    window.addEventListener('profileUpdate', handleProfileUpdate);
-    return () => window.removeEventListener('profileUpdate', handleProfileUpdate);
-  }, [urlUsername]);
 
   if (!user) return <div className={styles.profileWrapper}><Header /><div className={styles.loading}>Завантаження...</div></div>;
 
@@ -411,6 +427,41 @@ const Profile = () => {
                 </div>
               )}
             </div>
+
+            {(user?.role === 'author' || user?.role === 'admin') && (
+              <div className={styles.announcementsSection}>
+                <h3 className={styles.groupTitle}>Ваші новини тайтлів</h3>
+                {myAnnouncements.length > 0 ? (
+                  <div className={styles.announcementsList}>
+                    {myAnnouncements.map(ann => (
+                      <div key={ann._id} className={styles.announcementItem}>
+                        <div className={styles.annInfo}>
+                          <div className={styles.annHeader}>
+                            <span className={styles.annManga}>{ann.manga?.title || 'Видалений тайтл'}</span>
+                            <span className={styles.annDate}>{new Date(ann.createdAt).toLocaleDateString('uk-UA')}</span>
+                          </div>
+                          <h4 className={styles.annTitle}>{ann.title}</h4>
+                          <p className={styles.annSnippet}>{ann.content.substring(0, 100)}...</p>
+                        </div>
+                        {isOwnProfile && (
+                          <button 
+                            className={styles.deleteAnnBtn} 
+                            onClick={() => handleDeleteClick(ann._id, 'announcement')}
+                            title="Видалити новину"
+                          >
+                            <FiTrash2 size={18} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={styles.emptyAnn}>
+                    <p>Ви ще не публікували новин для своїх тайтлів.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
       case 'titles':
@@ -519,15 +570,29 @@ const Profile = () => {
         );
       case 'history':
         const filteredHistory = userHistory.filter(item => {
-          // Фільтр за типом твору (береться з populated поля manga.type)
           const matchType = historyTypeFilter === 'all' || item.manga?.type === historyTypeFilter;
-          
-          // Фільтр за розміщенням (якщо chapter існує — це читання в розділах, якщо немає — перегляд сторінки тайтлу)
           const matchPlacement = historyPlacementFilter === 'all' || 
             (historyPlacementFilter === 'chapter' ? item.chapter : !item.chapter);
-            
           return matchType && matchPlacement;
         });
+
+        const handleDeleteHistory = async (e, historyId) => {
+          e.stopPropagation();
+          try {
+            const response = await fetch(`${API_BASE}/api/history/${historyId}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (response.ok) {
+              setUserHistory(prev => prev.filter(h => h._id !== historyId));
+              setToastMessage('Запис видалено з історії');
+              setShowToast(true);
+              setTimeout(() => setShowToast(false), 3000);
+            }
+          } catch (err) {
+            console.error('Помилка видалення історії:', err);
+          }
+        };
 
         return (
           <div className={styles.historyWrapper}>
@@ -535,40 +600,58 @@ const Profile = () => {
               <div className={styles.loading}>Завантаження історії...</div>
             ) : filteredHistory.length > 0 ? (
               <div className={styles.historyGrid}>
-                {filteredHistory.map(item => (
-                  <div 
-                    key={item._id} 
-                    className={styles.historyCard}
-                    onClick={() => {
-                      if (item.chapter) {
-                        navigate(`/manga/${item.manga?._id}/read/${item.chapter?._id}`);
-                      } else {
-                        navigate(`/manga/${item.manga?._id}`);
-                      }
-                    }}
-                  >
-                    <div className={styles.historyCover}>
-                      <img src={item.manga?.coverImage ? (item.manga.coverImage.startsWith('http') ? item.manga.coverImage : `${API_BASE}${item.manga.coverImage}`) : ''} alt={item.manga?.title} />
-                      <div className={styles.historyOverlay}>
-                        <FiBookOpen size={24} />
+                {filteredHistory.map(item => {
+                  const isDeleted = !item.manga;
+                  return (
+                    <div 
+                      key={item._id} 
+                      className={`${styles.historyCard} ${isDeleted ? styles.deletedCard : ''}`}
+                      onClick={() => {
+                        if (isDeleted) return;
+                        if (item.chapter) {
+                          navigate(`/manga/${item.manga?._id}/read/${item.chapter?._id}`);
+                        } else {
+                          navigate(`/manga/${item.manga?._id}`);
+                        }
+                      }}
+                    >
+                      <div className={styles.historyCover}>
+                        <img 
+                          src={item.manga?.coverImage ? (item.manga.coverImage.startsWith('http') ? item.manga.coverImage : `${API_BASE}${item.manga.coverImage}`) : '/no-literature-cover.jpg'} 
+                          alt={item.manga?.title || 'Видалений твір'} 
+                        />
+                        <div className={styles.historyOverlay}>
+                          {isDeleted ? <FiTrash2 size={24} /> : <FiBookOpen size={24} />}
+                        </div>
                       </div>
-                    </div>
-                    <div className={styles.historyInfo}>
-                      <h3 className={styles.historyMangaTitle}>{item.manga?.title || 'Видалений твір'}</h3>
-                      <div className={styles.historyChapterDetails}>
-                        {item.chapter ? (
-                          <>
-                            <span className={styles.historyChapterNumber}>Розділ {item.chapter?.number}</span>
-                            {item.chapter?.title && <span className={styles.historyChapterTitle}> - {item.chapter.title}</span>}
-                          </>
-                        ) : (
-                          <span className={styles.historyChapterNumber}>Перегляд тайтлу</span>
-                        )}
+                      <div className={styles.historyInfo}>
+                        <h3 className={styles.historyMangaTitle}>
+                          {item.manga?.title || 'Видалений твір'}
+                        </h3>
+                        <div className={styles.historyChapterDetails}>
+                          {item.chapter ? (
+                            <>
+                              <span className={styles.historyChapterNumber}>Розділ {item.chapter?.number}</span>
+                              {item.chapter?.title && <span className={styles.historyChapterTitle}> - {item.chapter.title}</span>}
+                            </>
+                          ) : (
+                            <span className={styles.historyChapterNumber}>Перегляд тайтлу</span>
+                          )}
+                        </div>
+                        <span className={styles.historyDate}>Прочитано: {new Date(item.readAt).toLocaleDateString('uk-UA')}</span>
                       </div>
-                      <span className={styles.historyDate}>Прочитано: {new Date(item.readAt).toLocaleDateString('uk-UA')}</span>
+                      {isOwnProfile && (
+                        <button 
+                          className={styles.deleteHistoryBtn} 
+                          onClick={(e) => handleDeleteHistory(e, item._id)}
+                          title="Прибрати з історії"
+                        >
+                          <FiTrash2 size={16} />
+                        </button>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className={styles.emptyState}>
@@ -653,6 +736,17 @@ const Profile = () => {
       <ProfileSettingsModal isOpen={isSettingsOpen} onClose={handleCloseSettings} user={user} onSaveSuccess={handleSaveSuccess} />
       <CreateAnnouncementModal isOpen={isAnnouncementOpen} onClose={() => setIsAnnouncementOpen(false)} onSaveSuccess={handleAnnouncementSuccess} />
       <div className={`${styles.toast} ${showToast ? styles.show : ''}`}><FiCheckCircle className={styles.toastIcon} /><span>{toastMessage}</span></div>
+      
+      <ConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        title={itemToDelete?.type === 'announcement' ? 'Видалити новину?' : 'Видалити твір?'}
+        message={itemToDelete?.type === 'announcement' ? 'Ви впевнені, що хочете видалити цю новину?' : 'Ви впевнені, що хочете видалити цей твір НАЗАВЖДИ?'}
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          setItemToDelete(null);
+        }}
+      />
     </div>
   );
 };
